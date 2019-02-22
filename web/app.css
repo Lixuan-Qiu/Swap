@@ -1,0 +1,31 @@
+body {
+    font-family: 'Fresca', sans-serif;
+    margin: 0;
+}
+
+#showFormButton {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+
+input, label, textarea {
+    display: block;
+    width: 200px;
+}
+
+textarea {
+    margin-bottom: 5px;
+}
+
+
+label, input, textarea, #addButton, #editButton {
+    margin-left: 15px;
+}
+
+#editCreated {
+    display: block;
+    margin-bottom: 5px;
+    margin-left: 15px;
+}
