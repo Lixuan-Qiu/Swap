@@ -1,85 +1,60 @@
-/// <reference path="ts/EditEntryForm.ts"/>
-/// <reference path="ts/NewEntryForm.ts"/>
-/// <reference path="ts/ElementList.ts"/>
-/// <reference path="ts/Navbar.ts"/>
-/// <reference path="ts/Login.ts"/>
-/// <reference path="ts/Profile.ts"/>
-/// <reference path="ts/EditProfile.ts"/>
-// / <reference path="ts/Account.ts"/>
-/// <reference path="ts/UpdateInfo.ts"/>
 
-// Prevent compiler errors when using jQuery.  "$" will be given a type of 
-// "any", so that we can use it anywhere, and assume it has any fields or
-// methods, without the compiler producing an error.
-let $: any;
-var profile: any;
-// let googleUser: any;
-const backendUrl = "https://desolate-eyrie-25147.herokuapp.com";
+var $: any;
+var msg: Message;
+var add: Add;
+var username: any;
+var userid: any;
+var Handlebars: any;
+
+//Add class provides the function for posting a message to the board
+class Add {
+    constructor() {
+        $("#Add-newMessageBtn").click(this.addMsg);
+    }
+    //sned user's message and username to backend
+    private addMsg() {
+        let newMsg = $("#Add-newMessage").val();
+        $.ajax({
+            type: "POST",
+            url: "/newMessage",
+            dataType: "json",
+            data: JSON.stringify({ mMessage: newMsg}),
+            success: msg.refresh
+        });
+
+    }
+}
+//Message class provides methods for refresh the whole list of messages
+class Message {
+    //get all the information 
+    refresh() {
+        $.ajax({
+            type: "GET",
+            url: "/messages",
+            dataType: "json",
+            success: msg.updateMessage
+        });
+    }
+
+    //clear all the messages and load the most updated messages
+    private updateMessage(data: any) {
+        if(data.mStatus=="error"){
+            console.log("UpdateFail");
+        }
+
+        $("#Message").html(Handlebars.templates["Message.hb"](data));
+    }
 
 
-// Prevent compiler errors when using Handlebars
-let Handlebars: any;
+}
+//on load function creates all the objects
+$(function () {
+    msg = new Message();
+    add = new Add();
+    setInterval(function(){ 
+        console.log("Refresh every 2 s" );
 
-// a global for the EditEntryForm of the program.  See newEntryForm for 
-// explanation 
-let editEntryForm: EditEntryForm;
-
-/**
- * For the yolo login in html to work the onSignIn function must be
- * declared at the run time
- * Login.onSignIn will on be created after the Login.refresh is called,
- * which will be created after the login already been executed
- * @param googleUser data return from yolo login
- */
-// function onSignIn(googleUser) {
-//     // Useful data for your client-side scripts:
-//     profile = googleUser.getBasicProfile();
-//     console.log("ID: " + profile.getId()); // Don't send this directly to your server!
-//     console.log('Full Name: ' + profile.getName());
-//     console.log('Given Name: ' + profile.getGivenName());
-//     console.log('Family Name: ' + profile.getFamilyName());
-//     console.log("Image URL: " + profile.getImageUrl());
-//     console.log("Email: " + profile.getEmail());
-//     // The ID token you need to pass to your backend:
-//     profile.username = profile.getName();
-//     profile.email = profile.getEmail();
-//     // The ID token you need to pass to your backend:
-//     var id_token = googleUser.getAuthResponse().id_token;
-//     profile.id_token = id_token;
-//     console.log("ID Token: " + id_token);
-
-//     //because of the time difference between when each instance of the classes
-//     //Login, Navbar, and etc, a timeout is set outside their class so the function
-//     //is called properly 
-//     setTimeout(() => {
-//         Login.isLoggedIn = true;
-//         Navbar.signedIn();
-//         $.ajax({
-//             type: "POST",
-//             url: "/login",
-//             dataType: "json",
-//             data: JSON.stringify({ uUsername: profile.username, token: profile.id_token}),
-//             success: Login.onServerSignIn,
-//         })
-//     }, 1000);
-// };
-
-// Run some configuration code when the web page loads
-$(document).ready(function () {
-
-    Navbar.refresh();
-    NewEntryForm.refresh();
-    Login.refresh();
-    ElementList.refresh();
-    Profile.refresh();
-
-    // Account.refresh();
-    // CreateAccount.refresh();
-    // Create the object that controls the "Edit Entry" form
-    //editEntryForm = new EditEntryForm();
-    EditEntryForm.refresh();
-    EditProfile.refresh();
-    // UpdateInfo.refresh();
-    // set up initial UI state
-    $("#editElement").hide();
+        msg.refresh();
+    }, 10000);
+    
 });
