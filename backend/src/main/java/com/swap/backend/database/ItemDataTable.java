@@ -1,5 +1,6 @@
 package com.swap.backend.database;
 
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -7,43 +8,7 @@ import java.util.ArrayList;
 /**
  * ItemData will represent the basic data that will be used for any given item
  */
-public class ItemData {
-    /**
-     * The ID of the item
-     */
-    int itemId;
-
-    /**
-     * The title of the item
-     */
-    String itemTitle;
-
-    /**
-     * The description of the item
-     */
-    String itemDescription;
-
-    /**
-     * The username of the seller of the item
-     */
-    String itemSeller;
-
-    /**
-     * The seller of the item
-     */
-    float itemPrice;
-
-    /**
-     * Construct a ItemData object by providing values for its fields
-     */
-    public ItemData(int id, String title, String description, String seller, float price) {
-        itemId = id;
-        itemTitle = title;
-        itemDescription = description;
-        itemSeller = seller;
-        itemPrice = price;
-    }
-
+public class ItemDataTable {
      // ---------------------Methods for ItemData---------------------
 
     /**
@@ -55,7 +20,7 @@ public class ItemData {
     ArrayList<ItemData> selectAllItems() {
         ArrayList<ItemData> res = new ArrayList<ItemData>();
         try {
-            ResultSet rs = Database.p_selectAllItems.executeQuery();
+            ResultSet rs = Database.p_selectAllItemData.executeQuery();
             while (rs.next()) {
                 res.add(new ItemData(rs.getInt("id"), rs.getString("title"), null, null, 0.f));
             }
@@ -68,6 +33,27 @@ public class ItemData {
     }
 
     /**
+     * Query the database for a list of all items in our homepage along with its
+     * description
+     * 
+     * @return All rows, as an ArrayList
+     */
+    ArrayList<ItemData> selectAllItemDatabyId(Array idList) {
+        ArrayList<ItemData> res = new ArrayList<ItemData>();
+        try {
+            Database.p_selectAllItemDataById.setArray(1, idList);
+            ResultSet rs = Database.p_selectAllItemDataById.executeQuery();
+            while (rs.next()) {
+                res.add(new ItemData(rs.getInt("id"), rs.getString("title"), null, null, 0.f));
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }    
+    /**
      * Get all data for a specific item
      * 
      * @param id The id of the item being requested
@@ -77,8 +63,8 @@ public class ItemData {
     ItemData selectOneItem(int id) {
         ItemData res = null;
         try {
-            Database.p_selectOneItem.setInt(1, id);
-            ResultSet rs = Database.p_selectOneItem.executeQuery();
+            Database.p_selectOneItemData.setInt(1, id);
+            ResultSet rs = Database.p_selectOneItemData.executeQuery();
             if (rs.next()) {
                 res = new ItemData(rs.getInt("id"), rs.getString("title"), rs.getString("description"),
                         rs.getString("seller"),  rs.getFloat("price"));
@@ -99,14 +85,14 @@ public class ItemData {
      * 
      * @return The number of rows that were updated. -1 indicates an error.
      */
-    int createNewItem(String title, String description, String seller, float price) {
+    int insertNewItemData(String title, String description, String seller, float price) {
         int count = 0;
         try {
-            Database.p_createNewItem.setString(1, title);
-            Database.p_createNewItem.setString(2, description);
-            Database.p_createNewItem.setString(3, seller);
-            Database.p_createNewItem.setFloat(4, price);
-            count += Database.p_createNewItem.executeUpdate();
+            Database.p_insertNewItemData.setString(1, title);
+            Database.p_insertNewItemData.setString(2, description);
+            Database.p_insertNewItemData.setString(3, seller);
+            Database.p_insertNewItemData.setFloat(4, price);
+            count += Database.p_insertNewItemData.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -123,8 +109,8 @@ public class ItemData {
     int deleteItem(int id) {
         int res = -1;
         try {
-            Database.p_deleteOneItem.setInt(1, id);
-            res = Database.p_deleteOneItem.executeUpdate();
+            Database.p_deleteOneItemData.setInt(1, id);
+            res = Database.p_deleteOneItemData.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -134,10 +120,10 @@ public class ItemData {
     /**
      * Create the item table. If it already exists, this will print an error
      */
-    void createItemTable() {
+    void createItemDataTable() {
 
         try {
-            Database.p_createItemTable.execute();
+            Database.p_createItemDataTable.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -147,9 +133,9 @@ public class ItemData {
      * Remove the item table from the database. If it does not exist, this will
      * print an error.
      */
-    void dropItemTable() {
+    void dropItemDataTable() {
         try {
-            Database.p_dropItemTable.execute();
+            Database.p_dropItemDataTable.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }

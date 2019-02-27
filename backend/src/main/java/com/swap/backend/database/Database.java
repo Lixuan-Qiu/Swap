@@ -9,45 +9,105 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import com.heroku.api.request.RequestConfig.Data;
+
 public class Database 
 {
+    /****************************************************************/
+    /****************************************************************/
+    /*******                                                  *******/
+    /*******                ITEM DATA TABLE                   *******/
+    /*******                                                  *******/
+    /****************************************************************/
+    /****************************************************************/
+
+    /**
+     * A prepared statement for getting all items in the database
+     */
+    static PreparedStatement p_selectAllItemData;
+
+    /**
+     * A prepared statement for getting one item in the database
+     */
+    static PreparedStatement p_selectOneItemData;
+
+    /**
+     * A prepared statement for getting all item by provided id list
+     */
+    static PreparedStatement p_selectAllItemDataById;
+
+    /**
+     * A prepared statement for deleting a item from the database
+     */
+    static PreparedStatement p_deleteOneItemData;
+
+    /**
+     * A prepared statement for creating a new item in the database
+     */
+    static PreparedStatement p_insertNewItemData;
+
+    /**
+     * A prepared statement for creating the item table in our database
+     */
+    static PreparedStatement p_createItemDataTable;
+
+    /**
+     * A prepared statement for dropping the item table in our database
+     */
+    static PreparedStatement p_dropItemDataTable;
+
+
+    /****************************************************************/
+    /****************************************************************/
+    /*******                                                  *******/
+    /*******            ITEM CATEGORY DATA TABLE              *******/
+    /*******                                                  *******/
+    /****************************************************************/
+    /****************************************************************/
+
+    /**
+     * A prepared statement for creating the item category table in our database
+     */
+    static PreparedStatement p_createItemCategoryDataTable;
+
+    /**
+     * A prepared statement for dropping the item category table in our database
+     */
+    static PreparedStatement p_dropItemCategoryDataTable;
+    
+    /**
+     * A prepared statement for selecting all items in Car category
+     */
+    static PreparedStatement p_selectAllCar;
+
+    /**
+     * A prepared statement for selecting all items in school category
+     */
+    static PreparedStatement p_selectAllScool;
+
+    /**
+     * A prepared statement for selecting all items in electronics category
+     */
+    static PreparedStatement p_selectAllElectronics;
+
+    /**
+     * A prepared statement for selecting all items in furniture category
+     */
+    static PreparedStatement p_selectAllFurniture;
+
+    /****************************************************************/
+    /****************************************************************/
+    /*******                                                  *******/
+    /*******                DATABASE CONNECTION               *******/
+    /*******                                                  *******/
+    /****************************************************************/
+    /****************************************************************/
+
     /**
      * The connection to the database.  When there is no connection, it should
      * be null.  Otherwise, there is a valid open connection
      */
     private Connection mConnection;
-
-    //bunch of prepared statements 
-
-    /**
-     * A prepared statement for getting all items in the database
-     */
-    protected static PreparedStatement p_selectAllItems;
-
-    /**
-     * A prepared statement for getting one item in the database
-     */
-    protected static PreparedStatement p_selectOneItem;
-
-    /**
-     * A prepared statement for deleting a item from the database
-     */
-    protected static PreparedStatement p_deleteOneItem;
-
-    /**
-     * A prepared statement for creating a new item in the database
-     */
-    protected static PreparedStatement p_createNewItem;
-
-    /**
-     * A prepared statement for creating the item table in our database
-     */
-    protected static PreparedStatement p_createItemTable;
-
-    /**
-     * A prepared statement for dropping the item table in our database
-     */
-    protected static PreparedStatement p_dropItemTable;
 
     /**
      * The Database constructor is private: we only create Database objects 
@@ -101,25 +161,32 @@ public class Database
         // Attempt to create all of our prepared statements.  If any of these fail, the whole getDatabase() call should fail
         try 
         {
-            // NB: we can easily get ourselves in trouble here by typing the
-            //     SQL incorrectly.  We really should have things like "tblData"
-            //     as constants, and then build the strings for the statements
-            //     from those constants.
-
-            // Note: no "IF NOT EXISTS" or "IF EXISTS" checks on table 
-            // creation/deletion, so multiple executions will cause an exception
-            Database.p_createItemTable = db.mConnection.prepareStatement(
-                    "CREATE TABLE itemData (id SERIAL PRIMARY KEY, title VARCHAR(50) NOT NULL, description VARCHAR(500) NOT NULL)"
-                    +"seller VARCHAR(50) NOT NULL, price FLOAT");
-            Database.p_dropItemTable = db.mConnection.prepareStatement("DROP TABLE itemData");
-
+            //////////////////////////////////////////
+            //             Item Data Table
+            //////////////////////////////////////////
+            Database.p_createItemDataTable = db.mConnection.prepareStatement(
+                    "CREATE TABLE itemData (id SERIAL PRIMARY KEY, title VARCHAR(50) NOT NULL, description VARCHAR(500) NOT NULL),"
+                    + "seller VARCHAR(50) NOT NULL, price FLOAT");
+            Database.p_dropItemDataTable = db.mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
+            Database.p_deleteOneItemData = db.mConnection.prepareStatement("DELETE FROM itemData WHERE id = ?");
+            Database.p_insertNewItemData = db.mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?)");
+            Database.p_selectAllItemData = db.mConnection.prepareStatement("SELECT id, title FROM itemData");
+            Database.p_selectOneItemData = db.mConnection.prepareStatement("SELECT * from itemData WHERE id=?");
+            Database.p_selectAllItemDataById = db.mConnection.prepareStatement("SELECT id, title FROM itemData WHERE id in ?");
 
-            Database.p_deleteOneItem = db.mConnection.prepareStatement("DELETE FROM itemData WHERE id = ?");
-            Database.p_createNewItem = db.mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?)");
-            Database.p_selectAllItems = db.mConnection.prepareStatement("SELECT id, title FROM itemData");
-            Database.p_selectOneItem = db.mConnection.prepareStatement("SELECT * from itemData WHERE id=?");
-        
+            //////////////////////////////////////////
+            //        Item Category Data Table
+            //////////////////////////////////////////
+            Database.p_createItemCategoryDataTable = db.mConnection.prepareStatement(
+                    "CREATE TABLE itemCategoryData (id SERIAL PRIMARY KEY, category VARCHAR(200),"
+                    + "school BIT, car BIT, electronics BIT, furniture BIT");
+            Database.p_dropItemDataTable = db.mConnection.prepareStatement("DROP TABLE itemCategoryData");
+            // Standard CRUD operations for item category data
+            Database.p_selectAllElectronics = db.mConnection.prepareStatement("SELECT id from itemCategoryData WHERE electronics = 1");
+            Database.p_selectAllFurniture = db.mConnection.prepareStatement("SELECT id from itemCategoryData WHERE furniture = 1");
+            Database.p_selectAllScool = db.mConnection.prepareStatement("SELECT id from itemCategoryData WHERE school = 1");
+            Database.p_selectAllCar = db.mConnection.prepareStatement("SELECT id from itemCategoryData WHERE car = 1");
         } 
         catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -159,7 +226,4 @@ public class Database
         mConnection = null;
         return true;
     }
-
-
-   
 }
