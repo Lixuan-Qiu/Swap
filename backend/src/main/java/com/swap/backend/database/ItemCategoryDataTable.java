@@ -1,5 +1,6 @@
 package com.swap.backend.database;
 
+import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,18 +15,69 @@ public class ItemCategoryDataTable {
     }
 
     ArrayList<ItemData> selectAllCar() {
-        return null;
+        try {
+            ResultSet rs = Database.p_selectAllCar.executeQuery();
+            ArrayList<Integer> idList_1 = new ArrayList<Integer>();
+            while (rs.next()) {
+                idList_1.add(rs.getInt("id"));
+            }
+            rs.close();
+            Array idList = Database.ConvertToArray(idList_1);
+            return Database.getItemDT().selectAllItemDatabyId(idList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     ArrayList<ItemData> selectAllFurniture() {
-        return null;
+        try {
+            ResultSet rs = Database.p_selectAllFurniture.executeQuery();
+            ArrayList<Integer> idList_1 = new ArrayList<Integer>();
+            while (rs.next()) {
+                idList_1.add(rs.getInt("id"));
+            }
+            rs.close();
+            Array idList = Database.ConvertToArray(idList_1);
+            return Database.getItemDT().selectAllItemDatabyId(idList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
     ArrayList<ItemData> selectAllElectrnics() {
-        return null;
+        try {
+            ResultSet rs = Database.p_selectAllCar.executeQuery();
+            ArrayList<Integer> idList_1 = new ArrayList<Integer>();
+            while (rs.next()) {
+                idList_1.add(rs.getInt("id"));
+            }
+            rs.close();
+            Array idList = Database.ConvertToArray(idList_1);
+            return Database.getItemDT().selectAllItemDatabyId(idList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
     ArrayList<ItemData> selectAllSchool() {
-        return null;
+        try {
+            ResultSet rs = Database.p_selectAllCar.executeQuery();
+            ArrayList<Integer> idList_1 = new ArrayList<Integer>();
+            while (rs.next()) {
+                idList_1.add(rs.getInt("id"));
+            }
+            rs.close();
+            Array idList = Database.ConvertToArray(idList_1);
+            return Database.getItemDT().selectAllItemDatabyId(idList);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
     /**
      * Create the item table. If it already exists, this will print an error
      */

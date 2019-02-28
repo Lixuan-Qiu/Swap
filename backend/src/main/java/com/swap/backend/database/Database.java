@@ -2,6 +2,7 @@ package com.swap.backend.database;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -107,17 +108,17 @@ public class Database
      * The connection to the database.  When there is no connection, it should
      * be null.  Otherwise, there is a valid open connection
      */
-    private Connection mConnection;
+    private static Connection mConnection;
 
     /**
      * priavate instance for accessing and calling functions in ItemCategoryDataTable
      */
-    private ItemCategoryDataTable itemCDT;
+    private static ItemCategoryDataTable itemCDT;
 
     /**
      * priavate instance for accessing and calling functions in ItemDataTable
      */
-    private ItemDataTable itemDT;
+    private static ItemDataTable itemDT;
 
     /**
      * The Database constructor is private: we only create Database objects 
@@ -132,17 +133,17 @@ public class Database
     /**
      * getter for private field itemCDT
      */
-    public ItemCategoryDataTable getItemCDT(){
+    public static ItemCategoryDataTable getItemCDT(){
         return itemCDT;
     }
 
     /**
      * getter for private field itemDT
      */
-    public ItemDataTable getItemDT(){
+    public static ItemDataTable getItemDT(){
         return itemDT;
     }
-    
+
     /**
      * @param url the url to connect to database
      */
@@ -165,7 +166,7 @@ public class Database
                 System.err.println("Error: DriverManager.getConnection() returned a null object");
                 return null;
             }
-            db.mConnection = conn;
+            mConnection = conn;
         } 
         catch (SQLException e) 
         {
@@ -190,29 +191,29 @@ public class Database
             //////////////////////////////////////////
             //             Item Data Table
             //////////////////////////////////////////
-            Database.p_createItemDataTable = db.mConnection.prepareStatement(
+            Database.p_createItemDataTable = mConnection.prepareStatement(
                     "CREATE TABLE itemData (id SERIAL PRIMARY KEY, title VARCHAR(50) NOT NULL, description VARCHAR(500) NOT NULL),"
                     + "seller VARCHAR(50) NOT NULL, price FLOAT");
-            Database.p_dropItemDataTable = db.mConnection.prepareStatement("DROP TABLE itemData");
+            Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
-            Database.p_deleteOneItemData = db.mConnection.prepareStatement("DELETE FROM itemData WHERE id = ?");
-            Database.p_insertNewItemData = db.mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?)");
-            Database.p_selectAllItemData = db.mConnection.prepareStatement("SELECT id, title FROM itemData");
-            Database.p_selectOneItemData = db.mConnection.prepareStatement("SELECT * from itemData WHERE id=?");
-            Database.p_selectAllItemDataById = db.mConnection.prepareStatement("SELECT id, title FROM itemData WHERE id in ?");
+            Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE id = ?");
+            Database.p_insertNewItemData = mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?)");
+            Database.p_selectAllItemData = mConnection.prepareStatement("SELECT id, title FROM itemData");
+            Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * from itemData WHERE id=?");
+            Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT id, title FROM itemData WHERE id in ?");
 
             //////////////////////////////////////////
             //        Item Category Data Table
             //////////////////////////////////////////
-            Database.p_createItemCategoryDataTable = db.mConnection.prepareStatement(
+            Database.p_createItemCategoryDataTable = mConnection.prepareStatement(
                     "CREATE TABLE itemCategoryData (id SERIAL PRIMARY KEY, category VARCHAR(200),"
                     + "school BIT, car BIT, electronics BIT, furniture BIT");
-            Database.p_dropItemDataTable = db.mConnection.prepareStatement("DROP TABLE itemCategoryData");
+            Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemCategoryData");
             // Standard CRUD operations for item category data
-            Database.p_selectAllElectronics = db.mConnection.prepareStatement("SELECT id from itemCategoryData WHERE electronics = 1");
-            Database.p_selectAllFurniture = db.mConnection.prepareStatement("SELECT id from itemCategoryData WHERE furniture = 1");
-            Database.p_selectAllScool = db.mConnection.prepareStatement("SELECT id from itemCategoryData WHERE school = 1");
-            Database.p_selectAllCar = db.mConnection.prepareStatement("SELECT id from itemCategoryData WHERE car = 1");
+            Database.p_selectAllElectronics = mConnection.prepareStatement("SELECT id from itemCategoryData WHERE electronics = 1");
+            Database.p_selectAllFurniture = mConnection.prepareStatement("SELECT id from itemCategoryData WHERE furniture = 1");
+            Database.p_selectAllScool = mConnection.prepareStatement("SELECT id from itemCategoryData WHERE school = 1");
+            Database.p_selectAllCar = mConnection.prepareStatement("SELECT id from itemCategoryData WHERE car = 1");
         } 
         catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -251,5 +252,14 @@ public class Database
         }
         mConnection = null;
         return true;
+    }
+
+    static Array ConvertToArray(ArrayList<Integer> res){
+        try{
+            return mConnection.createArrayOf("INTEGER", res.toArray());
+        }
+        catch(SQLException e){
+            return null;
+        }
     }
 }
