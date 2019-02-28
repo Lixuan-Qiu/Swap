@@ -9,6 +9,9 @@ import java.util.ArrayList;
  * ItemData will represent the basic data that will be used for any given item
  */
 public class ItemDataTable {
+    public ItemDataTable(){
+        
+    }
      // ---------------------Methods for ItemData---------------------
 
     /**
