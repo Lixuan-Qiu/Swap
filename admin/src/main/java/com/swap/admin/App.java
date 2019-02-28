@@ -28,7 +28,7 @@ public class App {
         System.out.println("  [+] Insert a new row");
         System.out.println("  [~] Update a row");
         System.out.println("  [q] Quit Program");
-        System.out.println("  [?] Help (this message)");
+        System.out.println("  [?] Help ( this message)");
     }
 
     /**
