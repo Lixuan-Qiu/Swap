@@ -110,13 +110,39 @@ public class Database
     private Connection mConnection;
 
     /**
+     * priavate instance for accessing and calling functions in ItemCategoryDataTable
+     */
+    private ItemCategoryDataTable itemCDT;
+
+    /**
+     * priavate instance for accessing and calling functions in ItemDataTable
+     */
+    private ItemDataTable itemDT;
+
+    /**
      * The Database constructor is private: we only create Database objects 
      * through the getDatabase() method.
      */
     private Database() 
     {
+        itemCDT = new ItemCategoryDataTable();
+        itemDT = new ItemDataTable();
     }
 
+    /**
+     * getter for private field itemCDT
+     */
+    public ItemCategoryDataTable getItemCDT(){
+        return itemCDT;
+    }
+
+    /**
+     * getter for private field itemDT
+     */
+    public ItemDataTable getItemDT(){
+        return itemDT;
+    }
+    
     /**
      * @param url the url to connect to database
      */

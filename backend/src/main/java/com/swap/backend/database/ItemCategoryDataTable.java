@@ -9,10 +9,23 @@ import java.util.ArrayList;
  * ItemData will represent the basic data that will be used for any given item
  */
 public class ItemCategoryDataTable {
+    public ItemCategoryDataTable() {
+        
+    }
 
+    ArrayList<ItemData> selectAllCar() {
+        return null;
+    }
 
-
-
+    ArrayList<ItemData> selectAllFurniture() {
+        return null;
+    }
+    ArrayList<ItemData> selectAllElectrnics() {
+        return null;
+    }
+    ArrayList<ItemData> selectAllSchool() {
+        return null;
+    }
     /**
      * Create the item table. If it already exists, this will print an error
      */
