@@ -18,7 +18,7 @@
             {{#each mData}}
             <tr>
             <td>
-            <p class="Message-scroll">{{this.mMessage}}</p>
+            <p id={{this.itemId}}class="itemList-scroll">{{this.itemDescription}}</p>
             </td>
             </tr>
             {{/each}}

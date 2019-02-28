@@ -2,30 +2,26 @@ body {
     font-family: 'Fresca', sans-serif;
     margin: 0;
 }
-
-#showFormButton {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-}
-
-
-input, label, textarea {
-    display: block;
-    width: 200px;
-}
-
-textarea {
-    margin-bottom: 5px;
-}
-
-
-label, input, textarea, #addButton, #editButton {
-    margin-left: 15px;
-}
-
-#editCreated {
-    display: block;
-    margin-bottom: 5px;
-    margin-left: 15px;
-}
+.topnav {
+    overflow: hidden;
+    background-color: burlywood;
+  }
+  
+  .topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+  
+  .topnav a:hover {
+    background-color: #ddd;
+    color: brown;
+  }
+  
+  .topnav a.active {
+    background-color: #4CAF50;
+    color: white;
+  }

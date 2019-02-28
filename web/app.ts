@@ -1,6 +1,6 @@
 
 var $: any;
-var msg: Message;
+var item: Item;
 var add: Add;
 var username: any;
 var userid: any;
@@ -9,52 +9,64 @@ var Handlebars: any;
 //Add class provides the function for posting a message to the board
 class Add {
     constructor() {
-        $("#Add-newMessageBtn").click(this.addMsg);
+        $("#Add-newMessageBtn").click(this.addItem);
     }
     //sned user's message and username to backend
-    private addMsg() {
-        let newMsg = $("#Add-newMessage").val();
+    private addItem() {
+        let newDescripition = $("#Add-newItem").val();
         $.ajax({
             type: "POST",
-            url: "/newMessage",
+            url: "/newItem",
             dataType: "json",
-            data: JSON.stringify({ mMessage: newMsg}),
-            success: msg.refresh
+            data: JSON.stringify({ description: newDescripition}),
+            success: item.refresh
         });
-
     }
 }
 //Message class provides methods for refresh the whole list of messages
-class Message {
+class Item {
+    constructor() {
+        $("#category-all").click(this.getItemListByName("all"));
+        $("#category-school").click(this.getItemListByName("school"));
+        $("#category-car").click(this.getItemListByName("car"));
+        $("#category-electronics").click(this.getItemListByName("electronics"));
+        $("#category-furniture").click(this.getItemListByName("furniture"));
+    }
     //get all the information 
     refresh() {
         $.ajax({
             type: "GET",
-            url: "/messages",
+            url: "/itemList/"+"all",
             dataType: "json",
-            success: msg.updateMessage
+            success: item.updateItemList
         });
     }
-
     //clear all the messages and load the most updated messages
-    private updateMessage(data: any) {
+    private updateItemList(data:any) {
+        /*
         if(data.mStatus=="error"){
             console.log("UpdateFail");
         }
-
-        $("#Message").html(Handlebars.templates["Message.hb"](data));
+        */
+        $("#Message").html(Handlebars.templates["itemList.hb"](data));
     }
-
-
+    private getItemListByName(name){
+        $.ajax({
+            type: "GET",
+            url: "/itemList/" + name,
+            dataType: "json",
+            success: item.updateItemList
+        });
+    }
 }
 //on load function creates all the objects
 $(function () {
-    msg = new Message();
+    item = new Item();
     add = new Add();
     setInterval(function(){ 
         console.log("Refresh every 2 s" );
 
-        msg.refresh();
+        item.refresh();
     }, 10000);
     
 });
