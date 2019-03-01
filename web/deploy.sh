@@ -18,6 +18,7 @@ mkdir $TARGETFOLDER/$WEBFOLDERNAME
 
 # there are many more steps to be done.  For now, we will just copy an HTML file
 cp index.html $TARGETFOLDER/$WEBFOLDERNAME
+cp item.html $TARGETFOLDER/$WEBFOLDERNAME
 # step 2: update our npm dependencies
 npm update
 
@@ -35,12 +36,5 @@ node_modules/typescript/bin/tsc app.ts --strict --outFile $TARGETFOLDER/$WEBFOLD
 cp app.css $TARGETFOLDER/$WEBFOLDERNAME
 
 # step 6: compile handlebars templates to the deploy folder
-node_modules/handlebars/bin/handlebars hb/Message.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js
-
-# set up Jasmine
-node_modules/typescript/bin/tsc apptest.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/apptest.js
-cp spec_runner.html $TARGETFOLDER/$WEBFOLDERNAME
-cp node_modules/jasmine-core/lib/jasmine-core/jasmine.css $TARGETFOLDER/$WEBFOLDERNAME
-cp node_modules/jasmine-core/lib/jasmine-core/jasmine.js $TARGETFOLDER/$WEBFOLDERNAME
-cp node_modules/jasmine-core/lib/jasmine-core/boot.js $TARGETFOLDER/$WEBFOLDERNAME
-cp node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js $TARGETFOLDER/$WEBFOLDERNAME
+node_modules/handlebars/bin/handlebars hb/itemList.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js
+node_modules/handlebars/bin/handlebars hb/itemInfo.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js

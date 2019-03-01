@@ -49,15 +49,32 @@ class Item {
         }
         */
         $("#Message").html(Handlebars.templates["itemList.hb"](data));
+        for(let i = 0; i<data.itemId.length;i++){
+            $("#" + data.itemId[0]).click(this.getItemInfo(data.itemId[0]))
+        }
     }
     private getItemListByName(name){
+        if(name.equals("all"))
+            this.refresh();
         $.ajax({
             type: "GET",
-            url: "/itemList/" + name,
+            url: "/itemList/:" + name,
             dataType: "json",
             success: item.updateItemList
         });
     }
+    private getItemInfo(id){
+        $.ajax({
+            type: "GET",
+            url: "/itemInfo/" + id,
+            dataType: "json",
+            success: item.updateItemInfo
+        });
+    }
+    private updateItemInfo(data:any){
+        $("#itemInfo").html(Handlebars.templates["itemList.hb"](data));
+    }
+    
 }
 //on load function creates all the objects
 $(function () {
