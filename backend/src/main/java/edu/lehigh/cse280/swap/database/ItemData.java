@@ -1,4 +1,4 @@
-package com.swap.backend.database;
+package edu.lehigh.cse280.swap.database;
 
 /**
  * This class hold the object fields and constructors for the corresponding object
