@@ -9,10 +9,10 @@ import java.util.ArrayList;
  * ItemData will represent the basic data that will be used for any given item
  */
 public class ItemDataTable {
-    ItemDataTable(){
-        
+    ItemDataTable() {
+
     }
-     // ---------------------Methods for ItemData---------------------
+    // ---------------------Methods for ItemData---------------------
 
     /**
      * Query the database for a list of all items in our homepage along with its
@@ -55,7 +55,8 @@ public class ItemDataTable {
             e.printStackTrace();
             return null;
         }
-    }    
+    }
+
     /**
      * Get all data for a specific item
      * 
@@ -70,7 +71,7 @@ public class ItemDataTable {
             ResultSet rs = Database.p_selectOneItemData.executeQuery();
             if (rs.next()) {
                 res = new ItemData(rs.getInt("id"), rs.getString("title"), rs.getString("description"),
-                        rs.getString("seller"),  rs.getFloat("price"));
+                        rs.getString("seller"), rs.getFloat("price"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -81,14 +82,15 @@ public class ItemDataTable {
     /**
      * insert a item for a row in the database
      * 
-     * @param title  The title for the item
-     * @param description  The description of the item 
-     * @param seller The username of the person posting
-     * @param price   The price of the item
+     * @param title       The title for the item
+     * @param description The description of the item
+     * @param seller      The username of the person posting
+     * @param price       The price of the item
      * 
      * @return The number of rows that were updated. -1 indicates an error.
      */
-    public int insertNewItemData(String title, String description, String seller, double price, int isSchool, int isCar, int isElectronics, int isFurniture) {
+    public int insertNewItemData(String title, String description, String seller, double price, int isSchool, int isCar,
+            int isElectronics, int isFurniture) {
         int count = 0;
         try {
             Database.p_insertNewItemData.setString(1, title);
@@ -105,6 +107,7 @@ public class ItemDataTable {
             e.printStackTrace();
         }
         return count;
+    }
 
     /**
      * Delete a item by id
