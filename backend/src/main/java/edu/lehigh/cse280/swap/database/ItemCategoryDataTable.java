@@ -5,66 +5,43 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-
 /**
  * ItemData will represent the basic data that will be used for any given item
  */
 public class ItemCategoryDataTable {
     ItemCategoryDataTable() {
-        
-    }
 
-    public ArrayList<ItemData> selectAllCar() {
+    }
+/*
+    public int insertNewItemCategoryData(int itemId, String categories) {
+        int count = 0;
         try {
-            ResultSet rs = Database.p_selectAllCar.executeQuery();
-            ArrayList<Integer> idList_1 = new ArrayList<Integer>();
-            while (rs.next()) {
-                idList_1.add(rs.getInt("id"));
-            }
-            rs.close();
-            Array idList = Database.ConvertToArray(idList_1);
-            return Database.getItemDT().selectAllItemDatabyId(idList);
+            Database.p_insertNewItemCategoryData.setInt(1, itemId);
+            Database.p_insertNewItemCategoryData.setString(2, categories);
+            count += Database.p_insertNewItemCategoryData.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+            return -1;
         }
+        return count;
     }
 
-    public ArrayList<ItemData> selectAllFurniture() {
+    public int deleteItemCategoryData(int itemId) {
+        int count = 0;
         try {
-            ResultSet rs = Database.p_selectAllFurniture.executeQuery();
-            ArrayList<Integer> idList_1 = new ArrayList<Integer>();
-            while (rs.next()) {
-                idList_1.add(rs.getInt("id"));
-            }
-            rs.close();
-            Array idList = Database.ConvertToArray(idList_1);
-            return Database.getItemDT().selectAllItemDatabyId(idList);
+            Database.p_deleteItemCategoryData.setInt(1, itemId);
+            count += Database.p_deleteItemCategoryData.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+            return -1;
         }
+        return count;
     }
 
-    public ArrayList<ItemData> selectAllElectronic() {
+    public ArrayList<ItemData> selectAllFrom(String category) {
         try {
-            ResultSet rs = Database.p_selectAllCar.executeQuery();
-            ArrayList<Integer> idList_1 = new ArrayList<Integer>();
-            while (rs.next()) {
-                idList_1.add(rs.getInt("id"));
-            }
-            rs.close();
-            Array idList = Database.ConvertToArray(idList_1);
-            return Database.getItemDT().selectAllItemDatabyId(idList);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public ArrayList<ItemData> selectAllSchool() {
-        try {
-            ResultSet rs = Database.p_selectAllCar.executeQuery();
+            Database.p_selectAllFrom.setString(1, category);
+            ResultSet rs = Database.p_selectAllFrom.executeQuery();
             ArrayList<Integer> idList_1 = new ArrayList<Integer>();
             while (rs.next()) {
                 idList_1.add(rs.getInt("id"));

@@ -30,13 +30,25 @@ public class ItemData {
     float itemPrice;
 
     /**
-     * Construct a ItemData object by providing values for its fields
+     * The category of the seller of the item
      */
-    public ItemData(int id, String title, String description, String seller, float price) {
+    String[] itemCategory;
+
+    /**
+     * Construct a ItemData object by providing values for its fields
+     * @param id
+     * @param title
+     * @param description
+     * @param seller
+     * @param price
+     * @param category
+     */
+    public ItemData(int id, String title, String description, String seller, float price, String[] category) {
         itemId = id;
         itemTitle = title;
         itemDescription = description;
         itemSeller = seller;
         itemPrice = price;
+        itemCategory = category;
     }
 }
