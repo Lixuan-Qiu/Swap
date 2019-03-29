@@ -1,13 +1,12 @@
 {
-    "name": "taskmanager",
-    "version": "11.2.4",
-    "author": "Yuesheng Xu",
+    "name": "web",
+    "version": "1.0.0",
+    "description": "Web Front-End",
     "dependencies": {
-        "ejs": "2.5.8",
-        "express": "4.16.3",
-        "morgan": "1.9.0",
-        "package.json": "^2.0.1",
-        "body-parser": "^1.18.2",
-        "path": "^0.12.7"
+        "bootstrap": "^3.3.7",
+        "handlebars": "^4.0.12",
+        "jasmine-core": "^3.2.1",
+        "jquery": "^3.3.1",
+        "typescript": "^3.3.4000"
     }
 }
