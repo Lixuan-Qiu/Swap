@@ -45,28 +45,28 @@ public class App{
         //     with IDs starting over from 0.
         final Database database = Database.getDatabase(db_url);
         if (database==null) System.out.println("database object is null");
-        final ItemCategoryDataTable CDT= Database.getItemCDT();
-        if (CDT==null) System.out.println("ItemCategoryDataTable object is null");
-        final ItemDataTable DT= Database.getItemDT();
-        if (DT==null) System.out.println("ItemDataTable object is null");
+
         String static_location_override = System.getenv("STATIC_LOCATION");
 
         
         //hardcode data entries 
-        DT.insertNewItemData("logitech mouse", "brand new", "Sheldon", 10.0, 0, 0, 1, 0);    
-        DT.insertNewItemData("Ferrari 488", "brand new", "Sheldon", 200000.0, 0, 1, 0, 0);    
-        DT.insertNewItemData("GTX 1060", "near broken", "Xiaowei", 15.0, 0, 0, 1, 0);   
-        DT.insertNewItemData("Econ001 textbook", "half new", "Xiaowei", 30.0, 1, 0, 0, 0);    
-        DT.insertNewItemData("Coolermaster keyboard", "brand new", "Lixuan Qiu", 35.0, 0, 0, 1, 0);    
-        DT.insertNewItemData("Desktop", "80% new", "Lixuan Qiu", 25.0, 0, 0, 0, 1);    
-        DT.insertNewItemData("Range Rover Sport", "half new", "Allen", 45000.0, 0, 1, 0, 0);    
-        DT.insertNewItemData("Microfridge", "brand new", "Allen", 30.0, 0, 0, 0, 1);    
+        String[] categories = {"sss", "sss"};
+        database.insertNewItem("logitech mouse", "brand new", "Sheldon", 10.0, categories);    
+        database.insertNewItem("Ferrari 488", "brand new", "Sheldon", 200000.0,categories);    
+        database.insertNewItem("GTX 1060", "near broken", "Xiaowei", 15.0, categories);   
+        database.insertNewItem("Econ001 textbook", "half new", "Xiaowei", 30.0, categories);    
+        database.insertNewItem("Coolermaster keyboard", "brand new", "Lixuan Qiu", 35.0, categories);    
+        database.insertNewItem("Desktop", "80% new", "Lixuan Qiu", 25.0, categories);    
+        database.insertNewItem("Range Rover Sport", "half new", "Allen", 45000.0, categories);    
+        database.insertNewItem("Microfridge", "brand new", "Allen", 30.0, categories);    
 
         if(static_location_override == null){
             Spark.staticFileLocation("/web");
         }else{
             Spark.staticFiles.externalLocation(static_location_override);
         }
+
+        /*
         Spark.get("/", (request, response) -> {
             response.redirect("index.html");
             return "";
@@ -87,7 +87,7 @@ public class App{
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            return gson.toJson(new StructuredResponse("ok", null, DT.selectAllItems()));
+            return gson.toJson(new StructuredResponse("ok", null, database.selectAllItems()));
         });
 
         // GET route that returns everything for a single row in the database.
@@ -101,7 +101,7 @@ public class App{
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            return gson.toJson(new StructuredResponse("ok", null, DT.selectOneItem(idx)));
+            return gson.toJson(new StructuredResponse("ok", null, database.selectOneItem(idx)));
         });
 
         // POST route for adding a new element to the database.  This will read
@@ -119,17 +119,18 @@ public class App{
             String tag = request.params("tag").toString();
             switch (tag) {
                 case "car":
-                    return gson.toJson(new StructuredResponse("ok", null, CDT.selectAllCar()));
+                    return gson.toJson(new StructuredResponse("ok", null, database.selectAllCar()));
                 case "electronic":
-                    return gson.toJson(new StructuredResponse("ok", null, CDT.selectAllElectronic()));
+                    return gson.toJson(new StructuredResponse("ok", null, database.selectAllElectronic()));
                 case "furniture":
-                    return gson.toJson(new StructuredResponse("ok", null, CDT.selectAllFurniture()));
+                    return gson.toJson(new StructuredResponse("ok", null, database.selectAllFurniture()));
                 case "school":
-                    return gson.toJson(new StructuredResponse("ok", null, CDT.selectAllSchool()));
+                    return gson.toJson(new StructuredResponse("ok", null, database.selectAllSchool()));
                 default:
                     return gson.toJson(new StructuredResponse("error", "no matching tags in database", null));
             }
         });
+        */
     }
      /**
       * For Heroku's purpose 
