@@ -7,6 +7,8 @@
 
 package edu.lehigh.cse280.swap.app;
 
+import java.util.ArrayList;
+
 import java.util.Map;
 import java.util.HashMap;
 // Import the Spark package, so that we can make use of the "get" function to 
@@ -89,6 +91,19 @@ public class App {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
+            ArrayList<ItemData> selectAll = new ArrayList<ItemData>();
+            selectAll.add(new ItemData(1, "logitech mouse", "brand new", "Sheldon", 10.0f, categories));
+            selectAll.add(new ItemData(2, "Ferrari 488", "brand new", "Sheldon", 200000.0f, categories));
+            selectAll.add(new ItemData(3, "GTX 1060", "near broken", "Xiaowei", 15.0f, categories));
+            selectAll.add(new ItemData(4, "Econ001 textbook", "half new", "Xiaowei", 30.0f, categories));
+            selectAll.add(new ItemData(5, "Coolermaster keyboard", "brand new", "Lixuan Qiu", 35.0f, categories));
+            selectAll.add(new ItemData(6, "Desktop", "80% new", "Lixuan Qiu", 25.0f, categories));
+            selectAll.add(new ItemData(7, "Range Rover Sport", "half new", "Allen", 45000.0f, categories));
+            selectAll.add(new ItemData(8, "Microfridge", "brand new", "Allen", 30.0f, categories));
+
+            // selectAll = database.selectAllItems();
+            if (selectAll == null)
+                return gson.toJson(new StructuredResponse("error", "Get all item failed", null));
             return gson.toJson(new StructuredResponse("ok", null, database.selectAllItems()));
         });
 
