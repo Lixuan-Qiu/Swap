@@ -81,7 +81,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=all",
+            url: "/item?all",
             dataType: "json",
             success: item.updateItemList
         });  

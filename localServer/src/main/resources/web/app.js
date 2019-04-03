@@ -1,4 +1,5 @@
 "use strict";
+//import { loadavg } from "os";
 var $;
 var item;
 var add;
@@ -33,7 +34,7 @@ var Item = /** @class */ (function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/itemList/all",
+            url: "/item?all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -42,7 +43,34 @@ var Item = /** @class */ (function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/itemList/school",
+            url: "/item?category=school",
+            dataType: "json",
+            success: item.updateItemList
+        });
+    };
+    Item.prototype.getCar = function () {
+        $("#Message").empty();
+        $.ajax({
+            type: "GET",
+            url: "/item?category=car",
+            dataType: "json",
+            success: item.updateItemList
+        });
+    };
+    Item.prototype.getElectronics = function () {
+        $("#Message").empty();
+        $.ajax({
+            type: "GET",
+            url: "/item?category=electronics",
+            dataType: "json",
+            success: item.updateItemList
+        });
+    };
+    Item.prototype.getFurniture = function () {
+        $("#Message").empty();
+        $.ajax({
+            type: "GET",
+            url: "/item?category=furniture",
             dataType: "json",
             success: item.updateItemList
         });
@@ -51,7 +79,7 @@ var Item = /** @class */ (function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/itemList/all",
+            url: "/item?category=all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -61,7 +89,12 @@ var Item = /** @class */ (function () {
         console.log("Update List");
         $("#Message").empty();
         for (var i = 0; i < data.length; i++) {
-            $("#Message").append("<p " + "id='" + data[i].itemId + "' " + " onclick='" + "itemPage(this, " + i + ")'" + " >" + data[i].itemDescription + "</p>");
+            $("#Message").append("<a " + "id='" + data[i].itemId + "' " + " onclick='" + "itemPage(this, " + i + ")'" + " >" + data[i].itemDescription + "</a>");
+        }
+        for (var i = 0; i < data.length; i++) {
+            $("#" + i).click(function () {
+                window.location.href = "item.html";
+            });
         }
         //$("#Message").html(
         //$("#Message").html(Handlebars.templates["itemList.hb"](data));
@@ -92,6 +125,8 @@ var Item = /** @class */ (function () {
     Item.prototype.getItem = function (id) {
         $("#Message").empty();
         $("#Message").append("<p> Item Page</p>");
+        //$("#Message").load("item.html");
+        //$("#Message").html(Handlebars.templates["itemList.hb"](id));
     };
     Item.prototype.updateItemInfo = function (data) {
         $("#itemInfo").html(Handlebars.templates["itemList.hb"](data));
@@ -108,6 +143,18 @@ var Item = /** @class */ (function () {
 function getSchool() {
     item = new Item();
     item.getSchool();
+}
+function getCar() {
+    item = new Item();
+    item.getCar();
+}
+function getElectronics() {
+    item = new Item();
+    item.getElectronics();
+}
+function getFurniture() {
+    item = new Item();
+    item.getFurniture();
 }
 function getAll() {
     item = new Item();

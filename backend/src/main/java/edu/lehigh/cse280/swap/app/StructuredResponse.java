@@ -1,4 +1,4 @@
-package com.swap.backend.database;
+package edu.lehigh.cse280.swap.app;
 
 /**
  * StructuredResponse provides a common format for success and failure messages,
@@ -6,7 +6,7 @@ package com.swap.backend.database;
  * 
  * NB: since this will be converted into JSON, all fields must be public.
  */
-public class FirstResponse {
+public class StructuredResponse {
     /**
      * The status is a string that the application can use to quickly determine if
      * the response indicates an error. Values will probably just be "ok" or
@@ -17,14 +17,10 @@ public class FirstResponse {
     /**
      * The message is only useful when this is an error, or when data is null.
      */
-    public String echoMessage;
+    public String mMessage;
 
-    /**
-     * session key for user
-     */
-    public String sessionkey;
-
-    public int uid;
+    public Object item;
+    
 
     /**
      * Construct a StructuredResponse by providing a status, message, and data. If
@@ -34,10 +30,9 @@ public class FirstResponse {
      * @param message The message to go along with an error status
      * @param object  An object with additional data to send to the client
      */
-    public FirstResponse(String status, String message, String key, int user_id) {
+    public StructuredResponse(String status, String message, Object any) {
         mStatus = (status != null) ? status : "invalid";
-        echoMessage = message;
-        sessionkey = key;
-        uid = user_id;
+        mMessage = message;
+        item = any;
     }
 }

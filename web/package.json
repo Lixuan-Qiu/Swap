@@ -7,6 +7,6 @@
         "handlebars": "^4.0.12",
         "jasmine-core": "^3.2.1",
         "jquery": "^3.3.1",
-        "typescript": "^3.3.4000"
+        "typescript": "^3.4.1"
     }
 }
