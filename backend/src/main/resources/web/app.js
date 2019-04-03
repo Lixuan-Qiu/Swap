@@ -34,7 +34,7 @@ var Item = /** @class */ (function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?all",
+            url: "/item/all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -79,7 +79,7 @@ var Item = /** @class */ (function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?all",
+            url: "/item/all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -87,6 +87,7 @@ var Item = /** @class */ (function () {
     //clear all the messages and load the most updated messages
     Item.prototype.updateItemList = function (data) {
         console.log("Update List");
+        console.log(data);
         $("#Message").empty();
         for (var i = 0; i < data.length; i++) {
             $("#Message").append("<a " + "id='" + data[i].itemId + "' " + " onclick='" + "itemPage(this, " + i + ")'" + " >" + data[i].itemDescription + "</a>");

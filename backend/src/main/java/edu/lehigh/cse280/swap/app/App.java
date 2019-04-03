@@ -81,56 +81,86 @@ public class App {
             }
         });
 
+        // <<<<<<< HEAD
         // Spark.get("/item", (request, response) -> {
-        //     response.status(200);
-        //     response.type("application/json");
-        //     String unParsedCategory = request.queryParams("category");
-        //     if (unParsedCategory) {
+        // response.status(200);
+        // response.type("application/json");
+        // String unParsedCategory = request.queryParams("category");
+        // if (unParsedCategory) {
 
-        //     }
+        // }
 
-        //     String unParsedItemId = request.queryParams("item_id");
-        //     if (unParsedItemId) {
+        // String unParsedItemId = request.queryParams("item_id");
+        // if (unParsedItemId) {
 
-        //     }
+        // }
 
-        //     String unParsedUserId = request.queryParams("user_id");
-        //     if (unParsedUserId) {
+        // String unParsedUserId = request.queryParams("user_id");
+        // if (unParsedUserId) {
 
-        //     }
+        // }
         // });
 
-        // GET route that returns all items. All we do is get
+        // GET route that returns all message titles and Ids. All we do is get
         // the data, embed it in a StructuredResponse, turn it into JSON, and
         // return it. If there's no data, we return "[]", so there's no need
         // for error handling.
-        Spark.get("/item?all", (request, response) -> {
+        Spark.get("/item/all", (request, response) -> {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
             return gson.toJson(new StructuredResponse("ok", null, database.selectAllItems()));
         });
 
-        // // GET route that returns everything for a single row in the database.
-        // // The ":id" suffix in the first parameter to get() becomes
-        // // request.params("id"), so that we can get the requested row ID. If
-        // // ":id" isn't a number, Spark will reply with a status 500 Internal
-        // // Server Error. Otherwise, we have an integer, and the only possible
-        // // error is that it doesn't correspond to a row with data.
-        // Spark.get("/items?:id", (request, response) -> {
-        // int idx = Integer.parseInt(request.params(":id"));
-        // // ensure status 200 OK, with a MIME type of JSON
+        // GET route that returns corresponding item list according to the parameters
+        // specified in the url
+        // An example would be /item?category=furniture-school&user_id=2
+        // Spark.get("/item", (request, response) -> {
         // response.status(200);
         // response.type("application/json");
-        // return gson.toJson(new StructuredResponse("ok", null,
-        // database.selectOneItem(idx)));
+        // String unParsedCategory = request.queryParams("category");
+        // if (unParsedCategory) {
+
+        // }
+
+        // String unParsedItemId = request.queryParams("item_id");
+        // if (unParsedItemId) {
+
+        // }
+
+        // String unParsedUserId = request.queryParams("user_id");
+        // if (unParsedUserId) {
+        // >>>>>>> back_end
+
+        // }
         // });
 
-        // // POST route for adding a new element to the database. This will read
-        // // JSON from the body of the request, turn it into a SimpleRequest
-        // // object, extract the title and message, insert them, and return the
-        // // ID of the newly created row.
-        // Spark.get("/items?category=", "application/json", (request, response) -> {
+        // GET route that returns everything for a single row in the database.
+        // The ":id" suffix in the first parameter to get() becomes
+        // request.params("id"), so that we can get the requested row ID. If
+        // ":id" isn't a number, Spark will reply with a status 500 Internal
+        // Server Error. Otherwise, we have an integer, and the only possible
+        // error is that it doesn't correspond to a row with data.
+        Spark.get("/item?:id", (request, response) -> {
+            int idx = Integer.parseInt(request.params(":id"));
+            // ensure status 200 OK, with a MIME type of JSON
+            response.status(200);
+            response.type("application/json");
+            ItemData select = database.selectOneItem(idx);
+            if (select == null) {
+                String errorMessage = "The specified id" + idx + "does not exist in the database";
+                return gson.toJson(new StructuredResponse("error", errorMessage, database.selectOneItem(idx)));
+            }
+            return gson.toJson(new StructuredResponse("ok", null, database.selectOneItem(idx)));
+        });
+
+        // POST route for adding a new element to the database. This will read
+        // JSON from the body of the request, turn it into a SimpleRequest
+        // object, extract the title and message, insert them, and return the
+        // ID of the newly created row.
+
+        // example:/items/category?tag=furniture-school-new
+        // Spark.get("/items/category", "application/json", (request, response) -> {
         // // NB: if gson.Json fails, Spark will reply with status 500 Internal
         // // Server Error'
         // // ensure status 200 OK, with a MIME type of JSON
@@ -138,7 +168,7 @@ public class App {
         // // describes the error.
         // response.status(200);
         // response.type("application/json");
-        // String rawCategory = request.queryParams("category");
+        // String rawCategory = request.queryParams("tag");
         // String[] categoryArray = getStringArrayFromText(rawCategory);
         // return gson.toJson(new StructuredResponse("error", "elasticsearch
         // implementation incomplete", null));

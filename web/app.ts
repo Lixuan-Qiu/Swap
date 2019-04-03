@@ -36,7 +36,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?all",
+            url: "/item/all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -81,7 +81,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?all",
+            url: "/item/all",
             dataType: "json",
             success: item.updateItemList
         });  
@@ -89,6 +89,7 @@ class Item {
     //clear all the messages and load the most updated messages
     private updateItemList(data:any) {
         console.log("Update List");
+        console.log(data);
         $("#Message").empty();
         for(let i = 0; i<data.length;i++){
             $("#Message").append("<a "+ "id='"+data[i].itemId +"' "+ " onclick='"+ "itemPage(this, "+ i+")'" + " >" +data[i].itemDescription+"</a>");
