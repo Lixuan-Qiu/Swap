@@ -1,8 +1,10 @@
 package com.swap.localServer;
 import java.util.*;
+
 public class ItemArrayList{
-    public ArrayList<Item> items;
+    public ArrayList<Item> items ;
     ItemArrayList(){
+        items = new ArrayList<Item>();
         items.add(new Item(0,"A"));
         items.add(new Item(1,"B"));
         items.add(new Item(2,"C"));
