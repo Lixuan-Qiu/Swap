@@ -1,3 +1,4 @@
+//import { loadavg } from "os";
 
 
 var $: any;
@@ -35,7 +36,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/itemList/all",
+            url: "/item?all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -44,7 +45,34 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/itemList/school",
+            url: "/item?category=school",
+            dataType: "json",
+            success: item.updateItemList
+        });
+    }
+    getCar(){
+        $("#Message").empty();
+        $.ajax({
+            type: "GET",
+            url: "/item?category=car",
+            dataType: "json",
+            success: item.updateItemList
+        });
+    }
+    getElectronics(){
+        $("#Message").empty();
+        $.ajax({
+            type: "GET",
+            url: "/item?category=electronics",
+            dataType: "json",
+            success: item.updateItemList
+        });
+    }
+    getFurniture(){
+        $("#Message").empty();
+        $.ajax({
+            type: "GET",
+            url: "/item?category=furniture",
             dataType: "json",
             success: item.updateItemList
         });
@@ -53,7 +81,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/itemList/all",
+            url: "/item?category=all",
             dataType: "json",
             success: item.updateItemList
         });  
@@ -63,7 +91,12 @@ class Item {
         console.log("Update List");
         $("#Message").empty();
         for(let i = 0; i<data.length;i++){
-            $("#Message").append("<p "+ "id='"+data[i].itemId +"' "+ " onclick='"+ "itemPage(this, "+ i+")'" + " >" +data[i].itemDescription+"</p>");
+            $("#Message").append("<a "+ "id='"+data[i].itemId +"' "+ " onclick='"+ "itemPage(this, "+ i+")'" + " >" +data[i].itemDescription+"</a>");
+        }
+        for(let i = 0; i<data.length;i++){
+            $("#"+i).click(function(){
+                window.location.href = "item.html";
+            });
         }
         //$("#Message").html(
         //$("#Message").html(Handlebars.templates["itemList.hb"](data));
@@ -95,7 +128,7 @@ class Item {
     public getItem(id:any){
         $("#Message").empty();
         $("#Message").append("<p> Item Page</p>");
-        
+        //$("#Message").load("item.html");
         //$("#Message").html(Handlebars.templates["itemList.hb"](id));
     }
     private updateItemInfo(data:any){
@@ -113,6 +146,18 @@ class Item {
 function getSchool(){
     item = new Item();
     item.getSchool();
+}
+function getCar(){
+    item = new Item();
+    item.getCar();
+}
+function getElectronics(){
+    item = new Item();
+    item.getElectronics();
+}
+function getFurniture(){
+    item = new Item();
+    item.getFurniture();
 }
 function getAll(){
     item = new Item();
