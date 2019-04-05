@@ -3,3 +3,6 @@ target/*
 .project
 .settings
 .vscode
+.factorypath
+src/main/resources/
+

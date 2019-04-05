@@ -7,18 +7,26 @@
 
 package edu.lehigh.cse280.swap.app;
 
+import java.awt.event.*;
+import org.elasticsearch.action.ActionListener;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 // Import the Spark package, so that we can make use of the "get" function to 
 import spark.Spark;
 import java.net.URI;
+import java.sql.SQLException;
+import java.util.Date;
 import edu.lehigh.cse280.swap.database.*;
 // Import Google's JSON library
 import com.google.gson.*;
+import java.sql.*;
+import org.elasticsearch.action.index.*;
+import org.elasticsearch.ElasticsearchException;
 import java.io.*;
 import org.elasticsearch.client.*;
 import org.apache.http.*;
+import org.elasticsearch.rest.RestStatus;
 
 /**
  * For now, our app creates an HTTP server that can only get and add data.
@@ -49,6 +57,27 @@ public class App {
         // with IDs starting over from 0.
         RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(new HttpHost("localhost", 9200, "http"), new HttpHost("localhost", 9201, "http")));
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("user", "Sheldon");
+        jsonMap.put("postDate", new Date());
+        jsonMap.put("title", "Ferrari 488");
+        jsonMap.put("price", 200000.0);
+        IndexRequest indexRequest = new IndexRequest("posts", "doc", "1").source(jsonMap);
+        ActionListener listener = new ActionListener<IndexResponse>() {
+            @Override
+            public void onResponse(IndexResponse indexResponse) {
+                System.out.println("Post Sheldon's Ferrari 488 successfully");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (e instanceof IOException) {
+                    System.out.print(
+                            "Either failing to parse the REST response in the high-level REST client, the request times out or similar cases where there is no response coming back from the server");
+                }
+            }
+        };
+        client.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
 
         final Database database = Database.getDatabase(db_url);
         if (database == null)
@@ -57,6 +86,8 @@ public class App {
         String static_location_override = System.getenv("STATIC_LOCATION");
 
         // hardcode data entries
+        database.createAllTables();
+
         String[] categories = { "sss", "sss" };
         database.insertNewItem("logitech mouse", "brand new", "Sheldon", 10.0, categories);
         database.insertNewItem("Ferrari 488", "brand new", "Sheldon", 200000.0, categories);
