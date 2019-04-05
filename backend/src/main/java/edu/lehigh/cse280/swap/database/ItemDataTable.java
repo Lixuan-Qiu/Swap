@@ -60,43 +60,27 @@ public class ItemDataTable {
     }
 
     /**
-     * Query the database for a list of all items in our homepage along with its
-     * description
+     * Query the database for a list of all items from some categories
      * 
+     * @param categories the category on which the items will be filtered
      * @return All rows, as an ArrayList
      */
-    public ArrayList<ItemData> selectAllItemFrom(String[] categories) {
+    public ArrayList<ItemData> selectAllItemFrom(ArrayList<Integer> categories) {
         ArrayList<ItemData> res = new ArrayList<ItemData>();
-        int length = categories.length;
-        ArrayList<Integer> idList = new ArrayList<Integer>();
+        ArrayList<Integer> tradingInfoDataidList = new ArrayList<Integer>();
         try {
-            Database.p_selectAllFrom.setString(1, categories[0]);
+            Database.p_selectAllFrom.setArray(1, Database.ConvertToIntArray(categories));
             ResultSet rs = Database.p_selectAllFrom.executeQuery();
             while (rs.next()) {
-                idList.add(rs.getInt("id"));
+                tradingInfoDataidList.add(rs.getInt("itemId"));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
+                (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
             }
             rs.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
-        for (int i = 1; i < length; i++) {
-            try {
-                Database.p_selectAllFrom.setString(1, categories[i]);
-                ResultSet rs = Database.p_selectAllFrom.executeQuery();
-                ArrayList<Integer> idList_1 = new ArrayList<Integer>();
-                while (rs.next()) {
-                    idList_1.add(rs.getInt("id"));
-                }
-                rs.close();
-                idList.retainAll(idList_1);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-        Array idList_2 = Database.ConvertToIntArray(idList);
-        res = selectAllItemDatabyId(idList_2);
         return res;
     }
 
