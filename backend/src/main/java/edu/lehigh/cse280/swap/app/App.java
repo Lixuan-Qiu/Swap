@@ -29,8 +29,7 @@ public class App {
         // Our server runs on port 4567. That's the Java Spark default
         Map<String, String> env = System.getenv();
         String db_url = env.get("DATABASE_URL");
-        // String db_url =
-        // "postgres://cblibdzhsvqshl:d48272553306c7cbc287d6f9a97550f9bdd98153a87caeac5d4b98ac0cd59438@ec2-23-21-130-182.compute-1.amazonaws.com:5432/d3pvjv0qor9898";
+    
         Spark.port(getIntFromEnv("PORT", 4567));
         // gson provides us with a way to turn JSON into objects, and objects
         // into JSON.
