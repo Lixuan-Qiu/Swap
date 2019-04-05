@@ -66,30 +66,44 @@ public class Database
     /****************************************************************/
     /****************************************************************/
     /*******                                                  *******/
-    /*******            ITEM CATEGORY DATA TABLE              *******/
+    /*******             TRADING INFO DATA TABLE              *******/
     /*******                                                  *******/
     /****************************************************************/
     /****************************************************************/
 
     /**
-     * A prepared statement for creating the item category table in our database
+     * A prepared statement for creating the trading info table in our database
      */
-    static PreparedStatement p_createItemCategoryDataTable;
+    static PreparedStatement p_createTradingInfoDataTable;
 
     /**
-     * A prepared statement for dropping the item category table in our database
+     * A prepared statement for dropping the trading info table in our database
      */
-    static PreparedStatement p_dropItemCategoryDataTable;
+    static PreparedStatement p_dropTradingInfoDataTable;
 
+    /**
+     * A prepared statement for inserting new trading info to the table
+     */
+    static PreparedStatement p_insertNewTradingInfoData;
+
+        /**
+     * A prepared statement for selecting all trading info to the table
+     */
+    static PreparedStatement p_selectAllTradingInfoData;
+
+        /**
+     * A prepared statement for selecting all trading info by idList to the table
+     */
+    static PreparedStatement p_selectAllTradingInfoDataById;
+
+    /**
+     * A prepared statement for selecting one trading info to the table
+     */
+    static PreparedStatement p_selectOneTradingInfoData;
     /**
      * A prepared statement for inserting new item category to the table
      */
-    static PreparedStatement p_insertNewItemCategoryData;
-    
-    /**
-     * A prepared statement for inserting new item category to the table
-     */
-    static PreparedStatement p_deleteItemCategoryData;
+    static PreparedStatement p_deleteTradingInfoData;
 
 
     /****************************************************************/
@@ -109,7 +123,7 @@ public class Database
     /**
      * priavate instance for accessing and calling functions in ItemCategoryDataTable
      */
-    private static ItemCategoryDataTable itemCDT;
+    private static TradingInfoDataTable itemTIDT;
 
     /**
      * priavate instance for accessing and calling functions in ItemDataTable
@@ -124,7 +138,7 @@ public class Database
      */
     private Database() 
     {
-        itemCDT = new ItemCategoryDataTable();
+        itemTIDT = new TradingInfoDataTable();
         itemDT = new ItemDataTable();
     }
     
@@ -185,19 +199,22 @@ public class Database
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
             Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * from itemData WHERE itemId=?");
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
-            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT itemId from itemData WHERE ? in category");
+            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT * from itemData WHERE ? in category");
             //////////////////////////////////////////
-            //        Item Category Data Table
+            //        Trading Info Data Table
             //////////////////////////////////////////
-            /*
-            Database.p_createItemCategoryDataTable = mConnection.prepareStatement(
-                    "CREATE TABLE itemCategoryData (id SERIAL PRIMARY KEY, itemId integer, category VARCHAR(200)[]");
-            Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemCategoryData");
+            
+            Database.p_createTradingInfoDataTable = mConnection.prepareStatement(
+                    "CREATE TABLE tradingInfoData (tradingInfoId SERIAL PRIMARY KEY, itemId INTEGER, tradeMethod INTEGER,"
+                    + "price float, availability boolean, availableTime VARCHAR(40), wantedItemDescription VARCHAR(50)");
+            Database.p_dropTradingInfoDataTable = mConnection.prepareStatement("DROP TABLE tradingInfoData");
             // Standard CRUD operations for item category data
-            Database.p_insertNewItemCategoryData = mConnection.prepareStatement("INSERT INTO itemCategoryData VALUES (default, ?, ?)");
-            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT itemId from itemCategoryData WHERE ? in category");
-            Database.p_deleteItemCategoryData = mConnection.prepareStatement("DELETE FROM itemCategoryData WHERE itemId = ?");
-            */
+            Database.p_insertNewTradingInfoData = mConnection.prepareStatement("INSERT INTO tradingInfoData VALUES (default, ?, ?, ?, ?, ?, ?)");
+            Database.p_selectAllTradingInfoData = mConnection.prepareStatement("SELECT * FROM tradingInfoData");
+            Database.p_selectAllTradingInfoDataById = mConnection.prepareStatement("SELECT * FROM tradingInfoData WHERE tradingInfoId in ?");
+            Database.p_selectOneTradingInfoData = mConnection.prepareStatement("SELECT * FROM tradingInfoData WHERE tradingInfoId = ?");
+            Database.p_deleteTradingInfoData = mConnection.prepareStatement("DELETE FROM tradingInfoData WHERE tradingInfoId = ?");
+            
         } 
         catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -292,7 +309,7 @@ public class Database
         return itemDT.selectAllItems();
     }
 
-    public ArrayList<ItemData> selectAllItemsFrom(String[] category){
+    public ArrayList<ItemData> selectAllItemsFrom(ArrayList<Integer> category){
         return itemDT.selectAllItemFrom(category);
     }
 
