@@ -17,6 +17,8 @@ import edu.lehigh.cse280.swap.database.*;
 // Import Google's JSON library
 import com.google.gson.*;
 import java.io.*;
+import org.elasticsearch.client.*;
+import org.apache.http.*;
 
 /**
  * For now, our app creates an HTTP server that can only get and add data.
@@ -45,6 +47,9 @@ public class App {
         // NB: every time we shut down the server, we will lose all data, and
         // every time we start the server, we'll have an empty database,
         // with IDs starting over from 0.
+        RestHighLevelClient client = new RestHighLevelClient(
+                RestClient.builder(new HttpHost("localhost", 9200, "http"), new HttpHost("localhost", 9201, "http")));
+
         final Database database = Database.getDatabase(db_url);
         if (database == null)
             System.out.println("database object is null");
