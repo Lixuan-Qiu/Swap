@@ -1,3 +1,8 @@
+com/swap/database/ItemDataTable.class
 com/swap/localServer/Item.class
+com/swap/database/ItemCategoryDataTable.class
 com/swap/localServer/ItemArrayList.class
+com/swap/localServer/StructuredResponse.class
 com/swap/localServer/App.class
+com/swap/database/ItemData.class
+com/swap/database/Database.class

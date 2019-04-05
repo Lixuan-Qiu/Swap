@@ -1,0 +1,103 @@
+body {
+    font-family: 'Fresca', sans-serif;
+    /*margin: 0;*/
+}
+
+.topnav {
+    overflow: hidden;
+    background-color: burlywood;
+  }
+  
+  .topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+  }
+
+ 
+  div#category{
+    width: 800px;
+    height: 50px;
+    float: left;
+    
+  }
+  #Add{
+    background-color: burlywood;
+    float: left;
+    height: 52px;
+    
+  }
+  input[type=text] {
+    padding: 6px;
+    border: none;
+    margin-top: 8px;
+    margin-right: 16px;
+    font-size: 17px;
+  }
+  
+  
+  .topnav a:hover {
+    background-color: #ddd;
+    color: brown;
+  }
+  
+  .topnav a.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .itemListBody {
+    margin-top: -200px;
+    float: left;
+    font-size: 35px;
+    padding: 4px;
+    margin: 4px;
+    width: 500px;
+    text-align: left;
+    margin-right: 6px;
+  }
+
+
+  /*Item Page*/
+  .item-page-left{
+    font-size: 30px;
+    width: 600px;
+    height: 600px;
+    float: left;
+    background-color:grey;
+  }
+  #photoArea{
+    padding: 5px;
+    height: 470px;
+    border: 1px solid #ccc;
+  }
+  #sellerInfoArea{
+    padding: 5px;
+    height: 130px;
+    border: 1px solid #ccc;
+  }
+  .item-page-right{
+    font-size: 30px;
+    background-color: burlywood;
+    float: left;
+    width: 300px;
+    height: 600px;
+  }
+  #title{
+    padding: 5px;
+    height: 100px;
+    border: 1px solid #ccc;
+  }
+  #description{
+    padding: 5px;
+    height: 450px;
+    border: 1px solid #ccc;
+  }
+  #price{
+    padding: 5px;
+    height: 50px;
+    border: 1px solid #ccc;
+  }

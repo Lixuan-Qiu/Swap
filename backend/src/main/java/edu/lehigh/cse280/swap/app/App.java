@@ -24,10 +24,50 @@ import java.io.*;
  * For now, our app creates an HTTP server that can only get and add data.
  */
 public class App {
+    /*
+     * private static void enableCORS(String origin, String methods, String headers)
+     * { // Create an OPTIONS route that reports the allowed CORS headers and
+     * methods Spark.options("/*", (request, response) -> { String
+     * accessControlRequestHeaders =
+     * request.headers("Access-Control-Request-Headers"); if
+     * (accessControlRequestHeaders != null) {
+     * response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+     * } String accessControlRequestMethod =
+     * request.headers("Access-Control-Request-Method"); if
+     * (accessControlRequestMethod != null) {
+     * response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+     * } return "OK"; });
+     * 
+     * // 'before' is a decorator, which will run before any // get/post/put/delete.
+     * In our case, it will put three extra CORS // headers into the response
+     * Spark.before((request, response) -> {
+     * response.header("Access-Control-Allow-Origin", origin);
+     * response.header("Access-Control-Request-Method", methods);
+     * response.header("Access-Control-Allow-Headers", headers); }); }
+     */
     public static void main(String[] args) {
+        /**
+         * Set up CORS headers for the OPTIONS verb, and for every response that the
+         * server sends. This only needs to be called once.
+         * 
+         * @param origin  The server that is allowed to send requests to this server
+         * @param methods The allowed HTTP verbs from the above origin
+         * @param headers The headers that can be sent with a request from the above
+         *                origin
+         */
+        Map<String, String> env = System.getenv();
+        /*
+         * String cors_enabled = env.get("CORS_ENABLED"); if
+         * (cors_enabled.equals("True")) { final String acceptCrossOriginRequestsFrom =
+         * "*"; final String acceptedCrossOriginRoutes = "GET,PUT,POST,DELETE,OPTIONS";
+         * final String supportedRequestHeaders =
+         * "Content-Type,Authorization,X-Requested-With,Content-Length,Accept,Origin";
+         * enableCORS(acceptCrossOriginRequestsFrom, acceptedCrossOriginRoutes,
+         * supportedRequestHeaders); }
+         */
         // we need to call it before we do anything else with Spark.
         // Our server runs on port 4567. That's the Java Spark default
-        Map<String, String> env = System.getenv();
+
         String db_url = env.get("DATABASE_URL");
         // String db_url =
         // "postgres://cblibdzhsvqshl:d48272553306c7cbc287d6f9a97550f9bdd98153a87caeac5d4b98ac0cd59438@ec2-23-21-130-182.compute-1.amazonaws.com:5432/d3pvjv0qor9898";
@@ -51,8 +91,6 @@ public class App {
         if (database == null)
             System.out.println("database object is null");
 
-        String static_location_override = System.getenv("STATIC_LOCATION");
-
         // hardcode data entries
         String[] categories = { "sss", "sss" };
         database.insertNewItem("logitech mouse", "brand new", "Sheldon", 10.0, categories);
@@ -64,6 +102,7 @@ public class App {
         database.insertNewItem("Range Rover Sport", "half new", "Allen", 45000.0, categories);
         database.insertNewItem("Microfridge", "brand new", "Allen", 30.0, categories);
 
+        String static_location_override = System.getenv("STATIC_LOCATION");
         if (static_location_override == null) {
             Spark.staticFileLocation("/web");
         } else {
@@ -124,7 +163,7 @@ public class App {
             // selectAll = database.selectAllItems();
             if (selectAll == null)
                 return gson.toJson(new StructuredResponse("error", "Get all item failed", null));
-            return gson.toJson(new StructuredResponse("ok", null, database.selectAllItems()));
+            return gson.toJson(new StructuredResponse("ok", null, selectAll));
         });
 
         // GET route that returns corresponding item list according to the parameters

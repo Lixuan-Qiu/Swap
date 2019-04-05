@@ -1,5 +1,7 @@
 "use strict";
 //import { loadavg } from "os";
+/// This constant indicates the path to our backend server
+var backendUrl = "https://swap-lehigh.herokuapp.com";
 var $;
 var item;
 var add;
@@ -34,7 +36,7 @@ var Item = /** @class */ (function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?all",
+            url: backendUrl + "/item/all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -79,7 +81,7 @@ var Item = /** @class */ (function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=all",
+            url: backendUrl + "/item/all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -87,9 +89,11 @@ var Item = /** @class */ (function () {
     //clear all the messages and load the most updated messages
     Item.prototype.updateItemList = function (data) {
         console.log("Update List");
+        console.log(data);
+        console.log(data.item);
         $("#Message").empty();
         for (var i = 0; i < data.length; i++) {
-            $("#Message").append("<a " + "id='" + data[i].itemId + "' " + " onclick='" + "itemPage(this, " + i + ")'" + " >" + data[i].itemDescription + "</a>");
+            $("#Message").append("<a " + "id='" + (data.item)[i].itemId + "' " + " onclick='" + "itemPage(this, " + i + ")'" + " >" + (data.item)[i].itemDescription + "</a>");
         }
         for (var i = 0; i < data.length; i++) {
             $("#" + i).click(function () {

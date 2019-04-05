@@ -6,6 +6,7 @@
 
 # This is the resource folder where maven expects to find our files
 TARGETFOLDER=../backend/src/main/resources
+#TARGETFOLDER=../localServer/src/main/resources
 # TARGETFOLDER=../localServer/src/main/resources
 # This is the folder that we used with the Spark.staticFileLocation command
 WEBFOLDERNAME=web
@@ -38,3 +39,5 @@ cp app.css $TARGETFOLDER/$WEBFOLDERNAME
 # step 6: compile handlebars templates to the deploy folder
 node_modules/handlebars/bin/handlebars hb/itemList.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js
 node_modules/handlebars/bin/handlebars hb/itemInfo.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js
+
+
