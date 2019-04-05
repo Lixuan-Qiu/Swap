@@ -10,11 +10,6 @@ public class ItemData {
     int itemId;
 
     /**
-     * The username of the seller of the item
-     */
-    int itemSeller;
-    
-    /**
      * The title of the item
      */
     String itemTitle;
@@ -25,36 +20,35 @@ public class ItemData {
     String itemDescription;
 
     /**
+     * The username of the seller of the item
+     */
+    String itemSeller;
+
+    /**
+     * The seller of the item
+     */
+    float itemPrice;
+
+    /**
      * The category of the seller of the item
      */
-    int[] itemCategory;
-
-    /**
-     * The trading info of this item
-     */
-    int itemTradingData;
-
-    /**
-     * The post date of this item
-     */
-    int itemPostDate;
+    String[] itemCategory;
 
     /**
      * Construct a ItemData object by providing values for its fields
-     * @param userid
+     * @param id
      * @param title
      * @param description
-     * @param userId
+     * @param seller
      * @param price
      * @param category
      */
-    public ItemData(int id, int userId, String title, String description, int[] category, int tradingData, int postDate) {
+    public ItemData(int id, String title, String description, String seller, float price, String[] category) {
         itemId = id;
-        itemSeller = userId;
         itemTitle = title;
-        itemCategory = category;
         itemDescription = description;
-        itemTradingData = tradingData;
-        itemPostDate = postDate;
+        itemSeller = seller;
+        itemPrice = price;
+        itemCategory = category;
     }
 }

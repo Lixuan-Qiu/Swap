@@ -25,8 +25,8 @@ public class ItemDataTable {
         try {
             ResultSet rs = Database.p_selectAllItemData.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                        (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
+                res.add(new ItemData(rs.getInt("id"), rs.getString("title"), rs.getString("description"),
+                        rs.getString("seller"), rs.getFloat("price"), (String[]) (rs.getArray("category")).getArray()));
             }
             rs.close();
             return res;
@@ -48,8 +48,8 @@ public class ItemDataTable {
             Database.p_selectAllItemDataById.setArray(1, idList);
             ResultSet rs = Database.p_selectAllItemDataById.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
+                res.add(new ItemData(rs.getInt("id"), rs.getString("title"), rs.getString("description"),
+                        rs.getString("seller"), rs.getFloat("price"), (String[]) (rs.getArray("category")).getArray()));
             }
             rs.close();
             return res;
@@ -113,8 +113,8 @@ public class ItemDataTable {
             Database.p_selectOneItemData.setInt(1, id);
             ResultSet rs = Database.p_selectOneItemData.executeQuery();
             if (rs.next()) {
-                res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate"));
+                res = new ItemData(rs.getInt("id"), rs.getString("title"), rs.getString("description"),
+                        rs.getString("seller"), rs.getFloat("price"), (String[]) (rs.getArray("category")).getArray());
             }
         } catch (SQLException e) {
             e.printStackTrace();
