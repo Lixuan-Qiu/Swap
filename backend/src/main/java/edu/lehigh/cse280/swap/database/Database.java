@@ -176,16 +176,16 @@ public class Database
             //             Item Data Table
             //////////////////////////////////////////
             Database.p_createItemDataTable = mConnection.prepareStatement(
-                    "CREATE TABLE itemData (id SERIAL PRIMARY KEY, title VARCHAR(50) NOT NULL, description VARCHAR(500) NOT NULL),"
-                    + "seller VARCHAR(50) NOT NULL, price FLOAT, category text[]");
+                    "CREATE TABLE itemData (itemId SERIAL PRIMARY KEY, userId INTEGER, title VARCHAR(50) NOT NULL, description VARCHAR(500) NOT NULL),"
+                    + "category INTEGER[], tradingInfoId INTEGER, postDate INTEGER");
             Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
-            Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE id = ?");
-            Database.p_insertNewItemData = mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?)");
+            Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
+            Database.p_insertNewItemData = mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?)");
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
-            Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * from itemData WHERE id=?");
-            Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE id in ?");
-            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT id from itemData WHERE ? in category");
+            Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * from itemData WHERE itemId=?");
+            Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
+            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT itemId from itemData WHERE ? in category");
             //////////////////////////////////////////
             //        Item Category Data Table
             //////////////////////////////////////////
@@ -237,6 +237,11 @@ public class Database
         return true;
     }
 
+
+    /**
+     * @param res the arraylist to be converted to SQL Array type
+     * @return the converted Array type of res
+     */
     static Array ConvertToIntArray(ArrayList<Integer> res){
         try{
             return mConnection.createArrayOf("INTEGER", res.toArray());
@@ -246,6 +251,10 @@ public class Database
         }
     }
 
+    /**
+     * @param res the arraylist to be converted to SQL Array type
+     * @return the converted Array type of res
+     */
     static Array ConvertToStringArray(String[] res){
         try{
             return mConnection.createArrayOf("text", res);
@@ -255,18 +264,22 @@ public class Database
         }
     }
 
+    /**
+     * Creating all tables in the database
+     */
     public void createAllTables(){
-        // itemCDT.createItemCategoryDataTable();
         itemDT.createItemDataTable();
     }
+
+    /**
+     * Dropping all tables in the database
+     */
     public void dropAllTables(){
-        // itemCDT.dropItemCategoryDataTable();
         itemDT.dropItemDataTable();
     }
 
-    public int insertNewItem(String title, String description, String seller, double price, String[] categories){
-        int res = itemDT.insertNewItemData(title, description, seller, price, categories);
-        // int res = itemCDT.insertNewItemCategoryData(id, categories);
+    public int insertNewItem(int userId, String title, String description, ArrayList<Integer> categories, int tradingInfoId, int postDate){
+        int res = itemDT.insertNewItemData(userId, title, description, categories, tradingInfoId, postDate);
         return res;
     }
 

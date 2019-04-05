@@ -25,8 +25,8 @@ public class ItemDataTable {
         try {
             ResultSet rs = Database.p_selectAllItemData.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("id"), rs.getString("title"), rs.getString("description"),
-                        rs.getString("seller"), rs.getFloat("price"), (String[]) (rs.getArray("category")).getArray()));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
+                        (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
             }
             rs.close();
             return res;
@@ -48,8 +48,8 @@ public class ItemDataTable {
             Database.p_selectAllItemDataById.setArray(1, idList);
             ResultSet rs = Database.p_selectAllItemDataById.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("id"), rs.getString("title"), rs.getString("description"),
-                        rs.getString("seller"), rs.getFloat("price"), (String[]) (rs.getArray("category")).getArray()));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
+                (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
             }
             rs.close();
             return res;
@@ -113,8 +113,8 @@ public class ItemDataTable {
             Database.p_selectOneItemData.setInt(1, id);
             ResultSet rs = Database.p_selectOneItemData.executeQuery();
             if (rs.next()) {
-                res = new ItemData(rs.getInt("id"), rs.getString("title"), rs.getString("description"),
-                        rs.getString("seller"), rs.getFloat("price"), (String[]) (rs.getArray("category")).getArray());
+                res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
+                (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -125,21 +125,24 @@ public class ItemDataTable {
     /**
      * insert a item for a row in the database
      * 
-     * @param title       The title for the item
-     * @param description The description of the item
-     * @param seller      The username of the person posting
-     * @param price       The price of the item
+     * @param title         The title for the item
+     * @param description   The description of the item
+     * @param userId        The id of the person posting this item
+     * @param tradingInfoId The id of table entry which includes all trading info about this item
+     * @param categories    The int array with all categories
+     * @param postDate      The post date of this item
      * 
      * @return The number of rows that were updated. -1 indicates an error.
      */
-    public int insertNewItemData(String title, String description, String seller, double price, String[] categories) {
+    public int insertNewItemData(int userId, String title, String description, ArrayList<Integer> categories, int tradingInfoId, int postDate) {
         int count = 0;
         try {
-            Database.p_insertNewItemData.setString(1, title);
-            Database.p_insertNewItemData.setString(2, description);
-            Database.p_insertNewItemData.setString(3, seller);
-            Database.p_insertNewItemData.setDouble(4, price);
-            Database.p_insertNewItemData.setArray(5, Database.ConvertToStringArray(categories));
+            Database.p_insertNewItemData.setInt(1, userId);
+            Database.p_insertNewItemData.setString(2, title);
+            Database.p_insertNewItemData.setString(3, description);
+            Database.p_insertNewItemData.setArray(4, Database.ConvertToIntArray(categories));
+            Database.p_insertNewItemData.setInt(5, tradingInfoId);            
+            Database.p_insertNewItemData.setInt(6, postDate);
             count += Database.p_insertNewItemData.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
