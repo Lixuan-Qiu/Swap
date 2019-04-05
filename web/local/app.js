@@ -90,10 +90,10 @@ var Item = /** @class */ (function () {
     Item.prototype.updateItemList = function (data) {
         console.log("Update List");
         console.log(data);
-        console.log(data.item);
+        console.log(data[1]);
         $("#Message").empty();
         for (var i = 0; i < data.length; i++) {
-            $("#Message").append("<a " + "id='" + (data.item)[i].itemId + "' " + " onclick='" + "itemPage(this, " + i + ")'" + " >" + (data.item)[i].itemDescription + "</a>");
+            $("#Message").append("<a " + "id='" + data[2][i].itemId + "' " + " onclick='" + "itemPage(this, " + i + ")'" + " >" + data[2][i].itemDescription + "</a>");
         }
         for (var i = 0; i < data.length; i++) {
             $("#" + i).click(function () {

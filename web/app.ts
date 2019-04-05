@@ -1,5 +1,6 @@
 //import { loadavg } from "os";
-
+/// This constant indicates the path to our backend server
+//const backendUrl = "https://swap-lehigh.herokuapp.com";
 
 var $: any;
 var item: Item;
@@ -7,7 +8,8 @@ var add: Add;
 var username: any;
 var userid: any;
 var Handlebars: any;
-
+var idList = [];
+var selectedId: any;
 //Add class provides the function for posting a message to the board
 class Add {
     constructor() {
@@ -36,7 +38,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?all",
+            url: /*backendUrl + */"/item/all",
             dataType: "json",
             success: item.updateItemList
         });
@@ -81,7 +83,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=all",
+            url: /*backendUrl + */"/item/all",
             dataType: "json",
             success: item.updateItemList
         });  
@@ -89,15 +91,20 @@ class Item {
     //clear all the messages and load the most updated messages
     private updateItemList(data:any) {
         console.log("Update List");
+        console.log(data);
+        console.log(data.item[0].itemId);
+        console.log(data.item[0].itemDescription);
         $("#Message").empty();
-        for(let i = 0; i<data.length;i++){
-            $("#Message").append("<a "+ "id='"+data[i].itemId +"' "+ " onclick='"+ "itemPage(this, "+ i+")'" + " >" +data[i].itemDescription+"</a>");
+        for(let i = 0; i<data.item.length;i++){
+            $("#Message").append("<p "+ "id='"+data.item[i].itemId +"' "+ " onclick='"+ "itemPage(this, "+ i+")'" + " >" +data.item[i].itemTitle+"</p>");
         }
+        /*
         for(let i = 0; i<data.length;i++){
             $("#"+i).click(function(){
                 window.location.href = "item.html";
             });
         }
+        */
         //$("#Message").html(
         //$("#Message").html(Handlebars.templates["itemList.hb"](data));
         /*
@@ -126,10 +133,23 @@ class Item {
         });
     }
     public getItem(id:any){
-        $("#Message").empty();
-        $("#Message").append("<p> Item Page</p>");
+        console.log("getItem");
+        $.ajax({
+            type: "GET",
+            url: "/item/all",
+            dataType: "json",
+            success: item.displayItemInfo
+        });
+        
         //$("#Message").load("item.html");
         //$("#Message").html(Handlebars.templates["itemList.hb"](id));
+    }
+    public displayItemInfo(data:any){
+        let i = selectedId;
+        console.log(i);
+        $("#Message").empty();
+        $("#Message").html(Handlebars.templates["item.hb"](data));
+        //$("#Message").append("<p>" +data.item[i].itemTitle+"</p>");
     }
     private updateItemInfo(data:any){
         $("#itemInfo").html(Handlebars.templates["itemList.hb"](data));
@@ -164,15 +184,18 @@ function getAll(){
     item.getAll();
 }
 function itemPage(elm:any, i:any){
-    item = new Item();
+    //item = new Item();
+    console.log("click id= "+i);
     item.getItem(i);
+    selectedId = i;
 }
 //on load function creates all the objects
 $(function () {
+
     item = new Item();
     add = new Add();
     //item.setOnClickFunction();
-    $("#category-school").on("click",item.getItemListByName("school"));
+    //$("#category-school").on("click",item.getItemListByName("school"));
 
 
     
