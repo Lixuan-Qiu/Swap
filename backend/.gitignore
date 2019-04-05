@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 .vscode
 .factorypath
 .classpath
 .settings
 target/*
 
+=======
+target/*
+.classpath
+.project
+.settings
+.vscode
+>>>>>>> cd4574b8443de2f2b22f90076f786b60d7ba3c6a

@@ -1,102 +1,67 @@
-//import { loadavg } from "os";
-
-
-var $: any;
-var item: Item;
-var add: Add;
-var username: any;
-var userid: any;
-var Handlebars: any;
-
+"use strict";
+var $;
+var item;
+var add;
+var username;
+var userid;
+var Handlebars;
 //Add class provides the function for posting a message to the board
-class Add {
-    constructor() {
+var Add = /** @class */ (function () {
+    function Add() {
         $("#Add-newMessageBtn").click(this.addItem);
     }
     //sned user's message and username to backend
-    private addItem() {
-        let newDescripition = $("#Add-newItem").val();
+    Add.prototype.addItem = function () {
+        var newDescripition = $("#Add-newItem").val();
         $.ajax({
             type: "POST",
             url: "/newItem",
             dataType: "json",
-            data: JSON.stringify({ description: newDescripition}),
+            data: JSON.stringify({ description: newDescripition }),
             success: item.refresh
         });
-    }
-}
+    };
+    return Add;
+}());
 //Message class provides methods for refresh the whole list of messages
-class Item {
-    constructor() {
-        
+var Item = /** @class */ (function () {
+    function Item() {
     }
     //get all the information 
-    refresh() {
+    Item.prototype.refresh = function () {
         console.log("refresh");
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?all",
+            url: "/itemList/all",
             dataType: "json",
             success: item.updateItemList
         });
-    }
-    getSchool(){
+    };
+    Item.prototype.getSchool = function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=school",
+            url: "/itemList/school",
             dataType: "json",
             success: item.updateItemList
         });
-    }
-    getCar(){
+    };
+    Item.prototype.getAll = function () {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=car",
+            url: "/itemList/all",
             dataType: "json",
             success: item.updateItemList
         });
-    }
-    getElectronics(){
-        $("#Message").empty();
-        $.ajax({
-            type: "GET",
-            url: "/item?category=electronics",
-            dataType: "json",
-            success: item.updateItemList
-        });
-    }
-    getFurniture(){
-        $("#Message").empty();
-        $.ajax({
-            type: "GET",
-            url: "/item?category=furniture",
-            dataType: "json",
-            success: item.updateItemList
-        });
-    }
-    getAll(){
-        $("#Message").empty();
-        $.ajax({
-            type: "GET",
-            url: "/item?category=all",
-            dataType: "json",
-            success: item.updateItemList
-        });  
-    }
+    };
     //clear all the messages and load the most updated messages
-    private updateItemList(data:any) {
+    Item.prototype.updateItemList = function (data) {
         console.log("Update List");
         $("#Message").empty();
-        for(let i = 0; i<data.length;i++){
-            $("#Message").append("<a "+ "id='"+data[i].itemId +"' "+ " onclick='"+ "itemPage(this, "+ i+")'" + " >" +data[i].itemDescription+"</a>");
-        }
-        for(let i = 0; i<data.length;i++){
-            $("#"+i).click(function(){
-                window.location.href = "item.html";
-            });
+        for (var i = 0; i < data.length; i++) {
+            $("#Message").append("<p " + "id='" + data[i].itemId + "' " + " onclick='" + "itemPage(this, " + i + ")'" + " >" + data[i].itemDescription + "</p>");
         }
         //$("#Message").html(
         //$("#Message").html(Handlebars.templates["itemList.hb"](data));
@@ -105,10 +70,9 @@ class Item {
             $("#" + data[i].itemId).click(this.getItemInfo(data[i].itemId))
         }
         */
-    }
-    
-    public getItemListByName(name:any){
-        if(name=="all")
+    };
+    Item.prototype.getItemListByName = function (name) {
+        if (name == "all")
             this.refresh();
         $.ajax({
             type: "GET",
@@ -116,54 +80,40 @@ class Item {
             dataType: "json",
             success: item.updateItemList
         });
-    }
-    private getItemInfo(id:any){
+    };
+    Item.prototype.getItemInfo = function (id) {
         $.ajax({
             type: "GET",
             url: "/itemInfo/" + id,
             dataType: "json",
             success: item.updateItemInfo
         });
-    }
-    public getItem(id:any){
+    };
+    Item.prototype.getItem = function (id) {
         $("#Message").empty();
         $("#Message").append("<p> Item Page</p>");
-        //$("#Message").load("item.html");
-        //$("#Message").html(Handlebars.templates["itemList.hb"](id));
-    }
-    private updateItemInfo(data:any){
+    };
+    Item.prototype.updateItemInfo = function (data) {
         $("#itemInfo").html(Handlebars.templates["itemList.hb"](data));
-    }
-    setOnClickFunction(){       
+    };
+    Item.prototype.setOnClickFunction = function () {
         $("#category-all").click(this.getItemListByName("all"));
         $("#category-school").click(this.getItemListByName("school"));
         $("#category-car").click(this.getItemListByName("car"));
         $("#category-electronics").click(this.getItemListByName("electronics"));
         $("#category-furniture").click(this.getItemListByName("furniture"));
-    }
-    
-}
-function getSchool(){
+    };
+    return Item;
+}());
+function getSchool() {
     item = new Item();
     item.getSchool();
 }
-function getCar(){
-    item = new Item();
-    item.getCar();
-}
-function getElectronics(){
-    item = new Item();
-    item.getElectronics();
-}
-function getFurniture(){
-    item = new Item();
-    item.getFurniture();
-}
-function getAll(){
+function getAll() {
     item = new Item();
     item.getAll();
 }
-function itemPage(elm:any, i:any){
+function itemPage(elm, i) {
     item = new Item();
     item.getItem(i);
 }
@@ -172,17 +122,13 @@ $(function () {
     item = new Item();
     add = new Add();
     //item.setOnClickFunction();
-    $("#category-school").on("click",item.getItemListByName("school"));
-
-
-    
+    $("#category-school").on("click", item.getItemListByName("school"));
     item.refresh();
     /*
-    setInterval(function(){ 
+    setInterval(function(){
         console.log("Refresh every 2 s" );
 
         item.refresh();
     }, 10000);
     */
-    
 });
