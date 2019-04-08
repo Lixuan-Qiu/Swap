@@ -190,8 +190,14 @@ public class Database
             //             Item Data Table
             //////////////////////////////////////////
             Database.p_createItemDataTable = mConnection.prepareStatement(
-                    "CREATE TABLE itemData (itemId SERIAL PRIMARY KEY, userId INTEGER, title VARCHAR(50) NOT NULL, description VARCHAR(500) NOT NULL),"
-                    + "category INTEGER[], tradingInfoId INTEGER, postDate INTEGER");
+                    "CREATE TABLE itemData"
+                    + "(itemId SERIAL PRIMARY KEY," 
+                    + " userId INTEGER," 
+                    + " title VARCHAR(50) NOT NULL," 
+                    + " description VARCHAR(500) NOT NULL,"
+                    + " category INTEGER," 
+                    + " tradingInfoId INTEGER," 
+                    + " postDate INTEGER)");
             Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
             Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
@@ -199,14 +205,20 @@ public class Database
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
             Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * from itemData WHERE itemId=?");
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
-            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT * from itemData WHERE ? in category");
+            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT * from itemData WHERE category in ?");
             //////////////////////////////////////////
             //        Trading Info Data Table
             //////////////////////////////////////////
             
             Database.p_createTradingInfoDataTable = mConnection.prepareStatement(
-                    "CREATE TABLE tradingInfoData (tradingInfoId SERIAL PRIMARY KEY, itemId INTEGER, tradeMethod INTEGER,"
-                    + "price float, availability boolean, availableTime VARCHAR(40), wantedItemDescription VARCHAR(50)");
+                    "CREATE TABLE tradingInfoData" 
+                    + " (tradingInfoId SERIAL PRIMARY KEY,"
+                    + " itemId INTEGER,"
+                    + " tradeMethod INTEGER,"
+                    + " price float,"
+                    + " availability boolean," 
+                    + " availableTime VARCHAR(40),"
+                    + " wantedItemDescription VARCHAR(50))");
             Database.p_dropTradingInfoDataTable = mConnection.prepareStatement("DROP TABLE tradingInfoData");
             // Standard CRUD operations for item category data
             Database.p_insertNewTradingInfoData = mConnection.prepareStatement("INSERT INTO tradingInfoData VALUES (default, ?, ?, ?, ?, ?, ?)");
@@ -286,6 +298,7 @@ public class Database
      */
     public void createAllTables(){
         itemDT.createItemDataTable();
+        itemTIDT.createTradingInfoDataTable();
     }
 
     /**
@@ -293,6 +306,7 @@ public class Database
      */
     public void dropAllTables(){
         itemDT.dropItemDataTable();
+        itemTIDT.dropTradingInfoDataTable();
     }
 
     public int insertNewItem(int userId, String title, String description, ArrayList<Integer> categories, int tradingInfoId, int postDate){

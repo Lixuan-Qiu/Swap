@@ -41,20 +41,21 @@ public class ItemData {
 
     /**
      * Construct a ItemData object by providing values for its fields
-     * @param userid
-     * @param title
-     * @param description
-     * @param userId
-     * @param price
-     * @param category
+     * @param id_            The ID of the item
+     * @param userid_ 
+     * @param title_
+     * @param description_
+     * @param userId_
+     * @param price_
+     * @param category_
      */
-    public ItemData(int id, int userId, String title, String description, int[] category, int tradingData, int postDate) {
-        itemId = id;
-        itemSeller = userId;
-        itemTitle = title;
-        itemCategory = category;
-        itemDescription = description;
-        itemTradingData = tradingData;
-        itemPostDate = postDate;
+    public ItemData(int id_, int userId_, String title_, String description_, int[] category_, int tradingData_, int postDate_) {
+        itemId = id_;
+        itemSeller = userId_;
+        itemTitle = title_;
+        itemCategory = category_;
+        itemDescription = description_;
+        itemTradingData = tradingData_;
+        itemPostDate = postDate_;
     }
 }
