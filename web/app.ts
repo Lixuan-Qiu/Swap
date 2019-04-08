@@ -148,8 +148,10 @@ class Item {
         let i = selectedId;
         console.log(i);
         $("#Message").empty();
-        $("#Message").html(Handlebars.templates["item.hb"](data));
-        //$("#Message").append("<p>" +data.item[i].itemTitle+"</p>");
+        //$("#Message").html(Handlebars.templates["item.hb"](data));
+        //"<div id=\'itemPage-left\'>"+ "<p>" +data.item[i].itemTitle+"</p>"+ "<p>" +data.item[i].itemDescription+"</p>"+"</div>" + +"<div id=\'itemPage-right\'>"+ "</div>"
+        //"<p>" +data.item[i].itemTitle+"</p>" + "<p>" +data.item[i].itemDescription+"</p>" + "<p>" +data.item[i].itemSeller+"</p>"+ "<p>" +data.item[i].itemPrice+"</p>"
+        $("#Message").append("<p>" +data.item[i].itemTitle+"</p>" + "<p>" +data.item[i].itemDescription+"</p>" + "<p>" +data.item[i].itemSeller+"</p>"+ "<p>" +data.item[i].itemPrice+"</p>");
     }
     private updateItemInfo(data:any){
         $("#itemInfo").html(Handlebars.templates["itemList.hb"](data));
