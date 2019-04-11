@@ -1,32 +1,26 @@
-/* To do list (Mar 29):
-   1. Connect to elasticsearch
-   2. finsh line 123
-   3. 
-   4. 
-   */
-
 package edu.lehigh.cse280.swap.app;
 
 import java.awt.event.*;
-import org.elasticsearch.action.ActionListener;
+import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-// Import the Spark package, so that we can make use of the "get" function to 
-import spark.Spark;
-import java.net.URI;
-import java.sql.SQLException;
 import java.util.Date;
-import edu.lehigh.cse280.swap.database.*;
+import java.util.HashMap;
+import java.util.Map;
+
 // Import Google's JSON library
 import com.google.gson.*;
-import java.sql.*;
-import org.elasticsearch.action.index.*;
-import org.elasticsearch.ElasticsearchException;
-import java.io.*;
-import org.elasticsearch.client.*;
+
 import org.apache.http.*;
-import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.index.*;
+import org.elasticsearch.client.*;
+
+import edu.lehigh.cse280.swap.database.*;
+// Import the Spark package, so that we can make use of the "get" function to 
+import spark.Spark;
+import edu.lehigh.cse280.swap.database.Database;
+import edu.lehigh.cse280.swap.database.ItemData;
 
 /**
  * For now, our app creates an HTTP server that can only get and add data.
@@ -37,7 +31,7 @@ public class App {
         // Our server runs on port 4567. That's the Java Spark default
         Map<String, String> env = System.getenv();
         String db_url = env.get("DATABASE_URL");
-    
+
         Spark.port(getIntFromEnv("PORT", 4567));
         // gson provides us with a way to turn JSON into objects, and objects
         // into JSON.
@@ -87,25 +81,37 @@ public class App {
         // hardcode data entries
         database.createAllTables();
 
-        String[] categories = { "sss", "sss" };
-        database.insertNewItem("logitech mouse", "brand new", "Sheldon", 10.0, categories);
-        database.insertNewItem("Ferrari 488", "brand new", "Sheldon", 200000.0, categories);
-        database.insertNewItem("GTX 1060", "near broken", "Xiaowei", 15.0, categories);
-        database.insertNewItem("Econ001 textbook", "half new", "Xiaowei", 30.0, categories);
-        database.insertNewItem("Coolermaster keyboard", "brand new", "Lixuan Qiu", 35.0, categories);
-        database.insertNewItem("Desktop", "80% new", "Lixuan Qiu", 25.0, categories);
-        database.insertNewItem("Range Rover Sport", "half new", "Allen", 45000.0, categories);
-        database.insertNewItem("Microfridge", "brand new", "Allen", 30.0, categories);
+        ArrayList<Integer> categories = new ArrayList<Integer>(); // Create an ArrayList object
+        categories.add(1);
+        categories.add(2);
+        categories.add(3);
+        // Sheldon:1 Lixuan:2 Allen:3 Xiaowei:4
+        database.insertNewItem(1, "logitech mouse", "brand new", categories, 1, 20190410);
+        database.insertNewItem(1, "Ferrari 488", "brand new", categories, 2, 20190328);
+        database.insertNewItem(4, "GTX 1060", "near broken", categories, 3, 20190221);
+        database.insertNewItem(4, "Econ001 textbook", "half new", categories, 4, 20190407);
+        database.insertNewItem(2, "Coolermaster keyboard", "brand new", categories, 5, 20190318);
+        database.insertNewItem(2, "Desktop", "80% new", categories, 6, 20190112);
+        database.insertNewItem(3, "Rangerover Sport", "half new", categories, 7, 20190409);
+        database.insertNewItem(3, "Microfridge", "brand new", categories, 8, 20190405);
 
-        ArrayList<ItemData> selectAll = new ArrayList<ItemData>();
-        selectAll.add(new ItemData(1, "logitech mouse", "brand new", "Sheldon", 10.0f, categories));
-        selectAll.add(new ItemData(2, "Ferrari 488", "brand new", "Sheldon", 200000.0f, categories));
-        selectAll.add(new ItemData(3, "GTX 1060", "near broken", "Xiaowei", 15.0f, categories));
-        selectAll.add(new ItemData(4, "Econ001 textbook", "half new", "Xiaowei", 30.0f, categories));
-        selectAll.add(new ItemData(5, "Coolermaster keyboard", "brand new", "Lixuan Qiu", 35.0f, categories));
-        selectAll.add(new ItemData(6, "Desktop", "80% new", "Lixuan Qiu", 25.0f, categories));
-        selectAll.add(new ItemData(7, "Range Rover Sport", "half new", "Allen", 45000.0f, categories));
-        selectAll.add(new ItemData(8, "Microfridge", "brand new", "Allen", 30.0f, categories));
+        // ArrayList<ItemData> selectAll = new ArrayList<ItemData>();
+        // selectAll.add(new ItemData(1, "logitech mouse", "brand new", "Sheldon",
+        // 10.0f, categories));
+        // selectAll.add(new ItemData(2, "Ferrari 488", "brand new", "Sheldon",
+        // 200000.0f, categories));
+        // selectAll.add(new ItemData(3, "GTX 1060", "near broken", "Xiaowei", 15.0f,
+        // categories));
+        // selectAll.add(new ItemData(4, "Econ001 textbook", "half new", "Xiaowei",
+        // 30.0f, categories));
+        // selectAll.add(new ItemData(5, "Coolermaster keyboard", "brand new", "Lixuan
+        // Qiu", 35.0f, categories));
+        // selectAll.add(new ItemData(6, "Desktop", "80% new", "Lixuan Qiu", 25.0f,
+        // categories));
+        // selectAll.add(new ItemData(7, "Range Rover Sport", "half new", "Allen",
+        // 45000.0f, categories));
+        // selectAll.add(new ItemData(8, "Microfridge", "brand new", "Allen", 30.0f,
+        // categories));
         if (static_location_override == null) {
             Spark.staticFileLocation("/web");
         } else {
@@ -125,6 +131,16 @@ public class App {
             }
         });
 
+        Spark.delete("/item?:id", (request, response) -> {
+            int idx = Integer.parseInt(request.params(":id"));
+            response.status(200);
+            response.type("application/json");
+            int res = database.deleteItem(idx);
+            if (res == -1)
+                return gson.toJson(new StructuredResponse("error", "Delete item: " + idx + "failed", null));
+            return gson.toJson(new StructuredResponse("ok", null, res));
+        });
+
         // GET route that returns all message titles and Ids. All we do is get
         // the data, embed it in a StructuredResponse, turn it into JSON, and
         // return it. If there's no data, we return "[]", so there's no need
@@ -133,7 +149,7 @@ public class App {
             // ensure status 200 OK, with a MIME type of JSON
             response.status(200);
             response.type("application/json");
-            // selectAll = database.selectAllItems();
+            ArrayList<ItemData> selectAll = database.selectAllItems();
             if (selectAll == null)
                 return gson.toJson(new StructuredResponse("error", "Get all item returns null", null));
             return gson.toJson(new StructuredResponse("ok", null, selectAll));
@@ -142,24 +158,39 @@ public class App {
         // GET route that returns corresponding item list according to the parameters
         // specified in the url
         // An example would be /item?category=furniture-school&user_id=2
-        // Spark.get("/item", (request, response) -> {
-        // response.status(200);
-        // response.type("application/json");
-        // String unParsedCategory = request.queryParams("category");
-        // if (unParsedCategory) {
+        Spark.get("/item", (request, response) -> {
+            response.status(200);
+            response.type("application/json");
+            String unParsedCategory = request.queryParams("category");
+            int cat;
+            if (unParsedCategory.equals("Car"))
+                cat = 0;
+            else if (unParsedCategory.equals("School"))
+                cat = 1;
+            else if (unParsedCategory.equals("Furniture"))
+                cat = 2;
+            else if (unParsedCategory.equals("Electronics"))
+                cat = 3;
+            ArrayList<Integer> catList = new ArrayList<>();
+            catList.add(cat);
+            ArrayList<ItemData> selectAll = database.selectAllItemsFrom(catList);
+            if (selectAll == null)
+                return gson.toJson(new StructuredResponse("error", "Get items from categorys fails", null));
+            return gson.toJson(new StructuredResponse("ok", null, selectAll));
+            // if (unParsedCategory) {
 
-        // }
+            // }
 
-        // String unParsedItemId = request.queryParams("item_id");
-        // if (unParsedItemId) {
+            // String unParsedItemId = request.queryParams("item_id");
+            // if (unParsedItemId) {
 
-        // }
+            // }
 
-        // String unParsedUserId = request.queryParams("user_id");
-        // if (unParsedUserId) {
+            // String unParsedUserId = request.queryParams("user_id");
+            // if (unParsedUserId) {
 
-        // }
-        // });
+            // }
+        });
 
         // GET route that returns everything for a single row in the database.
         // The ":id" suffix in the first parameter to get() becomes

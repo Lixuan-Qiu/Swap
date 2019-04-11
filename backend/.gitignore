@@ -6,8 +6,6 @@ target/*
 .factorypath
 ../web/*
 ../admin/*
-<<<<<<< HEAD
 src/main/resources/
+bin/*
 
-=======
->>>>>>> 75947b5a1546e481f6a05460e5b298253ab78c7f
