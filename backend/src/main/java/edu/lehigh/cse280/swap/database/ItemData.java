@@ -27,7 +27,7 @@ public class ItemData {
     /**
      * The category of the seller of the item
      */
-    int[] itemCategory;
+    int itemCategory;
 
     /**
      * The trading info of this item
@@ -49,7 +49,7 @@ public class ItemData {
      * @param price_
      * @param category_
      */
-    public ItemData(int id_, int userId_, String title_, String description_, int[] category_, int tradingData_, int postDate_) {
+    public ItemData(int id_, int userId_, String title_, String description_, int category_, int tradingData_, int postDate_) {
         itemId = id_;
         itemSeller = userId_;
         itemTitle = title_;
