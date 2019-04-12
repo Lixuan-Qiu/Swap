@@ -1,3 +1,6 @@
 
 node_modules/*
+<<<<<<< HEAD:web/.gitignore
 
+=======
+>>>>>>> 595f44cb824d58258e0b3110b8b723e44daffe2f:web/.gitignore
