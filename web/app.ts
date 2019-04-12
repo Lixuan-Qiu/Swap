@@ -47,7 +47,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=school",
+            url: "/item/school",
             dataType: "json",
             success: item.updateItemList
         });
@@ -56,7 +56,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=car",
+            url: "/item/car",
             dataType: "json",
             success: item.updateItemList
         });
@@ -65,7 +65,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=electronics",
+            url: "/item/electronics",
             dataType: "json",
             success: item.updateItemList
         });
@@ -74,7 +74,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item?category=furniture",
+            url: "/item/furniture",
             dataType: "json",
             success: item.updateItemList
         });
@@ -198,9 +198,6 @@ $(function () {
     add = new Add();
     //item.setOnClickFunction();
     //$("#category-school").on("click",item.getItemListByName("school"));
-
-
-    
     item.refresh();
     /*
     setInterval(function(){ 
