@@ -81,19 +81,16 @@ public class App {
         // hardcode data entries
         database.createAllTables();
 
-        ArrayList<Integer> categories = new ArrayList<Integer>(); // Create an ArrayList object
-        categories.add(1);
-        categories.add(2);
-        categories.add(3);
+        //int categories = 0;
         // Sheldon:1 Lixuan:2 Allen:3 Xiaowei:4
-        database.insertNewItem(1, "logitech mouse", "brand new", categories, 1, 20190410);
-        database.insertNewItem(1, "Ferrari 488", "brand new", categories, 2, 20190328);
-        database.insertNewItem(4, "GTX 1060", "near broken", categories, 3, 20190221);
-        database.insertNewItem(4, "Econ001 textbook", "half new", categories, 4, 20190407);
-        database.insertNewItem(2, "Coolermaster keyboard", "brand new", categories, 5, 20190318);
-        database.insertNewItem(2, "Desktop", "80% new", categories, 6, 20190112);
-        database.insertNewItem(3, "Rangerover Sport", "half new", categories, 7, 20190409);
-        database.insertNewItem(3, "Microfridge", "brand new", categories, 8, 20190405);
+        database.insertNewItem(1, "logitech mouse", "brand new", 3, 20190410);
+        database.insertNewItem(1, "Ferrari 488", "brand new", 0, 20190328);
+        database.insertNewItem(4, "GTX 1060", "near broken", 3, 20190221);
+        database.insertNewItem(4, "Econ001 textbook", "half new", 1, 20190407);
+        database.insertNewItem(2, "Coolermaster keyboard", "brand new", 3, 20190318);
+        database.insertNewItem(2, "Desktop", "80% new", 3, 20190112);
+        database.insertNewItem(3, "Rangerover Sport", "half new", 2, 20190409);
+        database.insertNewItem(3, "Microfridge", "brand new", 2, 20190405);
 
         // ArrayList<ItemData> selectAll = new ArrayList<ItemData>();
         // selectAll.add(new ItemData(1, "logitech mouse", "brand new", "Sheldon",
@@ -211,6 +208,29 @@ public class App {
             }
             return gson.toJson(new StructuredResponse("ok", null, database.selectOneItem(idx)));
         });
+
+
+        // POST route that allows for web to post a new item and insert it to the table
+        // current only supports insertion for itemData table
+        // with field seller, title, description, category, and postDate
+        //            int     string string       int           int
+        Spark.post("/new", (request, response) -> {
+            int unParsedSellerId = Integer.parseInt(request.queryParams("seller"));
+            String unParsedTitle = request.queryParams("title");
+            String unParsedDescription = request.queryParams("description");
+            int unParsedCategory = Integer.parseInt(request.queryParams("category"));
+            int unParsedPostDate = Integer.parseInt(request.queryParams("postDate"));
+
+            response.status(200);
+            response.type("application/json");
+            int res = database.insertNewItem(unParsedSellerId, unParsedTitle, unParsedDescription, unParsedCategory, unParsedPostDate);
+            if (res < 0) {
+                String errorMessage = "fail to insert new item";
+                return gson.toJson(new StructuredResponse("error", errorMessage, null));
+            }
+            return gson.toJson(new StructuredResponse("ok", null, res));
+        });
+
 
         // POST route for adding a new element to the database. This will read
         // JSON from the body of the request, turn it into a SimpleRequest
