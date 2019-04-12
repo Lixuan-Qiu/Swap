@@ -47,7 +47,7 @@ class Item {
         $("#Message").empty();
         $.ajax({
             type: "GET",
-            url: "/item/school",
+            url: "/item?category=School",
             dataType: "json",
             success: item.updateItemList
         });
@@ -92,8 +92,10 @@ class Item {
     private updateItemList(data:any) {
         console.log("Update List");
         console.log(data);
+        /*
         console.log(data.item[0].itemId);
         console.log(data.item[0].itemDescription);
+        */
         $("#Message").empty();
         for(let i = 0; i<data.item.length;i++){
             $("#Message").append("<p "+ "id='"+data.item[i].itemId +"' "+ " onclick='"+ "itemPage(this, "+ i+")'" + " >" +data.item[i].itemTitle+"</p>");
