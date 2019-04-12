@@ -162,7 +162,8 @@ public class App {
             response.status(200);
             response.type("application/json");
             String unParsedCategory = request.queryParams("category");
-            int cat;
+            int cat = 0;
+
             if (unParsedCategory.equals("Car"))
                 cat = 0;
             else if (unParsedCategory.equals("School"))
