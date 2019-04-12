@@ -26,7 +26,7 @@ public class ItemDataTable {
             ResultSet rs = Database.p_selectAllItemData.executeQuery();
             while (rs.next()) {
                 res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                        (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
+                        rs.getInt("category"), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
             }
             rs.close();
             return res;
@@ -49,7 +49,7 @@ public class ItemDataTable {
             ResultSet rs = Database.p_selectAllItemDataById.executeQuery();
             while (rs.next()) {
                 res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
+                rs.getInt("category"), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
             }
             rs.close();
             return res;
@@ -72,9 +72,9 @@ public class ItemDataTable {
             Database.p_selectAllFrom.setArray(1, Database.ConvertToIntArray(categories));
             ResultSet rs = Database.p_selectAllFrom.executeQuery();
             while (rs.next()) {
-                tradingInfoDataidList.add(rs.getInt("itemId"));
+                tradingInfoDataidList.add(rs.getInt("tradingInfoId"));
                 res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
+                rs.getInt("category"), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
             }
             rs.close();
         } catch (SQLException e) {
@@ -98,7 +98,7 @@ public class ItemDataTable {
             ResultSet rs = Database.p_selectOneItemData.executeQuery();
             if (rs.next()) {
                 res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                (int[])rs.getArray("category").getArray(), rs.getInt("tradingInfoId"), rs.getInt("postDate"));
+                rs.getInt("category"), rs.getInt("tradingInfoId"), rs.getInt("postDate"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,14 +118,14 @@ public class ItemDataTable {
      * 
      * @return The number of rows that were updated. -1 indicates an error.
      */
-    public int insertNewItemData(int userId, String title, String description, ArrayList<Integer> categories, int tradingInfoId, int postDate) {
+    public int insertNewItemData(int userId, String title, String description, int category, int postDate) {
         int count = 0;
         try {
             Database.p_insertNewItemData.setInt(1, userId);
             Database.p_insertNewItemData.setString(2, title);
             Database.p_insertNewItemData.setString(3, description);
-            Database.p_insertNewItemData.setArray(4, Database.ConvertToIntArray(categories));
-            Database.p_insertNewItemData.setInt(5, tradingInfoId);            
+            Database.p_insertNewItemData.setInt(4, category);
+            Database.p_insertNewItemData.setInt(5, 0);            
             Database.p_insertNewItemData.setInt(6, postDate);
             count += Database.p_insertNewItemData.executeUpdate();
         } catch (SQLException e) {

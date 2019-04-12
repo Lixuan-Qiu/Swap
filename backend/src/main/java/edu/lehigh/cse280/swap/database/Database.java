@@ -12,7 +12,12 @@ import java.util.ArrayList;
 
 import com.heroku.api.request.RequestConfig.Data;
 
-public class Database {
+public class Database 
+{
+    /**
+     * A prepared statement used for getting the most recently created itemData entry id
+     */
+    static PreparedStatement p_getMostRecentId;
     /****************************************************************/
     /****************************************************************/
     /*******                                                  *******/
@@ -50,6 +55,11 @@ public class Database {
      * A prepared statement for selecting all items in one category
      */
     static PreparedStatement p_selectAllFrom;
+
+    /**
+     * A prepared statement for updating info for itemData
+     */
+    static PreparedStatement p_updateItemData;
 
     /**
      * A prepared statement for creating the item table in our database
@@ -169,15 +179,22 @@ public class Database {
             return null;
         }
 
-        // Attempt to create all of our prepared statements. If any of these fail, the
-        // whole getDatabase() call should fail
-        try {
+        // Attempt to create all of our prepared statements.  If any of these fail, the whole getDatabase() call should fail
+        try 
+        {
+            Database.p_getMostRecentId = mConnection.prepareStatement("SELECT MAX(itemId) FROM itemData");
             //////////////////////////////////////////
             // Item Data Table
             //////////////////////////////////////////
             Database.p_createItemDataTable = mConnection.prepareStatement(
-                    "CREATE TABLE itemData (itemId SERIAL PRIMARY KEY, userId INTEGER, title VARCHAR(50) NOT NULL, description VARCHAR(500) NOT NULL),"
-                            + "category INTEGER[], tradingInfoId INTEGER, postDate INTEGER");
+                    "CREATE TABLE itemData"
+                    + "(itemId SERIAL PRIMARY KEY," 
+                    + " userId INTEGER," 
+                    + " title VARCHAR(50) NOT NULL," 
+                    + " description VARCHAR(500) NOT NULL,"
+                    + " category INTEGER," 
+                    + " tradingInfoId INTEGER," 
+                    + " postDate INTEGER)");
             Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
             Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
@@ -186,14 +203,21 @@ public class Database {
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
             Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * from itemData WHERE itemId=?");
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
-            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT * from itemData WHERE ? in category");
+            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT * from itemData WHERE category in ?");
+            Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
             //////////////////////////////////////////
             // Trading Info Data Table
             //////////////////////////////////////////
 
             Database.p_createTradingInfoDataTable = mConnection.prepareStatement(
-                    "CREATE TABLE tradingInfoData (tradingInfoId SERIAL PRIMARY KEY, itemId INTEGER, tradeMethod INTEGER,"
-                            + "price float, availability boolean, availableTime VARCHAR(40), wantedItemDescription VARCHAR(50)");
+                    "CREATE TABLE tradingInfoData" 
+                    + " (tradingInfoId SERIAL PRIMARY KEY,"
+                    + " itemId INTEGER,"
+                    + " tradeMethod INTEGER,"
+                    + " price float,"
+                    + " availability boolean," 
+                    + " availableTime VARCHAR(40),"
+                    + " wantedItemDescription VARCHAR(50))");
             Database.p_dropTradingInfoDataTable = mConnection.prepareStatement("DROP TABLE tradingInfoData");
             // Standard CRUD operations for item category data
             Database.p_insertNewTradingInfoData = mConnection
@@ -280,9 +304,8 @@ public class Database {
         itemTIDT.dropTradingInfoDataTable();
     }
 
-    public int insertNewItem(int userId, String title, String description, ArrayList<Integer> categories,
-            int tradingInfoId, int postDate) {
-        int res = itemDT.insertNewItemData(userId, title, description, categories, tradingInfoId, postDate);
+    public int insertNewItem(int userId, String title, String description, int categories, int postDate){
+        int res = itemDT.insertNewItemData(userId, title, description, categories, postDate);
         return res;
     }
 
