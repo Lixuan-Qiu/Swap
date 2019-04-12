@@ -20,7 +20,6 @@ public class StructuredResponse {
     public String mMessage;
 
     public Object item;
-    
 
     /**
      * Construct a StructuredResponse by providing a status, message, and data. If

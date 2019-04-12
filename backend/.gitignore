@@ -1,6 +1,13 @@
 .vscode
 .factorypath
+<<<<<<< HEAD
 .classpath
 .settings/*
 target/*
+=======
+../web/*
+../admin/*
+src/main/resources/
+bin/*
+>>>>>>> back_end
 
