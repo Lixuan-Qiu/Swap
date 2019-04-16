@@ -1,4 +1,4 @@
-package com.swap.admin;
+package edu.lehigh.cse280.swap.admin;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

@@ -1,4 +1,4 @@
-package com.swap.admin;
+package edu.lehigh.cse280.swap.admin;
 
 /**
  * Hello world!
