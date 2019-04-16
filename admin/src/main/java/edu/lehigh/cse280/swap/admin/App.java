@@ -131,7 +131,7 @@ public class App {
      * @return The integer array that the user provided. On error, it will be -1
      */
     static int[] getIntArray(BufferedReader in, String message) {
-        int i[];
+        int i[] = { -1 };
         try {
             System.out.print(message + " :> ");
             String raw[] = in.readLine().split(" ");
@@ -220,7 +220,8 @@ public class App {
                 int category[] = getIntArray(in, "Enter the category int array delimited by space");
                 int postdate = getInt(in, "Enter the date when the item was posted");
 
-                if (title.equals("") || description.equals("") || inputPrice < 0 || userID < 0 || postdate < 0)
+                if (title.equals("") || description.equals("") || inputPrice < 0 || userID < 0 || postdate < 0
+                        || category[0] == -1)
                     continue;
                 int res = db.insertRow(subject, message);
                 System.out.println(res + " rows added");
