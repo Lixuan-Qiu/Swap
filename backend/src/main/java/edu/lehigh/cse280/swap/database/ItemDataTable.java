@@ -65,14 +65,38 @@ public class ItemDataTable {
      * @param categories the category on which the items will be filtered
      * @return All rows, as an ArrayList
      */
-    public ArrayList<ItemData> selectAllItemFrom(ArrayList<Integer> categories) {
+    public ArrayList<ItemData> selectAllItemFromCategory(ArrayList<Integer> categories) {
         ArrayList<ItemData> res = new ArrayList<ItemData>();
-        ArrayList<Integer> tradingInfoDataidList = new ArrayList<Integer>();
         try {
-            Database.p_selectAllFrom.setArray(1, Database.ConvertToIntArray(categories));
-            ResultSet rs = Database.p_selectAllFrom.executeQuery();
+            Database.p_selectAllFromCategory.setArray(1, Database.ConvertToIntArray(categories));
+            ResultSet rs = Database.p_selectAllFromCategory.executeQuery();
             while (rs.next()) {
-                tradingInfoDataidList.add(rs.getInt("tradingInfoId"));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+            }
+
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return res;
+    }
+
+    /**
+     * Query the database for a list of all items from some price range
+     * 
+     * @param price the price on which the items will be filtered
+     * @return All rows, as an ArrayList
+     */
+    public ArrayList<ItemData> selectAllItemFromPrice(float low, float high) {
+        ArrayList<ItemData> res = new ArrayList<ItemData>();
+        try {
+            Database.p_selectAllFromPrice.setFloat(1, low);
+            Database.p_selectAllFromPrice.setFloat(2, high);
+            ResultSet rs = Database.p_selectAllFromPrice.executeQuery();
+            while (rs.next()) {
+
                 res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
                 rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
             }
@@ -83,6 +107,7 @@ public class ItemDataTable {
         }
         return res;
     }
+
 
     /**
      * Get all data for a specific item

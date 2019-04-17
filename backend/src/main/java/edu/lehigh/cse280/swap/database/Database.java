@@ -54,7 +54,12 @@ public class Database
     /**
      * A prepared statement for selecting all items in one category
      */
-    static PreparedStatement p_selectAllFrom;
+    static PreparedStatement p_selectAllFromCategory;
+
+    /**
+    * A prepared statement for selecting all items in one category
+    */
+    static PreparedStatement p_selectAllFromPrice;
 
     /**
      * A prepared statement for updating info for itemData
@@ -182,7 +187,6 @@ public class Database
         // Attempt to create all of our prepared statements.  If any of these fail, the whole getDatabase() call should fail
         try 
         {
-            //@TO-DO: change the category type possibly, update the filter function 1) by category 2) by price
             Database.p_getMostRecentId = mConnection.prepareStatement("SELECT MAX(itemId) FROM itemData");
             //////////////////////////////////////////
             // Item Data Table
@@ -206,10 +210,12 @@ public class Database
             Database.p_insertNewItemData = mConnection
                     .prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
-            Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * from itemData WHERE itemId=?");
+            Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId=?");
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
-            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT * from itemData WHERE category in ?");
+            Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category in ?");
+            Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
             Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
+            
 
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -300,7 +306,7 @@ public class Database
     }
 
     public ArrayList<ItemData> selectAllItemsFrom(ArrayList<Integer> category) {
-        return itemDT.selectAllItemFrom(category);
+        return itemDT.selectAllItemFromCategory(category);
     }
 
     public ItemData selectOneItem(int itemId) {
