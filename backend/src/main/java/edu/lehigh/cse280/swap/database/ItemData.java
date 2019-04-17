@@ -42,27 +42,27 @@ public class ItemData {
     /**
      * The trading method of this item
      */
-    int tradeMethod;
+    int itemTradeMethod;
 
     /**
      * The price of this item
      */
-    float price;
+    float itemPrice;
 
     /**
      * The availability of this item
      */
-    boolean availability;
+    boolean itemAvailability;
 
     /**
-     * The availability of this item
+     * The availabile time of this item
      */
-    String availabileTime;
+    String itemAvailabileTime;
 
     /**
-     * The availability of this item
+     * The description of the item they hope to trade for
      */
-    String wantedItemDescription;
+    String itemWantedItemDescription;
 
     /**
      * Construct a ItemData object by providing values for its fields
@@ -84,10 +84,10 @@ public class ItemData {
         itemPostDate = postDate_;
 
         //trading info data
-        tradeMethod = tradeMethod_;
-        price = price_;
-        availability = availability_;
-        availabileTime = availableTime_;
-        wantedItemDescription = wantedItemDescription_;
+        itemTradeMethod = tradeMethod_;
+        itemPrice = price_;
+        itemAvailability = availability_;
+        itemAvailabileTime = availableTime_;
+        itemWantedItemDescription = wantedItemDescription_;
     }
 }

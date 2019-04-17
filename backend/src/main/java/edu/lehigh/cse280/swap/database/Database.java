@@ -303,7 +303,7 @@ public class Database
      */
     public int insertNewItem(ItemData item){
         int res = itemDT.insertNewItemData(item.itemSeller, item.itemTitle, item.itemDescription, item.itemCategory, item.itemPostDate, 
-        item.tradeMethod, item.price, item.availability, item.availabileTime, item.wantedItemDescription);
+        item.itemTradeMethod, item.itemPrice, item.itemAvailability, item.itemAvailabileTime, item.itemWantedItemDescription);
         return res;
     }
 
