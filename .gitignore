@@ -1,2 +1,6 @@
 .vscode/*
 admin/target/*
+admin/.classpath
+admin/.factorypath
+admin/.project
+admin/.settings/
