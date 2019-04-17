@@ -296,6 +296,17 @@ public class Database
         return res;
     }
 
+    /**
+     * 
+     * @param item An ItemData object that will be inserted
+     * @return if non negative if successfully inserted
+     */
+    public int insertNewItem(ItemData item){
+        int res = itemDT.insertNewItemData(item.itemSeller, item.itemTitle, item.itemDescription, item.itemCategory, item.itemPostDate, 
+        item.tradeMethod, item.price, item.availability, item.availabileTime, item.wantedItemDescription);
+        return res;
+    }
+
     public int deleteItem(int itemId) {
         int res = itemDT.deleteItem(itemId);
         return res;
