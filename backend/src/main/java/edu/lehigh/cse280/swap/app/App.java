@@ -1,3 +1,6 @@
+//change selectAllItemsFrom 
+//change all field in itemdata to public
+
 package edu.lehigh.cse280.swap.app;
 
 import java.awt.event.*;
@@ -30,6 +33,18 @@ import org.apache.http.auth.*;
  * For now, our app creates an HTTP server that can only get and add data.
  */
 public class App {
+    // parameters for trading method
+    private static final int sell = 1;
+    private static final int trade = 2;
+    private static final int rent = 3;
+    private static final int giveaway = 4;
+
+    // parameters for categories
+    private static final int car = 1;
+    private static final int school = 2;
+    private static final int electronic = 3;
+    private static final int furniture = 4;
+
     public static void main(String[] args) {
         // we need to call it before we do anything else with Spark.
         // Our server runs on port 4567. That's the Java Spark default
@@ -126,14 +141,17 @@ public class App {
 
         // int categories = 0;
         // Sheldon:1 Lixuan:2 Allen:3 Xiaowei:4
-        database.insertNewItem(1, "logitech mouse", "brand new", 3, 20190410);
-        database.insertNewItem(1, "Ferrari 488", "brand new", 0, 20190328);
-        database.insertNewItem(4, "GTX 1060", "near broken", 3, 20190221);
-        database.insertNewItem(4, "Econ001 textbook", "half new", 1, 20190407);
-        database.insertNewItem(2, "Coolermaster keyboard", "brand new", 3, 20190318);
-        database.insertNewItem(2, "Desktop", "80% new", 3, 20190112);
-        database.insertNewItem(3, "Rangerover Sport", "half new", 2, 20190409);
-        database.insertNewItem(3, "Microfridge", "brand new", 2, 20190405);
+        database.insertNewItem(1, "logitech mouse", "brand new", electronic, 20190410, sell, 40f, true, " days", "");
+        database.insertNewItem(1, "Ferrari 488", "brand new", car, 20190328, giveaway, 0f, false,
+                "this should not be shown", "");
+        database.insertNewItem(4, "GTX 1060", "near broken", electronic, 20190221, trade, 0f, true, "10 days", "");
+        database.insertNewItem(4, "Econ001 textbook", "half new", school, 20190407, sell, 20f, true, "in this semester",
+                "");
+        database.insertNewItem(2, "Coolermaster keyboard", "brand new", electronic, 20190318, trade, 0f, false,
+                "this should not be shown", "");
+        database.insertNewItem(2, "Desktop", "80% new", furniture, 20190112, giveaway, 0f, true, "2 months", "");
+        database.insertNewItem(3, "Rangerover Sport", "half new", car, 20190409, rent, 100f, false, "a month", "");
+        database.insertNewItem(3, "Microfridge", "brand new", furniture, 20190405, trade, 0f, true, "one year", "");
 
         // ArrayList<ItemData> selectAll = new ArrayList<ItemData>();
         // selectAll.add(new ItemData(1, "logitech mouse", "brand new", "Sheldon",
@@ -171,8 +189,17 @@ public class App {
             }
         });
 
-        Spark.delete("/item?:id", (request, response) -> {
-            int idx = Integer.parseInt(request.params(":id"));
+        Spark.delete("/item", (request, response) -> {
+            int idx;
+            try {
+                idx = Integer.parseInt(request.queryParams("id"));
+            } catch (NumberFormatException e) {
+                idx = -1;
+            }
+            if (idx == -1)
+                return gson.toJson(
+                        new StructuredResponse("error", "id in json object cannot be parsed into integer", null));
+
             response.status(200);
             response.type("application/json");
             int res = database.deleteItem(idx);
@@ -199,11 +226,79 @@ public class App {
         // specified in the url
         // An example would be /item?category=furniture-school&user_id=2
         Spark.get("/item", (request, response) -> {
+
             response.status(200);
             response.type("application/json");
+            String paramList[] = request.queryParams().toArray(new String[0]);
+            // indicate the category to query, if no category in url, flag is -1
+            ArrayList<Integer> categories = new ArrayList<Integer>(); // Create an ArrayList object
+            categories.add(-1);
+            // indicate the price order to query, asc is 1, dsc is 2, no price order is -1
+            int priceFlag = -1;
+            for (int i = 0; i < paramList.length; i++) {
+                if (paramList[i].equals("price")) {
+                    String order = request.queryParams("price");
+                    if (order.equals("asc"))
+                        priceFlag = 1;
+                    else if (order.equals("dsc"))
+                        priceFlag = 2;
+                    else
+                        return gson.toJson(new StructuredResponse("error",
+                                "Get by price: " + request.queryParams("price") + " should be either 'asc' or 'dsc'",
+                                null));
+                }
+                if (paramList[i].equals("category")) {
+                    String text = request.queryParams("category");
+                    String unParsedCategory[] = getStringArrayFromText(text);
+                    for (int j = 0; j < unParsedCategory.length; j++) {
+                        int cat = convertCategoryToInt(unParsedCategory[j]);
+                        if (cat == -1)
+                            return gson.toJson(new StructuredResponse("error", "Get by Category: "
+                                    + request.queryParams("category") + " is not an integer or is not one of '1,2,3,4'",
+                                    null));
+                        categories.set(j, cat);
+                    }
+                }
+                if (paramList[i].equals("id")) {
+                    int idx;
+                    try {
+                        idx = Integer.parseInt(request.queryParams("id"));
+                    } catch (NumberFormatException e) {
+                        return gson.toJson(new StructuredResponse("error",
+                                "Get by Id: " + request.queryParams("id") + " cannot be parsed into int", null));
+                    }
+                    ItemData select = database.selectOneItem(idx);
+                    if (select == null) {
+                        String errorMessage = "GET by ID: The specified id" + idx + "does not exist in the database";
+                        return gson.toJson(new StructuredResponse("error", errorMessage, null));
+                    }
+                    return gson.toJson(new StructuredResponse("ok", null, select));
+                }
+                ArrayList<ItemData> result;
+                // when the url has query request about category
+                if (categories.get(0) != -1) {
+                    result = database.selectAllItemsFromCategory(categories);
+                    // when the url has query request about price order
+                    if (priceFlag != -1) {
+                        // reorder the items in result by the requesting order
+                        if (priceFlag == 1)
+                            return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
+                        if (priceFlag == 2)
+                            return gson.toJson(new StructuredResponse("ok", null, sortByDsc(result)));
+                    }
+                }
+                // when the url only has a query request of sort by price, so do a get all then
+                // sort by price
+                else {
+                    result = database.selectAllItems();
+                    if (priceFlag == 1)
+                        return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
+                    if (priceFlag == 2)
+                        return gson.toJson(new StructuredResponse("ok", null, sortByDsc(result)));
+                }
+            }
             String unParsedCategory = request.queryParams("category");
             int cat = 0;
-
             if (unParsedCategory.equals("Car"))
                 cat = 0;
             else if (unParsedCategory.equals("School"))
@@ -216,7 +311,7 @@ public class App {
             catList.add(cat);
             ArrayList<ItemData> selectAll = database.selectAllItemsFrom(catList);
             if (selectAll == null)
-                return gson.toJson(new StructuredResponse("error", "Get items from categorys fails", null));
+                return gson.toJson(new StructuredResponse("error", "GET items from categorys fails", null));
             return gson.toJson(new StructuredResponse("ok", null, selectAll));
             // if (unParsedCategory) {
 
@@ -256,31 +351,12 @@ public class App {
         // current only supports insertion for itemData table
         // with field seller, title, description, category, and postDate
         // int string string int int
-        Spark.post("/item?new", (request, response) -> {
+        Spark.post("/item/new", (request, response) -> {
             int unParsedSellerId = Integer.parseInt(request.queryParams("seller"));
             String unParsedTitle = request.queryParams("title");
             String unParsedDescription = request.queryParams("description");
             int unParsedCategory = Integer.parseInt(request.queryParams("category"));
             int unParsedPostDate = Integer.parseInt(request.queryParams("postDate"));
-
-            response.status(200);
-            response.type("application/json");
-            int res = database.insertNewItem(unParsedSellerId, unParsedTitle, unParsedDescription, unParsedCategory,
-                    unParsedPostDate);
-            if (res < 0) {
-                String errorMessage = "fail to insert new item";
-                return gson.toJson(new StructuredResponse("error", errorMessage, null));
-            }
-            return gson.toJson(new StructuredResponse("ok", null, res));
-        });
-
-        Spark.post("/item?new", (request, response) -> {
-            int unParsedSellerId = Integer.parseInt(request.queryParams("seller"));
-            String unParsedTitle = request.queryParams("title");
-            String unParsedDescription = request.queryParams("description");
-            int unParsedCategory = Integer.parseInt(request.queryParams("category"));
-            int unParsedPostDate = Integer.parseInt(request.queryParams("postDate"));
-
             response.status(200);
             response.type("application/json");
             int res = database.insertNewItem(unParsedSellerId, unParsedTitle, unParsedDescription, unParsedCategory,
@@ -332,8 +408,79 @@ public class App {
         return defaultVal;
     }
 
-    static String[] getStringArrayFromText(String text) {
-        String[] categories = text.split("-");
-        return categories;
+    private static String[] getStringArrayFromText(String text) {
+        String[] list = text.split("-");
+        return list;
+    }
+
+    private static int convertCategoryToInt(String text) {
+        if (text.equals("car"))
+            return 1;
+        else if (text.equals("school"))
+            return 2;
+        else if (text.equals("electronics"))
+            return 3;
+        else if (text.equals("furniture"))
+            return 4;
+        else
+            return -1;
+    }
+
+    /**
+     * Very inefficient insertion sort helper method. However, since we will only
+     * deal with small dataset in this stage we will be fine. Future sorting will be
+     * handled by Elasticsearch
+     * 
+     * @param list the ItemData list we want to sort in descending order
+     * @return the ItemData in descending order
+     */
+    private static ArrayList<ItemData> sortByDsc(ArrayList<ItemData> list) {
+        int i, j;
+        float key;
+        for (i = 1; i < list.size(); i++) {
+            key = list.get(i).itemPrice;
+            j = i - 1;
+
+            /*
+             * Move elements of arr[0..i-1], that are greater than key, to one position
+             * ahead of their current position
+             */
+            while (j >= 0 && list.get(j).itemPrice < key) {
+                list.get(j + 1).itemPrice = list.get(j).itemPrice;
+                list.set(j + 1, list.get(j));
+                j = j - 1;
+            }
+            list.set(j + 1, list.get(i));
+        }
+        return list;
+    }
+
+    /**
+     * Very inefficient insertion sort helper method. However, since we will only
+     * deal with small dataset in this stage we will be fine. Future sorting will be
+     * handled by Elasticsearch
+     * 
+     * @param list the ItemData list we want to sort in ascending order
+     * @return the ItemData in descending order
+     */
+    private static ArrayList<ItemData> sortByAsc(ArrayList<ItemData> list) {
+        int i, j;
+        float key;
+        for (i = 1; i < list.size(); i++) {
+            key = list.get(i).itemPrice;
+            j = i - 1;
+
+            /*
+             * Move elements of arr[0..i-1], that are greater than key, to one position
+             * ahead of their current position
+             */
+            while (j >= 0 && list.get(j).itemPrice > key) {
+                list.get(j + 1).itemPrice = list.get(j).itemPrice;
+                list.set(j + 1, list.get(j));
+                j = j - 1;
+            }
+            list.set(j + 1, list.get(i));
+        }
+        return list;
     }
 }
