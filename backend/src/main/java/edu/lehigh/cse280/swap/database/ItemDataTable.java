@@ -25,8 +25,8 @@ public class ItemDataTable {
         try {
             ResultSet rs = Database.p_selectAllItemData.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                        rs.getInt("category"), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
             }
             rs.close();
             return res;
@@ -48,8 +48,8 @@ public class ItemDataTable {
             Database.p_selectAllItemDataById.setArray(1, idList);
             ResultSet rs = Database.p_selectAllItemDataById.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                rs.getInt("category"), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
             }
             rs.close();
             return res;
@@ -65,16 +65,40 @@ public class ItemDataTable {
      * @param categories the category on which the items will be filtered
      * @return All rows, as an ArrayList
      */
-    public ArrayList<ItemData> selectAllItemFrom(ArrayList<Integer> categories) {
+    public ArrayList<ItemData> selectAllItemFromCategory(ArrayList<Integer> categories) {
         ArrayList<ItemData> res = new ArrayList<ItemData>();
-        ArrayList<Integer> tradingInfoDataidList = new ArrayList<Integer>();
         try {
-            Database.p_selectAllFrom.setArray(1, Database.ConvertToIntArray(categories));
-            ResultSet rs = Database.p_selectAllFrom.executeQuery();
+            Database.p_selectAllFromCategory.setArray(1, Database.ConvertToIntArray(categories));
+            ResultSet rs = Database.p_selectAllFromCategory.executeQuery();
             while (rs.next()) {
-                tradingInfoDataidList.add(rs.getInt("tradingInfoId"));
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                rs.getInt("category"), rs.getInt("tradingInfoId"), rs.getInt("postDate")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+            }
+
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return res;
+    }
+
+    /**
+     * Query the database for a list of all items from some price range
+     * 
+     * @param price the price on which the items will be filtered
+     * @return All rows, as an ArrayList
+     */
+    public ArrayList<ItemData> selectAllItemFromPrice(float low, float high) {
+        ArrayList<ItemData> res = new ArrayList<ItemData>();
+        try {
+            Database.p_selectAllFromPrice.setFloat(1, low);
+            Database.p_selectAllFromPrice.setFloat(2, high);
+            ResultSet rs = Database.p_selectAllFromPrice.executeQuery();
+            while (rs.next()) {
+
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
             }
             rs.close();
         } catch (SQLException e) {
@@ -83,6 +107,7 @@ public class ItemDataTable {
         }
         return res;
     }
+
 
     /**
      * Get all data for a specific item
@@ -97,8 +122,8 @@ public class ItemDataTable {
             Database.p_selectOneItemData.setInt(1, id);
             ResultSet rs = Database.p_selectOneItemData.executeQuery();
             if (rs.next()) {
-                res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"),
-                rs.getInt("category"), rs.getInt("tradingInfoId"), rs.getInt("postDate"));
+                res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,15 +143,19 @@ public class ItemDataTable {
      * 
      * @return The number of rows that were updated. -1 indicates an error.
      */
-    public int insertNewItemData(int userId, String title, String description, int category, int postDate) {
+    public int insertNewItemData(int userId, String title, String description, int category, int postDate, int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription) {
         int count = 0;
         try {
             Database.p_insertNewItemData.setInt(1, userId);
             Database.p_insertNewItemData.setString(2, title);
             Database.p_insertNewItemData.setString(3, description);
-            Database.p_insertNewItemData.setInt(4, category);
-            Database.p_insertNewItemData.setInt(5, 0);            
-            Database.p_insertNewItemData.setInt(6, postDate);
+            Database.p_insertNewItemData.setInt(4, category);     
+            Database.p_insertNewItemData.setInt(5, postDate);
+            Database.p_insertNewItemData.setInt(6, tradeMethod);
+            Database.p_insertNewItemData.setFloat(7, price);
+            Database.p_insertNewItemData.setBoolean(8, true);
+            Database.p_insertNewItemData.setString(9, availableTime);
+            Database.p_insertNewItemData.setString(10, wantedItemDescription);
             count += Database.p_insertNewItemData.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -54,7 +54,12 @@ public class Database
     /**
      * A prepared statement for selecting all items in one category
      */
-    static PreparedStatement p_selectAllFrom;
+    static PreparedStatement p_selectAllFromCategory;
+
+    /**
+    * A prepared statement for selecting all items in one category
+    */
+    static PreparedStatement p_selectAllFromPrice;
 
     /**
      * A prepared statement for updating info for itemData
@@ -193,42 +198,24 @@ public class Database
                     + " title VARCHAR(50) NOT NULL," 
                     + " description VARCHAR(500) NOT NULL,"
                     + " category INTEGER," 
-                    + " tradingInfoId INTEGER," 
-                    + " postDate INTEGER)");
-            Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
-            // Standard CRUD operations for item
-            Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
-            Database.p_insertNewItemData = mConnection
-                    .prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?)");
-            Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
-            Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * from itemData WHERE itemId=?");
-            Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
-            Database.p_selectAllFrom = mConnection.prepareStatement("SELECT * from itemData WHERE category in ?");
-            Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
-            //////////////////////////////////////////
-            // Trading Info Data Table
-            //////////////////////////////////////////
-
-            Database.p_createTradingInfoDataTable = mConnection.prepareStatement(
-                    "CREATE TABLE tradingInfoData" 
-                    + " (tradingInfoId SERIAL PRIMARY KEY,"
-                    + " itemId INTEGER,"
+                    + " postDate INTEGER, "
                     + " tradeMethod INTEGER,"
                     + " price float,"
                     + " availability boolean," 
                     + " availableTime VARCHAR(40),"
-                    + " wantedItemDescription VARCHAR(50))");
-            Database.p_dropTradingInfoDataTable = mConnection.prepareStatement("DROP TABLE tradingInfoData");
-            // Standard CRUD operations for item category data
-            Database.p_insertNewTradingInfoData = mConnection
-                    .prepareStatement("INSERT INTO tradingInfoData VALUES (default, ?, ?, ?, ?, ?, ?)");
-            Database.p_selectAllTradingInfoData = mConnection.prepareStatement("SELECT * FROM tradingInfoData");
-            Database.p_selectAllTradingInfoDataById = mConnection
-                    .prepareStatement("SELECT * FROM tradingInfoData WHERE tradingInfoId in ?");
-            Database.p_selectOneTradingInfoData = mConnection
-                    .prepareStatement("SELECT * FROM tradingInfoData WHERE tradingInfoId = ?");
-            Database.p_deleteTradingInfoData = mConnection
-                    .prepareStatement("DELETE FROM tradingInfoData WHERE tradingInfoId = ?");
+                    + " wantedItemDescription VARCHAR(50)");
+            Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
+            // Standard CRUD operations for item
+            Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
+            Database.p_insertNewItemData = mConnection
+                    .prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
+            Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId=?");
+            Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
+            Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category in ?");
+            Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
+            Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
+            
 
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -304,16 +291,20 @@ public class Database
         itemTIDT.dropTradingInfoDataTable();
     }
 
-    public int insertNewItem(int userId, String title, String description, int categories, int postDate){
-        int res = itemDT.insertNewItemData(userId, title, description, categories, postDate);
+    public int insertNewItem(int userId, String title, String description, int categories, int postDate, int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription){
+        int res = itemDT.insertNewItemData(userId, title, description, categories, postDate, tradeMethod, price, availability, availableTime, wantedItemDescription);
         return res;
     }
 
-    public int insertNewTradingInfoData(int itemId, int tradingMethod, float price, boolean availability,
-            String availableTime, String wantedItemDescription) {
-        int pk = itemTIDT.insertNewTradingInfoData(itemId, tradingMethod, price, availability, availableTime,
-                wantedItemDescription);
-        return pk;
+    /**
+     * 
+     * @param item An ItemData object that will be inserted
+     * @return if non negative if successfully inserted
+     */
+    public int insertNewItem(ItemData item){
+        int res = itemDT.insertNewItemData(item.itemSeller, item.itemTitle, item.itemDescription, item.itemCategory, item.itemPostDate, 
+        item.itemTradeMethod, item.itemPrice, item.itemAvailability, item.itemAvailabileTime, item.itemWantedItemDescription);
+        return res;
     }
 
     public int deleteItem(int itemId) {
@@ -326,7 +317,7 @@ public class Database
     }
 
     public ArrayList<ItemData> selectAllItemsFrom(ArrayList<Integer> category) {
-        return itemDT.selectAllItemFrom(category);
+        return itemDT.selectAllItemFromCategory(category);
     }
 
     public ItemData selectOneItem(int itemId) {

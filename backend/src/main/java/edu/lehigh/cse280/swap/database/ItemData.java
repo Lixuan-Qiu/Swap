@@ -40,6 +40,31 @@ public class ItemData {
     int itemPostDate;
 
     /**
+     * The trading method of this item
+     */
+    int itemTradeMethod;
+
+    /**
+     * The price of this item
+     */
+    float itemPrice;
+
+    /**
+     * The availability of this item
+     */
+    boolean itemAvailability;
+
+    /**
+     * The availabile time of this item
+     */
+    String itemAvailabileTime;
+
+    /**
+     * The description of the item they hope to trade for
+     */
+    String itemWantedItemDescription;
+
+    /**
      * Construct a ItemData object by providing values for its fields
      * @param id_            The ID of the item
      * @param userid_ 
@@ -49,13 +74,20 @@ public class ItemData {
      * @param price_
      * @param category_
      */
-    public ItemData(int id_, int userId_, String title_, String description_, int category_, int tradingData_, int postDate_) {
+    public ItemData(int id_, int userId_, String title_, String description_, int category_, int postDate_, int tradeMethod_, float price_, boolean availability_, String availableTime_, String wantedItemDescription_) {
+        //item data
         itemId = id_;
         itemSeller = userId_;
         itemTitle = title_;
         itemCategory = category_;
         itemDescription = description_;
-        itemTradingData = tradingData_;
         itemPostDate = postDate_;
+
+        //trading info data
+        itemTradeMethod = tradeMethod_;
+        itemPrice = price_;
+        itemAvailability = availability_;
+        itemAvailabileTime = availableTime_;
+        itemWantedItemDescription = wantedItemDescription_;
     }
 }
