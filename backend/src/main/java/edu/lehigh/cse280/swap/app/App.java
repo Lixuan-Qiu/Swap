@@ -282,69 +282,23 @@ public class App {
                     if (priceFlag != -1) {
                         // reorder the items in result by the requesting order
                         if (priceFlag == 1)
-                            return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
+                            result = sortByAsc(result);
                         if (priceFlag == 2)
-                            return gson.toJson(new StructuredResponse("ok", null, sortByDsc(result)));
+                            result = sortByAsc(result);
                     }
+                    return gson.toJson(new StructuredResponse("ok", null, result));
                 }
                 // when the url only has a query request of sort by price, so do a get all then
                 // sort by price
                 else {
                     result = database.selectAllItems();
                     if (priceFlag == 1)
-                        return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
+                        result = sortByAsc(result);
                     if (priceFlag == 2)
-                        return gson.toJson(new StructuredResponse("ok", null, sortByDsc(result)));
+                        result = sortByDsc(result);
+                    return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
                 }
             }
-            String unParsedCategory = request.queryParams("category");
-            int cat = 0;
-            if (unParsedCategory.equals("Car"))
-                cat = 0;
-            else if (unParsedCategory.equals("School"))
-                cat = 1;
-            else if (unParsedCategory.equals("Furniture"))
-                cat = 2;
-            else if (unParsedCategory.equals("Electronics"))
-                cat = 3;
-            ArrayList<Integer> catList = new ArrayList<>();
-            catList.add(cat);
-            ArrayList<ItemData> selectAll = database.selectAllItemsFrom(catList);
-            if (selectAll == null)
-                return gson.toJson(new StructuredResponse("error", "GET items from categorys fails", null));
-            return gson.toJson(new StructuredResponse("ok", null, selectAll));
-            // if (unParsedCategory) {
-
-            // }
-
-            // String unParsedItemId = request.queryParams("item_id");
-            // if (unParsedItemId) {
-
-            // }
-
-            // String unParsedUserId = request.queryParams("user_id");
-            // if (unParsedUserId) {
-
-            // }
-        });
-
-        // GET route that returns everything for a single row in the database.
-        // The ":id" suffix in the first parameter to get() becomes
-        // request.params("id"), so that we can get the requested row ID. If
-        // ":id" isn't a number, Spark will reply with a status 500 Internal
-        // Server Error. Otherwise, we have an integer, and the only possible
-        // error is that it doesn't correspond to a row with data.
-        Spark.get("/item?:id", (request, response) -> {
-            int idx = Integer.parseInt(request.params(":id"));
-            // ensure status 200 OK, with a MIME type of JSON
-            response.status(200);
-            response.type("application/json");
-            ItemData select = database.selectOneItem(idx);
-            if (select == null) {
-                String errorMessage = "The specified id" + idx + "does not exist in the database";
-                return gson.toJson(new StructuredResponse("error", errorMessage, database.selectOneItem(idx)));
-            }
-            return gson.toJson(new StructuredResponse("ok", null, database.selectOneItem(idx)));
         });
 
         // POST route that allows for web to post a new item and insert it to the table
@@ -352,15 +306,22 @@ public class App {
         // with field seller, title, description, category, and postDate
         // int string string int int
         Spark.post("/item/new", (request, response) -> {
-            int unParsedSellerId = Integer.parseInt(request.queryParams("seller"));
-            String unParsedTitle = request.queryParams("title");
-            String unParsedDescription = request.queryParams("description");
-            int unParsedCategory = Integer.parseInt(request.queryParams("category"));
-            int unParsedPostDate = Integer.parseInt(request.queryParams("postDate"));
             response.status(200);
             response.type("application/json");
-            int res = database.insertNewItem(unParsedSellerId, unParsedTitle, unParsedDescription, unParsedCategory,
-                    unParsedPostDate);
+            ItemData req = gson.fromJson(request.body(), ItemData.class);
+            int id = req.itemId;
+            String title = req.itemTitle;
+            String description = req.itemDescription;
+            int category = req.itemCategory;
+            int date = req.itemPostDate;
+            int method = req.itemTradeMethod;
+            float price = req.itemPrice;
+            boolean available = req.itemAvailability;
+            String availableTime = req.itemAvailableTime;
+            String wanted = req.itemWantedItemDescription;
+
+            int res = database.insertNewItem(id, title, description, category, date, method, price, available,
+                    availableTime, wanted);
             if (res < 0) {
                 String errorMessage = "fail to insert new item";
                 return gson.toJson(new StructuredResponse("error", errorMessage, null));
@@ -408,6 +369,12 @@ public class App {
         return defaultVal;
     }
 
+    /**
+     * Split the input into string array using delimiter "-"
+     * 
+     * @param text Unparsed string with different elements connected by a single "-"
+     * @return String array that contains each element
+     */
     private static String[] getStringArrayFromText(String text) {
         String[] list = text.split("-");
         return list;
