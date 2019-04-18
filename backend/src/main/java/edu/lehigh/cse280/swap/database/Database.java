@@ -152,6 +152,39 @@ public class Database
         itemDT = new ItemDataTable();
     }
 
+    public static Database getDatabase(String ip, String port, String user, String pass)
+    {
+        // conn is a connection to the database.  In this simple example, it is
+        // a local variable, though in a realistic program it might not be
+        Connection conn = null;
+
+        // Connect to the database or fail
+        System.out.print("Connecting to " + ip + ":" + port);
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/", user, pass);
+            if (conn == null) {
+                System.out.println("\n\tError: DriverManager.getConnection() returned a null object");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println("\n\tError: DriverManager.getConnection() threw a SQLException");
+            e.printStackTrace();
+            return null;
+        }
+        System.out.println(" ... successfully connected");
+
+        System.out.print("Disconnecting from database");
+        try {
+            conn.close();
+        } catch (SQLException e) {
+            System.out.println("\n\tError: close() threw a SQLException");
+            e.printStackTrace();
+            return null;
+        }
+        System.out.println(" ...  connection successfully closed");
+        return null;
+    }
     /**
      * @param url the url to connect to database
      */
@@ -316,8 +349,12 @@ public class Database
         return itemDT.selectAllItems();
     }
 
-    public ArrayList<ItemData> selectAllItemsFrom(ArrayList<Integer> category) {
+    public ArrayList<ItemData> selectAllItemsFromCategory(ArrayList<Integer> category) {
         return itemDT.selectAllItemFromCategory(category);
+    }
+
+    public ArrayList<ItemData> selectAllItemsFromPrice(float low, float high) {
+        return itemDT.selectAllItemFromPrice(low, high);
     }
 
     public ItemData selectOneItem(int itemId) {

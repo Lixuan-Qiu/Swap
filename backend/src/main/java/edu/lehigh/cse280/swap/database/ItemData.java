@@ -7,62 +7,62 @@ public class ItemData {
     /**
      * The ID of the item
      */
-    int itemId;
+    public int itemId;
 
     /**
      * The username of the seller of the item
      */
-    int itemSeller;
+    public int itemSeller;
     
     /**
      * The title of the item
      */
-    String itemTitle;
+    public String itemTitle;
 
     /**
      * The description of the item
      */
-    String itemDescription;
+    public String itemDescription;
 
     /**
      * The category of the seller of the item
      */
-    int itemCategory;
+    public int itemCategory;
 
     /**
      * The trading info of this item
      */
-    int itemTradingData;
+    public int itemTradingData;
 
     /**
      * The post date of this item
      */
-    int itemPostDate;
+    public int itemPostDate;
 
     /**
      * The trading method of this item
      */
-    int itemTradeMethod;
+    public int itemTradeMethod;
 
     /**
      * The price of this item
      */
-    float itemPrice;
+    public float itemPrice;
 
     /**
      * The availability of this item
      */
-    boolean itemAvailability;
+    public boolean itemAvailability;
 
     /**
      * The availabile time of this item
      */
-    String itemAvailabileTime;
+    public String itemAvailabileTime;
 
     /**
      * The description of the item they hope to trade for
      */
-    String itemWantedItemDescription;
+    public String itemWantedItemDescription;
 
     /**
      * Construct a ItemData object by providing values for its fields
