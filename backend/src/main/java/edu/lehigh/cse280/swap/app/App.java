@@ -10,17 +10,21 @@ import java.util.Map;
 
 // Import Google's JSON library
 import com.google.gson.*;
-
+import java.util.Collections;
+// Import Elasticsearch java client
 import org.apache.http.*;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.index.*;
 import org.elasticsearch.client.*;
-
-import edu.lehigh.cse280.swap.database.*;
-// Import the Spark package, so that we can make use of the "get" function to 
+import org.elasticsearch.action.get.*;
 import spark.Spark;
 import edu.lehigh.cse280.swap.database.Database;
 import edu.lehigh.cse280.swap.database.ItemData;
+
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.auth.*;
 
 /**
  * For now, our app creates an HTTP server that can only get and add data.
@@ -44,18 +48,29 @@ public class App {
         // final String herokuUrl = "https://swap-lehigh.herokuapp.com/";
         // database holds all of the data that has been provided via HTTP
         // requests
-        //
-        // NB: every time we shut down the server, we will lose all data, and
-        // every time we start the server, we'll have an empty database,
-        // with IDs starting over from 0.
-        RestHighLevelClient client = new RestHighLevelClient(
-                RestClient.builder(new HttpHost("localhost", 9200, "http"), new HttpHost("localhost", 9201, "http")));
-        Map<String, Object> jsonMap = new HashMap<>();
-        jsonMap.put("user", "Sheldon");
-        jsonMap.put("postDate", new Date());
-        jsonMap.put("title", "Ferrari 488");
-        jsonMap.put("price", 200000.0);
-        IndexRequest indexRequest = new IndexRequest("posts", "doc", "1").source(jsonMap);
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials("elastic", "cnHyGTUqnZMYpu7saERBAbsV"));
+
+        RestClientBuilder builder = RestClient
+                .builder(new HttpHost("44ab9c1bc5cd465d8279ad2f1dc03e8a.us-east-1.aws.found.io", 9243, "http"))
+                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                    @Override
+                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                    }
+                });
+
+        RestHighLevelClient client = new RestHighLevelClient(builder);
+
+        // Map<String, Object> jsonMap = new HashMap<>();
+        // jsonMap.put("user", "Sheldon");
+        // jsonMap.put("postDate", 20190416);
+        // jsonMap.put("title", "Ferrari 488");
+        // jsonMap.put("price", 200000.0);
+        // IndexRequest indexRequest = new IndexRequest("posts", "doc",
+        // "1").source(jsonMap);
+        GetRequest getRequest = new GetRequest("item", "1");
         ActionListener listener = new ActionListener<IndexResponse>() {
             @Override
             public void onResponse(IndexResponse indexResponse) {
@@ -70,8 +85,36 @@ public class App {
                 }
             }
         };
-        client.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
+        try {
+            GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
+            String index = getResponse.getIndex();
+            String id = getResponse.getId();
+            if (getResponse.isExists()) {
+                long version = getResponse.getVersion();
+                String sourceAsString = getResponse.getSourceAsString();
+                Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
+                byte[] sourceAsBytes = getResponse.getSourceAsBytes();
+                System.out.println("version: " + version + "\ndocument: " + sourceAsString);
+            } else {
 
+            }
+        } catch (IOException e) {
+            System.out.println("fucking error from getResponse: " + e.getMessage());
+        }
+        // try {
+        // Response response = client.getLowLevelClient().performRequest("GET",
+        // "/blog/_search");
+        // } catch (IOException e) {
+        // System.out.println("fucking error from low level client:" + e.getMessage());
+        // }
+        // Collections.<String, String>emptyMap());
+        // client.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
+        // client.getAsync(getRequest, RequestOptions.DEFAULT, listener);
+        try {
+            client.close();
+        } catch (IOException e) {
+            System.out.println("fucking error from closing the client:" + e.getMessage());
+        }
         final Database database = Database.getDatabase(db_url);
         if (database == null)
             System.out.println("database object is null");
@@ -81,7 +124,7 @@ public class App {
         // hardcode data entries
         database.createAllTables();
 
-        //int categories = 0;
+        // int categories = 0;
         // Sheldon:1 Lixuan:2 Allen:3 Xiaowei:4
         database.insertNewItem(1, "logitech mouse", "brand new", 3, 20190410);
         database.insertNewItem(1, "Ferrari 488", "brand new", 0, 20190328);
@@ -209,12 +252,11 @@ public class App {
             return gson.toJson(new StructuredResponse("ok", null, database.selectOneItem(idx)));
         });
 
-
         // POST route that allows for web to post a new item and insert it to the table
         // current only supports insertion for itemData table
         // with field seller, title, description, category, and postDate
-        //            int     string string       int           int
-        Spark.post("/new", (request, response) -> {
+        // int string string int int
+        Spark.post("/item?new", (request, response) -> {
             int unParsedSellerId = Integer.parseInt(request.queryParams("seller"));
             String unParsedTitle = request.queryParams("title");
             String unParsedDescription = request.queryParams("description");
@@ -223,7 +265,8 @@ public class App {
 
             response.status(200);
             response.type("application/json");
-            int res = database.insertNewItem(unParsedSellerId, unParsedTitle, unParsedDescription, unParsedCategory, unParsedPostDate);
+            int res = database.insertNewItem(unParsedSellerId, unParsedTitle, unParsedDescription, unParsedCategory,
+                    unParsedPostDate);
             if (res < 0) {
                 String errorMessage = "fail to insert new item";
                 return gson.toJson(new StructuredResponse("error", errorMessage, null));
@@ -231,6 +274,23 @@ public class App {
             return gson.toJson(new StructuredResponse("ok", null, res));
         });
 
+        Spark.post("/item?new", (request, response) -> {
+            int unParsedSellerId = Integer.parseInt(request.queryParams("seller"));
+            String unParsedTitle = request.queryParams("title");
+            String unParsedDescription = request.queryParams("description");
+            int unParsedCategory = Integer.parseInt(request.queryParams("category"));
+            int unParsedPostDate = Integer.parseInt(request.queryParams("postDate"));
+
+            response.status(200);
+            response.type("application/json");
+            int res = database.insertNewItem(unParsedSellerId, unParsedTitle, unParsedDescription, unParsedCategory,
+                    unParsedPostDate);
+            if (res < 0) {
+                String errorMessage = "fail to insert new item";
+                return gson.toJson(new StructuredResponse("error", errorMessage, null));
+            }
+            return gson.toJson(new StructuredResponse("ok", null, res));
+        });
 
         // POST route for adding a new element to the database. This will read
         // JSON from the body of the request, turn it into a SimpleRequest
