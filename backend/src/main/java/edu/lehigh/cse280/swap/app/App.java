@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Set;
 // Import Google's JSON library
 import com.google.gson.*;
 import java.util.Collections;
@@ -226,28 +226,27 @@ public class App {
         // specified in the url
         // An example would be /item?category=furniture-school&user_id=2
         Spark.get("/item", (request, response) -> {
-
             response.status(200);
             response.type("application/json");
-            String paramList[] = request.queryParams().toArray(new String[0]);
+            // https://self-learning-java-tutorial.blogspot.com/2015/01/spark-java-request-parameter.html
+            Set<String> queryParams = request.queryParams();
             // indicate the category to query, if no category in url, flag is -1
             ArrayList<Integer> categories = new ArrayList<Integer>(); // Create an ArrayList object
             categories.add(-1);
             // indicate the price order to query, asc is 1, dsc is 2, no price order is -1
             int priceFlag = -1;
-            for (int i = 0; i < paramList.length; i++) {
-                if (paramList[i].equals("price")) {
-                    String order = request.queryParams("price");
+            for (String param : queryParams) {
+                if (param.equals("pricerank")) {
+                    String order = request.queryParams("pricerank");
                     if (order.equals("asc"))
                         priceFlag = 1;
                     else if (order.equals("dsc"))
                         priceFlag = 2;
                     else
-                        return gson.toJson(new StructuredResponse("error",
-                                "Get by price: " + request.queryParams("price") + " should be either 'asc' or 'dsc'",
-                                null));
+                        return gson.toJson(new StructuredResponse("error", "Get by price: "
+                                + request.queryParams("pricerank") + " should be either 'asc' or 'dsc'", null));
                 }
-                if (paramList[i].equals("category")) {
+                if (param.equals("category")) {
                     String text = request.queryParams("category");
                     String unParsedCategory[] = getStringArrayFromText(text);
                     for (int j = 0; j < unParsedCategory.length; j++) {
@@ -259,7 +258,7 @@ public class App {
                         categories.set(j, cat);
                     }
                 }
-                if (paramList[i].equals("id")) {
+                if (param.equals("id")) {
                     int idx;
                     try {
                         idx = Integer.parseInt(request.queryParams("id"));
@@ -274,31 +273,34 @@ public class App {
                     }
                     return gson.toJson(new StructuredResponse("ok", null, select));
                 }
-                ArrayList<ItemData> result;
-                // when the url has query request about category
-                if (categories.get(0) != -1) {
-                    result = database.selectAllItemsFromCategory(categories);
-                    // when the url has query request about price order
-                    if (priceFlag != -1) {
-                        // reorder the items in result by the requesting order
-                        if (priceFlag == 1)
-                            result = sortByAsc(result);
-                        if (priceFlag == 2)
-                            result = sortByAsc(result);
-                    }
-                    return gson.toJson(new StructuredResponse("ok", null, result));
-                }
-                // when the url only has a query request of sort by price, so do a get all then
-                // sort by price
-                else {
-                    result = database.selectAllItems();
+            }
+            ArrayList<ItemData> result;
+            // when the url has query request about category
+            if (categories.get(0) != -1) {
+                result = database.selectAllItemsFromCategory(categories);
+                // when the url has query request about price order
+                if (priceFlag != -1) {
+                    // reorder the items in result by the requesting order
                     if (priceFlag == 1)
                         result = sortByAsc(result);
                     if (priceFlag == 2)
-                        result = sortByDsc(result);
-                    return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
+                        result = sortByAsc(result);
                 }
+                return gson.toJson(new StructuredResponse("ok", null, result));
             }
+            // when the url only has a query request of sort by price, so do a get all then
+            // sort by price
+            else if (priceFlag != -1) {
+                result = database.selectAllItems();
+                if (priceFlag == 1)
+                    result = sortByAsc(result);
+                if (priceFlag == 2)
+                    result = sortByDsc(result);
+                return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
+            } else
+                return gson.toJson(new StructuredResponse("error",
+                        "GET /item: The url has to contain id, category, or price. No such parameters were found",
+                        null));
         });
 
         // POST route that allows for web to post a new item and insert it to the table
