@@ -1,7 +1,8 @@
 package edu.lehigh.cse280.swap.database;
 
 /**
- * This class hold the object fields and constructors for the corresponding object
+ * This class hold the object fields and constructors for the corresponding
+ * object
  */
 public class ItemData {
     /**
@@ -13,7 +14,7 @@ public class ItemData {
      * The username of the seller of the item
      */
     public int itemSeller;
-    
+
     /**
      * The title of the item
      */
@@ -57,7 +58,7 @@ public class ItemData {
     /**
      * The availabile time of this item
      */
-    public String itemAvailabileTime;
+    public String itemAvailableTime;
 
     /**
      * The description of the item they hope to trade for
@@ -66,16 +67,19 @@ public class ItemData {
 
     /**
      * Construct a ItemData object by providing values for its fields
-     * @param id_            The ID of the item
-     * @param userid_ 
+     * 
+     * @param id_          The ID of the item
+     * @param userid_
      * @param title_
      * @param description_
      * @param userId_
      * @param price_
      * @param category_
      */
-    public ItemData(int id_, int userId_, String title_, String description_, int category_, int postDate_, int tradeMethod_, float price_, boolean availability_, String availableTime_, String wantedItemDescription_) {
-        //item data
+    public ItemData(int id_, int userId_, String title_, String description_, int category_, int postDate_,
+            int tradeMethod_, float price_, boolean availability_, String availableTime_,
+            String wantedItemDescription_) {
+        // item data
         itemId = id_;
         itemSeller = userId_;
         itemTitle = title_;
@@ -83,11 +87,11 @@ public class ItemData {
         itemDescription = description_;
         itemPostDate = postDate_;
 
-        //trading info data
+        // trading info data
         itemTradeMethod = tradeMethod_;
         itemPrice = price_;
         itemAvailability = availability_;
-        itemAvailabileTime = availableTime_;
+        itemAvailableTime = availableTime_;
         itemWantedItemDescription = wantedItemDescription_;
     }
 }
