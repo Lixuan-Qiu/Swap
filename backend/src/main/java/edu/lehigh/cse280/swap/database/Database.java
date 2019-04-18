@@ -1,3 +1,4 @@
+
 package edu.lehigh.cse280.swap.database;
 
 import java.net.URI;
@@ -12,10 +13,10 @@ import java.util.ArrayList;
 
 import com.heroku.api.request.RequestConfig.Data;
 
-public class Database 
-{
+public class Database {
     /**
-     * A prepared statement used for getting the most recently created itemData entry id
+     * A prepared statement used for getting the most recently created itemData
+     * entry id
      */
     static PreparedStatement p_getMostRecentId;
     /****************************************************************/
@@ -57,8 +58,8 @@ public class Database
     static PreparedStatement p_selectAllFromCategory;
 
     /**
-    * A prepared statement for selecting all items in one category
-    */
+     * A prepared statement for selecting all items in one category
+     */
     static PreparedStatement p_selectAllFromPrice;
 
     /**
@@ -184,26 +185,18 @@ public class Database
             return null;
         }
 
-        // Attempt to create all of our prepared statements.  If any of these fail, the whole getDatabase() call should fail
-        try 
-        {
+        // Attempt to create all of our prepared statements. If any of these fail, the
+        // whole getDatabase() call should fail
+        try {
             Database.p_getMostRecentId = mConnection.prepareStatement("SELECT MAX(itemId) FROM itemData");
             //////////////////////////////////////////
             // Item Data Table
             //////////////////////////////////////////
-            Database.p_createItemDataTable = mConnection.prepareStatement(
-                    "CREATE TABLE itemData"
-                    + "(itemId SERIAL PRIMARY KEY," 
-                    + " userId INTEGER," 
-                    + " title VARCHAR(50) NOT NULL," 
-                    + " description VARCHAR(500) NOT NULL,"
-                    + " category INTEGER," 
-                    + " postDate INTEGER, "
-                    + " tradeMethod INTEGER,"
-                    + " price float,"
-                    + " availability boolean," 
-                    + " availableTime VARCHAR(40),"
-                    + " wantedItemDescription VARCHAR(50)");
+            Database.p_createItemDataTable = mConnection.prepareStatement("CREATE TABLE itemData"
+                    + "(itemId SERIAL PRIMARY KEY," + " userId INTEGER," + " title VARCHAR(50) NOT NULL,"
+                    + " description VARCHAR(500) NOT NULL," + " category INTEGER," + " postDate INTEGER, "
+                    + " tradeMethod INTEGER," + " price float," + " availability boolean,"
+                    + " availableTime VARCHAR(40)," + " wantedItemDescription VARCHAR(50)");
             Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
             Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
@@ -212,10 +205,11 @@ public class Database
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
             Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId=?");
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
-            Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category in ?");
-            Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
+            Database.p_selectAllFromCategory = mConnection
+                    .prepareStatement("SELECT * FROM itemData WHERE category in ?");
+            Database.p_selectAllFromPrice = mConnection
+                    .prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
             Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
-            
 
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -291,8 +285,10 @@ public class Database
         itemTIDT.dropTradingInfoDataTable();
     }
 
-    public int insertNewItem(int userId, String title, String description, int categories, int postDate, int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription){
-        int res = itemDT.insertNewItemData(userId, title, description, categories, postDate, tradeMethod, price, availability, availableTime, wantedItemDescription);
+    public int insertNewItem(int userId, String title, String description, int categories, int postDate,
+            int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription) {
+        int res = itemDT.insertNewItemData(userId, title, description, categories, postDate, tradeMethod, price,
+                availability, availableTime, wantedItemDescription);
         return res;
     }
 
@@ -301,9 +297,10 @@ public class Database
      * @param item An ItemData object that will be inserted
      * @return if non negative if successfully inserted
      */
-    public int insertNewItem(ItemData item){
-        int res = itemDT.insertNewItemData(item.itemSeller, item.itemTitle, item.itemDescription, item.itemCategory, item.itemPostDate, 
-        item.itemTradeMethod, item.itemPrice, item.itemAvailability, item.itemAvailabileTime, item.itemWantedItemDescription);
+    public int insertNewItem(ItemData item) {
+        int res = itemDT.insertNewItemData(item.itemSeller, item.itemTitle, item.itemDescription, item.itemCategory,
+                item.itemPostDate, item.itemTradeMethod, item.itemPrice, item.itemAvailability, item.itemAvailabileTime,
+                item.itemWantedItemDescription);
         return res;
     }
 
