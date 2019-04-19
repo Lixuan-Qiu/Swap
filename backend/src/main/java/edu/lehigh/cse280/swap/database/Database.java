@@ -79,48 +79,6 @@ public class Database {
     /****************************************************************/
     /****************************************************************/
     /*******                                                  *******/
-    /******* TRADING INFO DATA TABLE *******/
-    /*******                                                  *******/
-    /****************************************************************/
-    /****************************************************************/
-
-    /**
-     * A prepared statement for creating the trading info table in our database
-     */
-    static PreparedStatement p_createTradingInfoDataTable;
-
-    /**
-     * A prepared statement for dropping the trading info table in our database
-     */
-    static PreparedStatement p_dropTradingInfoDataTable;
-
-    /**
-     * A prepared statement for inserting new trading info to the table
-     */
-    static PreparedStatement p_insertNewTradingInfoData;
-
-    /**
-     * A prepared statement for selecting all trading info to the table
-     */
-    static PreparedStatement p_selectAllTradingInfoData;
-
-    /**
-     * A prepared statement for selecting all trading info by idList to the table
-     */
-    static PreparedStatement p_selectAllTradingInfoDataById;
-
-    /**
-     * A prepared statement for selecting one trading info to the table
-     */
-    static PreparedStatement p_selectOneTradingInfoData;
-    /**
-     * A prepared statement for inserting new item category to the table
-     */
-    static PreparedStatement p_deleteTradingInfoData;
-
-    /****************************************************************/
-    /****************************************************************/
-    /*******                                                  *******/
     /******* DATABASE CONNECTION *******/
     /*******                                                  *******/
     /****************************************************************/
@@ -166,15 +124,6 @@ public class Database {
         }
         System.out.println(" ... successfully connected");
 
-        System.out.print("Disconnecting from database");
-        try {
-            conn.close();
-        } catch (SQLException e) {
-            System.out.println("\n\tError: close() threw a SQLException");
-            e.printStackTrace();
-            return null;
-        }
-        System.out.println(" ...  connection successfully closed");
         return null;
     }
 
@@ -219,21 +168,21 @@ public class Database {
             //////////////////////////////////////////
             Database.p_createItemDataTable = mConnection.prepareStatement("CREATE TABLE itemData"
                     + "(itemId SERIAL PRIMARY KEY," + " userId INTEGER," + " title VARCHAR(50) NOT NULL,"
-                    + " description VARCHAR(500) NOT NULL," + " category INTEGER," + " postDate INTEGER, "
+                    + " description VARCHAR(500) NOT NULL," + " category INTEGER," + " postDate INTEGER,"
                     + " tradeMethod INTEGER," + " price float," + " availability boolean,"
-                    + " availableTime VARCHAR(40)," + " wantedItemDescription VARCHAR(50))");
+                    + " availableTime VARCHAR(40)," + " wantedItemDescription VARCHAR(50)," + "longitude float," 
+                    + "latitude float," + "address VARCHAR(50)," + "city VARCHAR(30)," + "state VARCHAR(2)," 
+                    + "zipcode INTEGER)");
             Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
             Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
-            Database.p_insertNewItemData = mConnection
-                    .prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            Database.p_insertNewItemData = 
+            mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
             Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId=?");
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
-            Database.p_selectAllFromCategory = mConnection
-                    .prepareStatement("SELECT * FROM itemData WHERE category in ?");
-            Database.p_selectAllFromPrice = mConnection
-                    .prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
+            Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category in ?");
+            Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
             Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
 
         } catch (SQLException e) {
@@ -311,25 +260,35 @@ public class Database {
     /**
      * 
      * @param userId                Id of the user who posted this item
-     * @param title                 title of the item
-     * @param description           description of the item
-     * @param categories            category of the item, for rn we only have 4
-     *                              categories: 1 for car, 2 for school, 3 for
+     * @param title                 Title of the item
+     * @param description           Description of the item
+     * @param categories            Category of the item (Only 4 currently)
+     *                              Categories: 1 for car, 2 for school, 3 for
      *                              electronics, 4 for furnitures
-     * @param postDate              date of the when the item was posted, format
-     *                              yyyymmdd
-     * @param tradeMethod           how the item is gonna be traded, 1 for "Sell", 2
+     * @param postDate              Date of the when the item was posted, format is
+     *                              YYYYMMDD
+     * @param tradeMethod           How the item is going to be traded, 1 for "Sell", 2
      *                              for "Trade", 3 for "Rent", 4 for "GiveAway"
-     * @param price                 price of the item
-     * @param availability          whether the item is currently available
-     * @param availableTime         available for how long, unit is day
-     * @param wantedItemDescription some keywords of wanted item
+     * @param price                 Price of the item
+     * @param availability          Whether the item is currently available
+     * @param availableTime         Available amount of time, standard unit will be day(s)
+     * @param wantedItemDescription Some keywords of wanted item (description of the item being sold)
+     * @param itemLongitude         The longitude coordinate of the item
+     * @param itemLatitude          The latitude coordinate of the item
+     * @param itemAddress           The address of the item (street, ave, bvld, etc)
+     * @param itemCity              The city of the item
+     * @param itemState             The state of the item (PA, CA, etc)
+     * @param itemZipCode           The zipcode of the item
+     * 
      * @return the id of the new items
      */
     public int insertNewItem(int userId, String title, String description, int categories, int postDate,
-            int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription) {
+            int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription,
+            float itemLongitude, float itemLatitude, String itemAddress, String itemCity,
+            String itemState, int itemZipCode) {
         int res = itemDT.insertNewItemData(userId, title, description, categories, postDate, tradeMethod, price,
-                availability, availableTime, wantedItemDescription);
+                availability, availableTime, wantedItemDescription, itemLongitude, itemLatitude, itemAddress, itemCity,
+                itemState, itemZipCode);
         return res;
     }
 
@@ -341,7 +300,8 @@ public class Database {
     public int insertNewItem(ItemData item) {
         int res = itemDT.insertNewItemData(item.itemSeller, item.itemTitle, item.itemDescription, item.itemCategory,
                 item.itemPostDate, item.itemTradeMethod, item.itemPrice, item.itemAvailability, item.itemAvailableTime,
-                item.itemWantedItemDescription);
+                item.itemWantedItemDescription, item.itemLongitude, item.itemLatitude, item.itemAddress, item.itemCity,
+                item.itemState, item.itemZipCode);
         return res;
     }
 
