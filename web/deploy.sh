@@ -20,24 +20,29 @@ mkdir $TARGETFOLDER/$WEBFOLDERNAME
 # there are many more steps to be done.  For now, we will just copy an HTML file
 cp index.html $TARGETFOLDER/$WEBFOLDERNAME
 cp item.html $TARGETFOLDER/$WEBFOLDERNAME
+cp postItem.html $TARGETFOLDER/$WEBFOLDERNAME
+
 # step 2: update our npm dependencies
 npm update
 
 # step 3: copy javascript files
 cp node_modules/jquery/dist/jquery.min.js $TARGETFOLDER/$WEBFOLDERNAME
-cp node_modules/handlebars/dist/handlebars.min.js $TARGETFOLDER/$WEBFOLDERNAME
-cp node_modules/bootstrap/dist/js/bootstrap.min.js $TARGETFOLDER/$WEBFOLDERNAME
-cp node_modules/bootstrap/dist/css/bootstrap.min.css $TARGETFOLDER/$WEBFOLDERNAME
-cp -R node_modules/bootstrap/dist/fonts $TARGETFOLDER/$WEBFOLDERNAME
+#cp node_modules/handlebars/dist/handlebars.min.js $TARGETFOLDER/$WEBFOLDERNAME
+#cp node_modules/bootstrap/dist/js/bootstrap.min.js $TARGETFOLDER/$WEBFOLDERNAME
+#cp node_modules/bootstrap/dist/css/bootstrap.min.css $TARGETFOLDER/$WEBFOLDERNAME
+#cp -R node_modules/bootstrap/dist/fonts $TARGETFOLDER/$WEBFOLDERNAME
 
 # step 4: compile TypeScript files
 node_modules/typescript/bin/tsc app.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/app.js
+node_modules/typescript/bin/tsc item.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/item.js
+node_modules/typescript/bin/tsc postItem.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/postItem.js
+node_modules/typescript/bin/tsc itemDataClass.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/itemDataClass.js
 
 # step 5: copy css files
 cp app.css $TARGETFOLDER/$WEBFOLDERNAME
 
 # step 6: compile handlebars templates to the deploy folder
-node_modules/handlebars/bin/handlebars hb/itemList.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js
-node_modules/handlebars/bin/handlebars hb/itemInfo.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js
+#node_modules/handlebars/bin/handlebars hb/itemList.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js
+#node_modules/handlebars/bin/handlebars hb/itemInfo.hb >> $TARGETFOLDER/$WEBFOLDERNAME/templates.js
 
 

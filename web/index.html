@@ -17,7 +17,7 @@
     <script src="templates.js"></script>
     <script src="app.js"></script>
 
-       
+
     <link href="https://fonts.googleapis.com/css?family=Fresca" rel="stylesheet">
     <link rel="stylesheet" href="app.css" />
     <link href="bootstrap.min.css" rel="stylesheet">
@@ -28,23 +28,27 @@
     <div id="board">
 
         <div id="category">
-                <div class="topnav">
-                        <a class="active" id="category-all" onclick="getAll()">All</a>
-                        <a id="category-school" onclick="getSchool(this, 'school')" >School</a>
-                        <a id="category-car" onclick="getCar(this, 'car')">Car</a>
-                        <a id="category-electronics" onclick="getElectronics(this, 'electronics')">Electronics</a>
-                        <a id="category-furniture" onclick="getFurniture(this, 'furniture')">Furniture</a>
-                </div>
-        </div>
-        <div id="Add">
-                <input type="text" id="Add-newItem" value="Search...">
-                <button id="Add-newMessageBtn">Search</button>
-        </div>
-
-        <div class="itemListBody" id="Message">
+            
+                All:<input type="checkbox" value="all" id="all" onclick="getAll()">
+                School:<input type="checkbox" value="school" id="school" onclick="getSchool()">
+                Car:<input type="checkbox" value="car" id="car" onclick="getCar()">
+                Electronics:<input type="checkbox" value="electronics" id="electronics" onclick="getElectronics()">
+                Furniture:<input type="checkbox" value="furniture" id="furniture" onclick="getFurniture()">
             
         </div>
-    </div>    
+
+        <input type="text" id="Add-newItem" value="Search...">
+        <button id="Add-newMessageBtn">Search</button>
+
+
+        <div class="itemListBody" id="Message">
+
+        </div>
+        <div id="price">
+            <input type="checkbox" id="high_to_low" value="high_to_low" >price from high to low<br>
+            <input type="checkbox" id="low_to_high" value="low_to_high" >price from low to high<br>
+        </div>
+    </div>
 </body>
 
 </html>
