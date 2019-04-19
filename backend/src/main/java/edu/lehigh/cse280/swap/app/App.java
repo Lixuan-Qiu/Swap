@@ -201,7 +201,6 @@ public class App {
             if (idx == -1)
                 return gson.toJson(
                         new StructuredResponse("error", "id in json object cannot be parsed into integer", null));
-
             response.status(200);
             response.type("application/json");
             int res = database.deleteItem(idx);
@@ -268,6 +267,7 @@ public class App {
                         return gson.toJson(new StructuredResponse("error",
                                 "Get by Id: " + request.queryParams("id") + " cannot be parsed into int", null));
                     }
+                    System.out.println("GET /item by id: calls selectOneItem");
                     ItemData select = database.selectOneItem(idx);
                     if (select == null) {
                         String errorMessage = "GET by ID: The specified id" + idx + "does not exist in the database";
@@ -276,10 +276,14 @@ public class App {
                     return gson.toJson(new StructuredResponse("ok", null, select));
                 }
             }
+
             ArrayList<ItemData> result;
             // when the url has query request about category
             if (categories.get(0) != -1) {
+                System.out.println("GET /item by category: calls selectAllItesFromCategory");
                 result = database.selectAllItemsFromCategory(categories);
+                if (result == null)
+                    return gson.toJson(new StructuredResponse("error", "GET /item by category returns null", null));
                 // when the url has query request about price order
                 if (priceFlag != -1) {
                     // reorder the items in result by the requesting order
@@ -293,11 +297,17 @@ public class App {
             // when the url only has a query request of sort by price, so do a get all then
             // sort by price
             else if (priceFlag != -1) {
+                System.out.println("GET /item: calls selectAllItems");
                 result = database.selectAllItems();
+                if (result == null)
+                    return gson.toJson(new StructuredResponse("error",
+                            "GET /item sort by price, selectAllItems returns null", null));
                 if (priceFlag == 1)
                     result = sortByAsc(result);
                 if (priceFlag == 2)
                     result = sortByDsc(result);
+                if (result == null)
+                    return gson.toJson(new StructuredResponse("error", "GET /item sort by price returns null", null));
                 return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
             } else
                 return gson.toJson(new StructuredResponse("error",

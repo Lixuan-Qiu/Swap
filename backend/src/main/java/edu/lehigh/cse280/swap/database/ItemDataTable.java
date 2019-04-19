@@ -25,8 +25,10 @@ public class ItemDataTable {
         try {
             ResultSet rs = Database.p_selectAllItemData.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"),
+                        rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"),
+                        rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"),
+                        rs.getString("availableTime"), rs.getString("wantedItemDescription")));
             }
             rs.close();
             return res;
@@ -48,8 +50,10 @@ public class ItemDataTable {
             Database.p_selectAllItemDataById.setArray(1, idList);
             ResultSet rs = Database.p_selectAllItemDataById.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"),
+                        rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"),
+                        rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"),
+                        rs.getString("availableTime"), rs.getString("wantedItemDescription")));
             }
             rs.close();
             return res;
@@ -71,8 +75,10 @@ public class ItemDataTable {
             Database.p_selectAllFromCategory.setArray(1, Database.ConvertToIntArray(categories));
             ResultSet rs = Database.p_selectAllFromCategory.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"),
+                        rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"),
+                        rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"),
+                        rs.getString("availableTime"), rs.getString("wantedItemDescription")));
             }
 
             rs.close();
@@ -97,8 +103,10 @@ public class ItemDataTable {
             ResultSet rs = Database.p_selectAllFromPrice.executeQuery();
             while (rs.next()) {
 
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"),
+                        rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"),
+                        rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"),
+                        rs.getString("availableTime"), rs.getString("wantedItemDescription")));
             }
             rs.close();
         } catch (SQLException e) {
@@ -107,7 +115,6 @@ public class ItemDataTable {
         }
         return res;
     }
-
 
     /**
      * Get all data for a specific item
@@ -122,8 +129,10 @@ public class ItemDataTable {
             Database.p_selectOneItemData.setInt(1, id);
             ResultSet rs = Database.p_selectOneItemData.executeQuery();
             if (rs.next()) {
-                res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription"));
+                res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"),
+                        rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"),
+                        rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"),
+                        rs.getString("availableTime"), rs.getString("wantedItemDescription"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -137,19 +146,21 @@ public class ItemDataTable {
      * @param title         The title for the item
      * @param description   The description of the item
      * @param userId        The id of the person posting this item
-     * @param tradingInfoId The id of table entry which includes all trading info about this item
+     * @param tradingInfoId The id of table entry which includes all trading info
+     *                      about this item
      * @param categories    The int array with all categories
      * @param postDate      The post date of this item
      * 
      * @return The number of rows that were updated. -1 indicates an error.
      */
-    public int insertNewItemData(int userId, String title, String description, int category, int postDate, int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription) {
+    public int insertNewItemData(int userId, String title, String description, int category, int postDate,
+            int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription) {
         int count = 0;
         try {
             Database.p_insertNewItemData.setInt(1, userId);
             Database.p_insertNewItemData.setString(2, title);
             Database.p_insertNewItemData.setString(3, description);
-            Database.p_insertNewItemData.setInt(4, category);     
+            Database.p_insertNewItemData.setInt(4, category);
             Database.p_insertNewItemData.setInt(5, postDate);
             Database.p_insertNewItemData.setInt(6, tradeMethod);
             Database.p_insertNewItemData.setFloat(7, price);
