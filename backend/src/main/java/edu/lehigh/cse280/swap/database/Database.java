@@ -133,12 +133,6 @@ public class Database {
     private static Connection mConnection;
 
     /**
-     * priavate instance for accessing and calling functions in
-     * ItemCategoryDataTable
-     */
-    private static TradingInfoDataTable itemTIDT;
-
-    /**
      * priavate instance for accessing and calling functions in ItemDataTable
      */
     private static ItemDataTable itemDT;
@@ -148,7 +142,6 @@ public class Database {
      * the getDatabase() method.
      */
     private Database() {
-        itemTIDT = new TradingInfoDataTable();
         itemDT = new ItemDataTable();
     }
 
@@ -228,7 +221,7 @@ public class Database {
                     + "(itemId SERIAL PRIMARY KEY," + " userId INTEGER," + " title VARCHAR(50) NOT NULL,"
                     + " description VARCHAR(500) NOT NULL," + " category INTEGER," + " postDate INTEGER, "
                     + " tradeMethod INTEGER," + " price float," + " availability boolean,"
-                    + " availableTime VARCHAR(40)," + " wantedItemDescription VARCHAR(50)");
+                    + " availableTime VARCHAR(40)," + " wantedItemDescription VARCHAR(50))");
             Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
             Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
@@ -306,7 +299,6 @@ public class Database {
      */
     public void createAllTables() {
         itemDT.createItemDataTable();
-        itemTIDT.createTradingInfoDataTable();
     }
 
     /**
@@ -314,7 +306,6 @@ public class Database {
      */
     public void dropAllTables() {
         itemDT.dropItemDataTable();
-        itemTIDT.dropTradingInfoDataTable();
     }
 
     /**
