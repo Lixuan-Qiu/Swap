@@ -1,24 +1,24 @@
 package edu.lehigh.cse280.swap.app;
 
-import java.awt.event.*;
-import java.io.*;
-import java.sql.*;
+//import java.awt.event.*;
+//import java.io.*;
+//import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+//import java.util.Date;
+//import java.util.HashMap;
 import java.util.Map;
 
 // Import Google's JSON library
 import com.google.gson.*;
 
-import org.apache.http.*;
-import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.index.*;
-import org.elasticsearch.client.*;
+// import org.apache.http.HttpHost;
+// import org.elasticsearch.action.ActionListener;
+// import org.elasticsearch.action.index.*;
+// import org.elasticsearch.client.*;
 
 import edu.lehigh.cse280.swap.database.*;
 // Import the Spark package, so that we can make use of the "get" function to 
-import spark.Spark;
+//import spark.Spark;
 import edu.lehigh.cse280.swap.database.Database;
 import edu.lehigh.cse280.swap.database.ItemData;
 

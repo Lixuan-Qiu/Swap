@@ -106,17 +106,18 @@ public class Database {
     public static Database getDatabase(String ip, String port, String user, String pass) {
         // conn is a connection to the database. In this simple example, it is
         // a local variable, though in a realistic program it might not be
-        Connection conn = null;
 
+        Database db = new Database();
         // Connect to the database or fail
         System.out.print("Connecting to " + ip + ":" + port);
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/", user, pass);
+            Connection conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/", user, pass);
             if (conn == null) {
                 System.out.println("\n\tError: DriverManager.getConnection() returned a null object");
                 return null;
             }
+            mConnection = conn;
         } catch (SQLException e) {
             System.out.println("\n\tError: DriverManager.getConnection() threw a SQLException");
             e.printStackTrace();
@@ -124,7 +125,8 @@ public class Database {
         }
         System.out.println(" ... successfully connected");
 
-        return null;
+        SetUpPrepareStatement();
+        return db;
     }
 
     /**
@@ -158,7 +160,47 @@ public class Database {
             System.out.println("URI Syntax Error");
             return null;
         }
+        
+        SetUpPrepareStatement();
+        return db;
 
+        // // Attempt to create all of our prepared statements. If any of these fail, the
+        // // whole getDatabase() call should fail
+        // try {
+        //     Database.p_getMostRecentId = mConnection.prepareStatement("SELECT MAX(itemId) FROM itemData");
+        //     //////////////////////////////////////////
+        //     // Item Data Table
+        //     //////////////////////////////////////////
+        //     Database.p_createItemDataTable = mConnection.prepareStatement("CREATE TABLE itemData"
+        //             + "(itemId SERIAL PRIMARY KEY," + " userId INTEGER," + " title VARCHAR(50) NOT NULL,"
+        //             + " description VARCHAR(500) NOT NULL," + " category INTEGER," + " postDate INTEGER,"
+        //             + " tradeMethod INTEGER," + " price float," + " availability boolean,"
+        //             + " availableTime VARCHAR(40)," + " wantedItemDescription VARCHAR(50)," + "longitude float," 
+        //             + "latitude float," + "address VARCHAR(50)," + "city VARCHAR(30)," + "state VARCHAR(2)," 
+        //             + "zipcode INTEGER)");
+        //     Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
+        //     // Standard CRUD operations for item
+        //     Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
+        //     Database.p_insertNewItemData = 
+        //     mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        //     Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
+        //     Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId=?");
+        //     Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
+        //     Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category = ANY(?)");
+        //     Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
+        //     Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
+
+        // } catch (SQLException e) {
+        //     System.err.println("Error creating prepared statement");
+        //     e.printStackTrace();
+        //     //db.disconnect();
+        //     //return null;
+        // }
+        // return db;
+    }
+
+    private static void SetUpPrepareStatement() 
+    {
         // Attempt to create all of our prepared statements. If any of these fail, the
         // whole getDatabase() call should fail
         try {
@@ -176,23 +218,25 @@ public class Database {
             Database.p_dropItemDataTable = mConnection.prepareStatement("DROP TABLE itemData");
             // Standard CRUD operations for item
             Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
-            Database.p_insertNewItemData = 
-            mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            Database.p_insertNewItemData = mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
             Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId=?");
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
-            Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category in ?");
+            Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category = ANY(?)");
             Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
             Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
 
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
             e.printStackTrace();
-            db.disconnect();
-            return null;
+            //db.disconnect();
+            //return null;
         }
-        return db;
+        return;
     }
+    
+
+
 
     /**
      * Close the current connection to the database, if one exists.
