@@ -128,7 +128,7 @@ public class App {
         try {
             client.close();
         } catch (IOException e) {
-            System.out.println("fucking error from closing the client:" + e.getMessage());
+            System.out.println("error from closing the client: " + e.getMessage());
         }
         final Database database = Database.getDatabase(db_url);
         if (database == null)
@@ -237,6 +237,7 @@ public class App {
             // indicate the price order to query, asc is 1, dsc is 2, no price order is -1
             int priceFlag = -1;
             for (String param : queryParams) {
+                // aaaaa;
                 if (param.equals("pricerank")) {
                     String order = request.queryParams("pricerank");
                     if (order.equals("asc"))
@@ -276,7 +277,7 @@ public class App {
                     return gson.toJson(new StructuredResponse("ok", null, select));
                 }
             }
-
+            // ffff;
             ArrayList<ItemData> result;
             // when the url has query request about category
             if (categories.get(0) != -1) {
