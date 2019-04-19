@@ -3,19 +3,19 @@
 
 package edu.lehigh.cse280.swap.app;
 
-import java.awt.event.*;
+//import java.awt.event.*;
 import java.io.*;
-import java.sql.*;
+//import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+//import java.util.Date;
+//import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 // Import Google's JSON library
 import com.google.gson.*;
-import java.util.Collections;
+//import java.util.Collections;
 // Import Elasticsearch java client
-import org.apache.http.*;
+import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.index.*;
 import org.elasticsearch.client.*;
