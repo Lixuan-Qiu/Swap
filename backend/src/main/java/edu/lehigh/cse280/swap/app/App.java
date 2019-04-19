@@ -137,6 +137,8 @@ public class App {
         String static_location_override = System.getenv("STATIC_LOCATION");
 
         // hardcode data entries
+        database.dropAllTables();
+
         database.createAllTables();
 
         // int categories = 0;
