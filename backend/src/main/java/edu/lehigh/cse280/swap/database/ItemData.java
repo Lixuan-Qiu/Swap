@@ -108,13 +108,13 @@ public class ItemData {
      * @param price_       The price of the item if applicable
      * @param availability_ Status of the availability of the item (True being available)
      * @param availableTime_ How long the item will be available for
-     * @param wantedItemDescription The description of the item that the person wants (if applicable) 
-     * @param itemLongitude The longitude coordinate of the item
-     * @param itemLatitude The latitude coordinate of the item
-     * @param itemAddress The address of the item (street, ave, bvld, etc)
-     * @param itemCity The city of the item
-     * @param itemState The state of the item (PA, CA, etc)
-     * @param itemZipCode The zipcode of the item
+     * @param wantedItemDescription_ The description of the item that the person wants (if applicable) 
+     * @param itemLongitude_ The longitude coordinate of the item
+     * @param itemLatitude_ The latitude coordinate of the item
+     * @param itemAddress_ The address of the item (street, ave, bvld, etc)
+     * @param itemCity_ The city of the item
+     * @param itemState_ The state of the item (PA, CA, etc)
+     * @param itemZipCode_ The zipcode of the item
      */
     public ItemData(int id_, int userId_, String title_, String description_, int category_, int postDate_,
             int tradeMethod_, float price_, boolean availability_, String availableTime_,

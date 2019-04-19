@@ -25,8 +25,10 @@ public class ItemDataTable {
         try {
             ResultSet rs = Database.p_selectAllItemData.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
+                rs.getInt("category"), rs.getInt("postDate"), rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), 
+                rs.getString("availableTime"), rs.getString("wantedItemDescription"),rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), 
+                rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")));
             }
             rs.close();
             return res;
@@ -48,8 +50,11 @@ public class ItemDataTable {
             Database.p_selectAllItemDataById.setArray(1, idList);
             ResultSet rs = Database.p_selectAllItemDataById.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
+                rs.getInt("category"), rs.getInt("postDate"), rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), 
+                rs.getString("availableTime"), rs.getString("wantedItemDescription"),rs.getFloat("longitude"), rs.getFloat("latitude"), 
+                rs.getString("address"), rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")
+                ));
             }
             rs.close();
             return res;
@@ -71,8 +76,13 @@ public class ItemDataTable {
             Database.p_selectAllFromCategory.setArray(1, Database.ConvertToIntArray(categories));
             ResultSet rs = Database.p_selectAllFromCategory.executeQuery();
             while (rs.next()) {
-                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), 
+                rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), 
+                rs.getString("availableTime"), rs.getString("wantedItemDescription"), 
+                rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), rs.getString("city"), 
+                rs.getString("state"), rs.getInt("zipcode")
+                ));
             }
 
             rs.close();
@@ -95,10 +105,12 @@ public class ItemDataTable {
             Database.p_selectAllFromPrice.setFloat(1, low);
             Database.p_selectAllFromPrice.setFloat(2, high);
             ResultSet rs = Database.p_selectAllFromPrice.executeQuery();
-            while (rs.next()) {
-
+            while (rs.next()) 
+            {
                 res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription")));
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription"), 
+                rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")
+                ));
             }
             rs.close();
         } catch (SQLException e) {
@@ -122,8 +134,12 @@ public class ItemDataTable {
             Database.p_selectOneItemData.setInt(1, id);
             ResultSet rs = Database.p_selectOneItemData.executeQuery();
             if (rs.next()) {
-                res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
-                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription"));
+                res = new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
+                rs.getInt("category"), rs.getInt("postDate"), rs.getInt("tradeMethod"), rs.getFloat("price"), 
+                rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription"), 
+                rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), rs.getString("city"), 
+                rs.getString("state"), rs.getInt("zipcode")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -134,16 +150,30 @@ public class ItemDataTable {
     /**
      * insert a item for a row in the database
      * 
+     * @param userId        The id of the person posting this item
      * @param title         The title for the item
      * @param description   The description of the item
-     * @param userId        The id of the person posting this item
-     * @param tradingInfoId The id of table entry which includes all trading info about this item
      * @param categories    The int array with all categories
      * @param postDate      The post date of this item
+     * @param tradeMethod The method of transaction for the item
+     * @param price       The price of the item if applicable
+     * @param availability Status of the availability of the item (True being available)
+     * @param availableTime How long the item will be available for
+     * @param wantedItemDescription The description of the item that the person wants (if applicable) 
+     * @param itemLongitude The longitude coordinate of the item
+     * @param itemLatitude The latitude coordinate of the item
+     * @param itemAddress The address of the item (street, ave, bvld, etc)
+     * @param itemCity The city of the item
+     * @param itemState The state of the item (PA, CA, etc)
+     * @param itemZipCode The zipcode of the item
+   
+     
      * 
      * @return The number of rows that were updated. -1 indicates an error.
      */
-    public int insertNewItemData(int userId, String title, String description, int category, int postDate, int tradeMethod, float price, boolean availability, String availableTime, String wantedItemDescription) {
+    public int insertNewItemData(int userId, String title, String description, int category, int postDate, int tradeMethod, 
+    float price, boolean availability, String availableTime, String wantedItemDescription, float itemLongitude, float itemLatitude, 
+    String itemAddress, String itemCity, String itemState, int itemZipCode) {
         int count = 0;
         try {
             Database.p_insertNewItemData.setInt(1, userId);
@@ -156,6 +186,13 @@ public class ItemDataTable {
             Database.p_insertNewItemData.setBoolean(8, true);
             Database.p_insertNewItemData.setString(9, availableTime);
             Database.p_insertNewItemData.setString(10, wantedItemDescription);
+            Database.p_insertNewItemData.setFloat(11, itemLongitude);
+            Database.p_insertNewItemData.setFloat(12, itemLatitude);
+            Database.p_insertNewItemData.setString(13, itemAddress);
+            Database.p_insertNewItemData.setString(14, itemCity);
+            Database.p_insertNewItemData.setString(15, itemState);
+            Database.p_insertNewItemData.setInt(16, itemZipCode);
+
             count += Database.p_insertNewItemData.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
