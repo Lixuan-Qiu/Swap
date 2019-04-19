@@ -19,7 +19,7 @@ public class StructuredResponse {
      */
     public String mMessage;
 
-    public Object item;
+    public Object mData;
 
     /**
      * Construct a StructuredResponse by providing a status, message, and data. If
@@ -32,6 +32,6 @@ public class StructuredResponse {
     public StructuredResponse(String status, String message, Object any) {
         mStatus = (status != null) ? status : "invalid";
         mMessage = message;
-        item = any;
+        mData = any;
     }
 }
