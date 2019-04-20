@@ -1,0 +1,8 @@
+1,logitech mouse,brand new,electronics,20190410,sell,40,true,30 days, 
+1,Ferrari 488,brand new,car,20190328,giveaway,0,false,this should not be shown, 
+4,GTX 1060,near broken,electronics,20190221,trade,0,true,10 days, 
+4,Econ001 textbook,half new,school,20190407,sell,20,true,in this semester, 
+2,Coolermaster keyboard,brand new,electronics,20190318,trade,0f,false,this should not be shown, 
+2,Desktop,80% new,furniture,20190112,giveaway,0,true,2 months, 
+3,Rangerover Sport,half new,car,20190409,rent,100f,false,a month, 
+3,Microfridge,brand new,furniture,20190405,trade,0f,true,one year, 
