@@ -36,7 +36,7 @@ cp node_modules/jquery/dist/jquery.min.js $TARGETFOLDER/$WEBFOLDERNAME
 node_modules/typescript/bin/tsc app.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/app.js
 node_modules/typescript/bin/tsc item.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/item.js
 node_modules/typescript/bin/tsc postItem.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/postItem.js
-node_modules/typescript/bin/tsc itemDataClass.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/itemDataClass.js
+#node_modules/typescript/bin/tsc itemDataClass.ts --strict --outFile $TARGETFOLDER/$WEBFOLDERNAME/itemDataClass.js
 
 # step 5: copy css files
 cp app.css $TARGETFOLDER/$WEBFOLDERNAME

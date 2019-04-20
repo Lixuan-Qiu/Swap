@@ -1,8 +1,48 @@
-var $: any;
+var selectedId: any;
+//contianer for user's POST 
+class ItemData{
+    id:number;
+    title:any;
+    description:any;
+    category:number;
+    postDate:number;
+    longitude:number;
+    latitude:number;
+    address:any;
+    city:any;
+    state:any;
+    zipcode:number;
+    tradeMethod:number;
+    price:number;
+    availability:any;
+    availableTime:any;
+    wantedItemDescription:any;
+    constructor(id:number,title:any,description:any,category:number,postDate:number,longitude:number,latitude:number,address:any,city:any,state:any,zipcode:number,tradeMethod:number,price:number,availability:any,availableTime:any,wantedItemDescription:any){
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.category = category;
+        this.postDate = postDate;
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.address = address;
+        this.city = city;
+        this.state = state;
+        this.zipcode = zipcode;
+        this.tradeMethod = tradeMethod;
+        this.price = price;
+        this.availability = availability;
+        this.availableTime = availableTime;
+        this.wantedItemDescription = wantedItemDescription;
+    }  
+}
 class PostItem {
     constructor() {
 
     }
+    //get values from input tags and put into the ItemData cotianer
+    //POST ajax call to send itemData
+    //call back return to the item page of just posted item
     public postItem() {
         /*"Car", "School", "Furniture", "Electronics"
         "Sell",  "Trade",   "Rent",      "GiveAway"
@@ -10,14 +50,15 @@ class PostItem {
         let title = $("#title").val();
         let description = $("#description").val();
         let category = $("#category").val();
+        let categoryNum = 0;
         if(category=="Car"){
-            category=1;
+            categoryNum=1;
         }else if(category=="School"){
-            category=2;
+            categoryNum=2;
         }else if(category=="Furniture"){
-            category=3;
+            categoryNum=3;
         }else if(category=="Electronics"){
-            category=4;
+            categoryNum=4;
         }
         let d = new Date();
         let postDate = d.getFullYear() + (d.getMonth()+1) + d.getDate();
@@ -39,7 +80,7 @@ class PostItem {
         let availableTime = $("#availableTime").val();
         let wantedItemDescription = $("#wantedItemDescription").val();
         
-        let mItemData = new ItemData(0,title,description,category,postDate,11,11,address,city,state,zipcode,tradeMethod,price,true,availableTime,wantedItemDescription);
+        let mItemData = new ItemData(0,title,description,categoryNum,postDate,11,11,address,city,state,Number(zipcode),Number(tradeMethod),Number(price),true,availableTime,wantedItemDescription);
         $.ajax({
             type: "POST",
             url: "/item/new", //selectedId stores the id of the item that been clicked on 

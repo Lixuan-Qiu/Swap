@@ -16,11 +16,15 @@
     <script src="bootstrap.min.js"></script>
     <script src="templates.js"></script>
     <script src="app.js"></script>
+    <!-- <script src="item.js"></script>
+    <script src="postItem.js"></script> -->
+    <!-- <script src="itemDataClass.js"></script> -->
+
 
 
     <link href="https://fonts.googleapis.com/css?family=Fresca" rel="stylesheet">
     <link rel="stylesheet" href="app.css" />
-    <link href="bootstrap.min.css" rel="stylesheet">
+
 
 </head>
 
@@ -29,10 +33,10 @@
 
         <div id="category">
             
-                All:<input type="checkbox" value="all" id="all" onclick="getAll()">
-                School:<input type="checkbox" value="school" id="school" onclick="getSchool()">
-                Car:<input type="checkbox" value="car" id="car" onclick="getCar()">
-                Electronics:<input type="checkbox" value="electronics" id="electronics" onclick="getElectronics()">
+                All:<input type="checkbox" value="all" id="all" >
+                School:<input type="checkbox" value="school" id="school" >
+                Car:<input type="checkbox" value="car" id="car" >
+                Electronics:<input type="checkbox" value="electronics" id="electronics" >
                 Furniture:<input type="checkbox" value="furniture" id="furniture" onclick="getFurniture()">
             
         </div>
@@ -41,13 +45,15 @@
         <button id="Add-newMessageBtn">Search</button>
 
 
-        <div class="itemListBody" id="Message">
+        
 
         </div>
         <div id="price">
             <input type="checkbox" id="high_to_low" value="high_to_low" >price from high to low<br>
             <input type="checkbox" id="low_to_high" value="low_to_high" >price from low to high<br>
         </div>
+        <button id="postItemBtn" onclick="redirectToPostItemPage()">Post New Item</button>
+        <div class="itemListBody" id="Message"></div>
     </div>
 </body>
 
