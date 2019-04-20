@@ -23,12 +23,16 @@ import org.elasticsearch.action.get.*;
 import spark.Spark;
 import edu.lehigh.cse280.swap.database.Database;
 import edu.lehigh.cse280.swap.database.ItemData;
+import java.io.FileReader;
 
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.auth.*;
+import java.net.URL;
 
+//docker run -p5432:5432 --name test -e POSTGRES_PASSWORD=test -e POSTGRES_USER=test -d postgres
+//POSTGRES_IP=127.0.0.1 POSTGRES_PORT=5432 POSTGRES_USER=test POSTGRES_PASS=test mvn package
 /**
  * For now, our app creates an HTTP server that can only get and add data.
  */
@@ -140,7 +144,7 @@ public class App {
         database.dropAllTables();
 
         database.createAllTables();
-
+        bulkInsertFromLocalFile(database, "sample.txt");
         // int categories = 0;
         // Sheldon:1 Lixuan:2 Allen:3 Xiaowei:4
         database.insertNewItem(1, "logitech mouse", "brand new", electronic, 20190410, sell, 40f, true, " days", "");
@@ -191,6 +195,7 @@ public class App {
             }
         });
 
+        // DELETE route for deleting an item that is already in database
         Spark.delete("/item", (request, response) -> {
             int idx;
             try {
@@ -215,6 +220,17 @@ public class App {
         // for error handling.
         Spark.get("/item/all", (request, response) -> {
             // ensure status 200 OK, with a MIME type of JSON
+            response.status(200);
+            response.type("application/json");
+            ArrayList<ItemData> selectAll = database.selectAllItems();
+            if (selectAll == null)
+                return gson.toJson(new StructuredResponse("error", "Get all item returns null", null));
+            return gson.toJson(new StructuredResponse("ok", null, selectAll));
+        });
+        // PUT route that modifies infomation of an item that is already in database
+        Spark.put("/item", (request, response) -> {
+            // ensure status 200 OK, with a MIME type of JSON
+            int id = Integer.parseInt(request.queryParams("id"));
             response.status(200);
             response.type("application/json");
             ArrayList<ItemData> selectAll = database.selectAllItems();
@@ -343,26 +359,6 @@ public class App {
             }
             return gson.toJson(new StructuredResponse("ok", null, res));
         });
-
-        // POST route for adding a new element to the database. This will read
-        // JSON from the body of the request, turn it into a SimpleRequest
-        // object, extract the title and message, insert them, and return the
-        // ID of the newly created row.
-
-        // example:/items/category?tag=furniture-school-new
-        // Spark.get("/items/category", "application/json", (request, response) -> {
-        // // NB: if gson.Json fails, Spark will reply with status 500 Internal
-        // // Server Error'
-        // // ensure status 200 OK, with a MIME type of JSON
-        // // NB: even on error, we return 200, but with a JSON object that
-        // // describes the error.
-        // response.status(200);
-        // response.type("application/json");
-        // String rawCategory = request.queryParams("tag");
-        // String[] categoryArray = getStringArrayFromText(rawCategory);
-        // return gson.toJson(new StructuredResponse("error", "elasticsearch
-        // implementation incomplete", null));
-        // });
     }
 
     /**
@@ -385,6 +381,74 @@ public class App {
     }
 
     /**
+     * This functions access to the filename.txt in the same folder as App.java, and
+     * read itemData from the text file and insert them into database
+     * 
+     * @param db       the database instance we need to populate
+     * @param filename the name of the file where we stored all our sample data
+     */
+    private static void bulkInsertFromLocalFile(Database db, String filename) {
+        URL path = App.class.getResource(filename);
+        File f = new File(path.getFile());
+        BufferedReader reader;
+        String line;
+        int i = 0;
+        try {
+            reader = new BufferedReader(new FileReader(f));
+            try {
+                while ((line = reader.readLine()) != null) {
+                    String[] columns = line.split(",");
+                    int userId = Integer.parseInt(columns[0]);
+                    String title = columns[1];
+                    String description = columns[2];
+                    int category = convertCategoryToInt(columns[3]);
+                    int date = Integer.parseInt(columns[4]);
+                    int trademethod = convertMethodToInt(columns[5]);
+                    float price = Float.parseFloat(columns[6]);
+                    boolean av;
+                    if (columns[7] == "true")
+                        av = true;
+                    else {
+                        av = false;
+                    }
+                    String avTime = columns[7];
+                    String itemWant = columns[8];
+                    int id = db.insertNewItem(userId, title, description, category, date, trademethod, price, av,
+                            avTime, itemWant);
+                    if (id <= 0)
+                        System.out.println("Failed to parse text in line " + i + ", insertion failed");
+                    i++;
+                }
+            } catch (IOException e) {
+                System.out.println("Error reading file");
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found when doing bulk insert");
+        }
+
+    }
+
+    /**
+     * Helper method to convert an trade method string into the corresponding int in
+     * the database
+     * 
+     * @param text String that contains the trade method
+     * @return the int that respresents the input trade method in the database
+     */
+    private static int convertMethodToInt(String text) {
+        if (text.equals("sell"))
+            return 1;
+        else if (text.equals("trade"))
+            return 2;
+        else if (text.equals("rent"))
+            return 3;
+        else if (text.equals("giveaway"))
+            return 4;
+        else
+            return -1;
+    }
+
+    /**
      * Split the input into string array using delimiter "-"
      * 
      * @param text Unparsed string with different elements connected by a single "-"
@@ -395,6 +459,13 @@ public class App {
         return list;
     }
 
+    /**
+     * Helper method to convert an category string into the corresponding int in the
+     * database
+     * 
+     * @param text String that contains the category
+     * @return the int that respresents the input category in the database
+     */
     private static int convertCategoryToInt(String text) {
         if (text.equals("car"))
             return 1;
