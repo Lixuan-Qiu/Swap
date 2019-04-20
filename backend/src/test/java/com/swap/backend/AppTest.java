@@ -3,14 +3,24 @@ package com.swap.backend;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.*;
+import java.io.IOException;
+import java.io.FileNotFoundException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import java.net.URL;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.File;
 import edu.lehigh.cse280.swap.database.*;
 
 /**
  * Unit test for simple App.
  */
+// docker run -p5432:5432 --name test -e POSTGRES_PASSWORD=test -e
+// POSTGRES_USER=test -d postgres
+// POSTGRES_IP=127.0.0.1 POSTGRES_PORT=5432 POSTGRES_USER=test
+// POSTGRES_PASS=test mvn package
 public class AppTest extends TestCase {
     // parameters for trading method
     private static final int sell = 1;
@@ -43,6 +53,8 @@ public class AppTest extends TestCase {
      * Rigourous Test :-)
      */
     public void testDeleteItem() {
+        System.out.println("Test Delete");
+        System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
         int res;
@@ -86,6 +98,8 @@ public class AppTest extends TestCase {
      * Rigourous Test :-)
      */
     public void testInsertAndGet() {
+        System.out.println("Test Insert and Get");
+        System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
         int id = db.insertNewItem(1, "logitech mouse", "brand new", electronic, 20190410, sell, 40f, true, " days", "");
@@ -116,10 +130,11 @@ public class AppTest extends TestCase {
     }
 
     public void testSelectByCategory() {
+        System.out.println("Test Select By Category");
+        System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
         populateDatabase(db);
-
         ArrayList<ItemData> res = new ArrayList<>();
         res = db.selectAllItemsFromCategory(new ArrayList<Integer>(Arrays.asList(electronic)));
         assert (res.size() == 3);
@@ -160,6 +175,8 @@ public class AppTest extends TestCase {
     }
 
     public void testSelectAll() {
+        System.out.println("Test Select All");
+        System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
         populateDatabase(db);
@@ -167,17 +184,61 @@ public class AppTest extends TestCase {
         assert (result.size() == 8);
     }
 
-    private static int convertCategoryToInt(String text) {
-        if (text.equals("car"))
-            return 1;
-        else if (text.equals("school"))
-            return 2;
-        else if (text.equals("electronics"))
-            return 3;
-        else if (text.equals("furniture"))
-            return 4;
-        else
-            return -1;
+    public void testBulkInsert() {
+        System.out.println("Test Bulk Insert");
+        System.out.println("--------------------------------------");
+        db.dropAllTables();
+        db.createAllTables();
+        URL path = AppTest.class.getResource("sample.txt");
+        File f = new File(path.getFile());
+        BufferedReader reader;
+        String line;
+        int i = 0;
+        try {
+            reader = new BufferedReader(new FileReader(f));
+            try {
+                while ((line = reader.readLine()) != null) {
+                    String[] columns = line.split(",");
+                    // System.out.println(line);
+                    int userId = Integer.parseInt(columns[0]);
+                    String title = columns[1];
+                    String description = columns[2];
+                    int category = convertCategoryToInt(columns[3]);
+                    assert (category != -1);
+                    int date = Integer.parseInt(columns[4]);
+                    int trademethod = convertMethodToInt(columns[5]);
+                    assert (trademethod != -1);
+                    float price = Float.parseFloat(columns[6]);
+                    boolean av;
+                    if (columns[7] == "true")
+                        av = true;
+                    else {
+                        av = false;
+                    }
+                    String avTime = columns[7];
+                    String itemWant = columns[8];
+                    int id = db.insertNewItem(userId, title, description, category, date, trademethod, price, av,
+                            avTime, itemWant);
+                    // System.out.println(id);
+                    if (id <= 0) {
+                        System.out.println("Failed to parse text in line " + i + ", insertion failed");
+                        assert (false);
+                    }
+                    i++;
+                }
+            } catch (IOException e) {
+                System.out.println("Error reading file");
+                assert (false);
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found when doing bulk insert");
+            assert (false);
+        }
+        System.out.println("total insert: " + db.selectAllItems().size());
+        System.out.println("total lines of input: " + i);
+
+        assert (db.selectAllItems().size() == i);
     }
 
     private static void populateDatabase(Database db) {
@@ -210,5 +271,31 @@ public class AppTest extends TestCase {
         result.add(
                 new ItemData(8, 3, "Microfridge", "brand new", furniture, 20190405, trade, 0f, true, "one year", ""));
         return result;
+    }
+
+    private static int convertCategoryToInt(String text) {
+        if (text.equals("car"))
+            return 1;
+        else if (text.equals("school"))
+            return 2;
+        else if (text.equals("electronics"))
+            return 3;
+        else if (text.equals("furniture"))
+            return 4;
+        else
+            return -1;
+    }
+
+    private static int convertMethodToInt(String text) {
+        if (text.equals("sell"))
+            return 1;
+        else if (text.equals("trade"))
+            return 2;
+        else if (text.equals("rent"))
+            return 3;
+        else if (text.equals("giveaway"))
+            return 4;
+        else
+            return -1;
     }
 }
