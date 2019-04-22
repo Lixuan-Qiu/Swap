@@ -41,6 +41,31 @@ public class ItemDataTable {
     /**
      * Query the database for a list of all items in our homepage along with its
      * description
+     * @param itemPerPage how many items to get per page
+     * @param pageNum which page to start from
+     * @return All rows, as an ArrayList
+     */
+    public ArrayList<ItemData> selectAllItems(int itemPerPage, int pageNum) {
+        ArrayList<ItemData> res = new ArrayList<ItemData>();
+        try {
+            ResultSet rs = Database.p_selectAllItemData.executeQuery();
+            while (rs.next()) {
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
+                rs.getInt("category"), rs.getInt("postDate"), rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), 
+                rs.getString("availableTime"), rs.getString("wantedItemDescription"),rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), 
+                rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")));
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Query the database for a list of all items in our homepage along with its
+     * description
      * 
      * @return All rows, as an ArrayList
      */
@@ -65,12 +90,69 @@ public class ItemDataTable {
     }
 
     /**
+     * Query the database for a list of all items in our homepage along with its
+     * description
+     * @param itemPerPage how many items to get per page
+     * @param pageNum which page to start from
+     * @return All rows, as an ArrayList
+     */
+    public ArrayList<ItemData> selectAllItemDatabyId(Array idList, int itemPerPage, int pageNum) {
+        ArrayList<ItemData> res = new ArrayList<ItemData>();
+        try {
+            Database.p_selectAllItemDataById.setArray(1, idList);
+            ResultSet rs = Database.p_selectAllItemDataById.executeQuery();
+            while (rs.next()) {
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
+                rs.getInt("category"), rs.getInt("postDate"), rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), 
+                rs.getString("availableTime"), rs.getString("wantedItemDescription"),rs.getFloat("longitude"), rs.getFloat("latitude"), 
+                rs.getString("address"), rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")
+                ));
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**  
+    * Query the database for a list of all items from some categories
+    * 
+    * @param categories the category on which the items will be filtered
+    * @return All rows, as an ArrayList
+    */
+   public ArrayList<ItemData> selectAllItemFromCategory(ArrayList<Integer> categories) {
+       ArrayList<ItemData> res = new ArrayList<ItemData>();
+       try {
+           Database.p_selectAllFromCategory.setArray(1, Database.ConvertToIntArray(categories));
+           ResultSet rs = Database.p_selectAllFromCategory.executeQuery();
+           while (rs.next()) {
+               res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), 
+               rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+               rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), 
+               rs.getString("availableTime"), rs.getString("wantedItemDescription"), 
+               rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), rs.getString("city"), 
+               rs.getString("state"), rs.getInt("zipcode")
+               ));
+           }
+
+           rs.close();
+       } catch (SQLException e) {
+           e.printStackTrace();
+           return null;
+       }
+       return res;
+   }
+
+       /**
      * Query the database for a list of all items from some categories
-     * 
+     * @param itemPerPage how many items to get per page
+     * @param pageNum which page to start from
      * @param categories the category on which the items will be filtered
      * @return All rows, as an ArrayList
      */
-    public ArrayList<ItemData> selectAllItemFromCategory(ArrayList<Integer> categories) {
+    public ArrayList<ItemData> selectAllItemFromCategory(ArrayList<Integer> categories, int itemPerPage, int pageNum) {
         ArrayList<ItemData> res = new ArrayList<ItemData>();
         try {
             Database.p_selectAllFromCategory.setArray(1, Database.ConvertToIntArray(categories));
@@ -120,6 +202,34 @@ public class ItemDataTable {
         return res;
     }
 
+    /**
+     * Query the database for a list of all items from some price range
+     * @param itemPerPage how many items to get per page
+     * @param pageNum which page to start from
+     * @param price the price on which the items will be filtered
+     * @return All rows, as an ArrayList
+     */
+    public ArrayList<ItemData> selectAllItemFromPrice(float low, float high, int itemPerPage, int pageNum) {
+        ArrayList<ItemData> res = new ArrayList<ItemData>();
+        try {
+            Database.p_selectAllFromPrice.setFloat(1, low);
+            Database.p_selectAllFromPrice.setFloat(2, high);
+            ResultSet rs = Database.p_selectAllFromPrice.executeQuery();
+            while (rs.next()) 
+            {
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), rs.getInt("category"), rs.getInt("postDate"), 
+                rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), rs.getString("availableTime"), rs.getString("wantedItemDescription"), 
+                rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")
+                ));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return res;
+    }
+
 
     /**
      * Get all data for a specific item
@@ -146,6 +256,62 @@ public class ItemDataTable {
         }
         return res;
     }
+
+
+    /** 
+    * Get all item data for a specific user
+    * @param userId the id of the user being requested
+    * @return All rows of item data for the user being requested
+    */
+
+    public ArrayList<ItemData> selectByUserId(int userId)
+    {
+        ArrayList<ItemData> res = new ArrayList<ItemData>();
+        try {
+            ResultSet rs = Database.p_selectAllItemDataByUserId.executeQuery();
+            while (rs.next()) {
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
+                rs.getInt("category"), rs.getInt("postDate"), rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), 
+                rs.getString("availableTime"), rs.getString("wantedItemDescription"),rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), 
+                rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")));
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /** 
+    * Get all item data for a specific user
+    * @param userId the id of the user being requested
+    * @param itemPerPage how many items to get per page
+    * @param pageNum which page to start from
+    * @return All rows of item data for the user being requested
+    */
+
+    public ArrayList<ItemData> selectByUserId(int userId, int itemPerPage, int pageNum)
+    {
+        ArrayList<ItemData> res = new ArrayList<ItemData>();
+        try {
+            ResultSet rs = Database.p_selectAllItemDataByUserId.executeQuery();
+            while (rs.next()) {
+                res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
+                rs.getInt("category"), rs.getInt("postDate"), rs.getInt("tradeMethod"), rs.getFloat("price"), rs.getBoolean("availability"), 
+                rs.getString("availableTime"), rs.getString("wantedItemDescription"),rs.getFloat("longitude"), rs.getFloat("latitude"), rs.getString("address"), 
+                rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")));
+            }
+            rs.close();
+            return res;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
 
     /**
      * insert a item for a row in the database
@@ -197,6 +363,22 @@ public class ItemDataTable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return count;
+    }
+
+    /** 
+    * Updates the item provided in the parameter
+    * @param itemToUpdate the item to update
+    */
+    public int updateItemData(ItemData itemToUpdate)
+    {
+        int count = 0;
+        try {
+            count += Database.p_updateItemData.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         return count;
     }
 
