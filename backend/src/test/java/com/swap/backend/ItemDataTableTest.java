@@ -213,6 +213,52 @@ public class ItemDataTableTest extends TestCase
 
     }
 
+    /**
+     * Tests selectByUserId method
+     * should return an ArrayList of ItemData for the user
+     */ 
+    public void selectByUserId()
+    {
+
+    }
+
+    //tests new toString method
+    public void testToString()
+    {
+
+    }
+
+    //test new updateItemData function
+    public void testUpdateItemData()
+    {
+
+    }
+
+    //test overloaded params itemPerPage and pageNum
+    public void testSelectAllItems1()
+    {
+
+    
+    }
+
+    //test overloaded params itemPerPage and pageNum
+    public void testSelectAllItemsFromCategory1()
+    {
+
+    }
+
+    //test overloaded params itemPerPage and pageNum
+    public void testSelectAllItemsFromPrice1()
+    {
+
+    }
+
+    //test overloaded params itemPerPage and pageNum
+    public void testSelectByUserId1()
+    {
+        
+    }
+
 
 
 

@@ -42,6 +42,11 @@ public class Database {
     static PreparedStatement p_selectAllItemDataById;
 
     /**
+     * A prepared statement for getting all item by provided userId
+     */
+    static PreparedStatement p_selectAllItemDataByUserId;
+
+    /**
      * A prepared statement for deleting a item from the database
      */
     static PreparedStatement p_deleteOneItemData;
@@ -225,6 +230,7 @@ public class Database {
             Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category = ANY(?)");
             Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
             Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
+            Database.p_selectAllItemDataByUserId = mConnection.prepareStatement("SELECT * FROM itemData where itemSeller WHERE userId=?");
 
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -346,6 +352,17 @@ public class Database {
                 item.itemPostDate, item.itemTradeMethod, item.itemPrice, item.itemAvailability, item.itemAvailableTime,
                 item.itemWantedItemDescription, item.itemLongitude, item.itemLatitude, item.itemAddress, item.itemCity,
                 item.itemState, item.itemZipCode);
+        return res;
+    }
+
+    /**
+     * 
+     * @param item The ItemData object to be updated
+     * @return a non neg if succesfully updated
+     */
+    public int updateItemData(ItemData item)
+    {
+        int res = itemDT.updateItemData(item);
         return res;
     }
 
