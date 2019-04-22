@@ -143,4 +143,14 @@ public class ItemData {
         itemState = itemState_;
         itemZipCode = itemZipCode_;
     }
+
+    public String itemToString()
+    {
+        return "itemID: " + itemId + " userId: " + itemSeller + " itemTitle: " + itemTitle + 
+        " itemDescription: " + itemDescription + " itemCategory: " + itemCategory + " itemPostDate: " + itemPostDate
+        + " itemTradeMethod: " + itemTradeMethod + " itemPrice: " + itemPrice + " itemAvailability: " + itemAvailability +
+        " itemAvailableTime: " + itemAvailableTime + " itemWantedItemDescription: " + itemWantedItemDescription + 
+        " itemLongitude: " + itemLongitude + " itemLatitude: " + itemLatitude + " itemAddress: " + itemAddress + " itemCity: "
+        + itemCity + " itemState: " + itemState + " itemZipCode: " + itemZipCode;
+    }
 }
