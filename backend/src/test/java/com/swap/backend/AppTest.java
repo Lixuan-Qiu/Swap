@@ -1,5 +1,6 @@
 package com.swap.backend;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.*;
@@ -12,7 +13,20 @@ import java.net.URL;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import edu.lehigh.cse280.swap.database.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.common.util.IntArray;
+
+import com.google.gson.Gson;
+
+import spark.Spark;
 
 /**
  * Unit test for simple App.
@@ -49,11 +63,102 @@ public class AppTest extends TestCase {
         super(testName);
     }
 
+    public void testSpark() {
+        System.out.println("\nTest Spark");
+        System.out.println("--------------------------------------");
+        Spark.get("/hello", (request, response) -> {
+            return 99;
+        });
+        String test = "";
+        int i = -1;
+        try {
+            StringBuilder result = new StringBuilder();
+            URL url = new URL("http://localhost:4567/hello");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            while ((line = rd.readLine()) != null) {
+                result.append(line);
+            }
+            System.out.println("Hmmmm? " + result.toString());
+            test = result.toString();
+            i = Integer.parseInt(test);
+            rd.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("aaaawtf? " + test);
+        assert (test.equals("99"));
+        System.out.println("wtf? " + i);
+
+        assert (i == 99);
+        // assert (false);
+    }
+
+    public void testSparkPostItem() {
+        db.dropAllTables();
+        db.createAllTables();
+        System.out.println("\nTest Spark Post Item");
+        System.out.println("--------------------------------------");
+
+        Gson gson = new Gson();
+
+        Spark.post("/item/new", (request, response) -> {
+            response.status(200);
+            response.type("application/json");
+            ItemData req = gson.fromJson(request.body(), ItemData.class);
+            int id = req.itemId;
+            String title = req.itemTitle;
+            String description = req.itemDescription;
+            int category = req.itemCategory;
+            int date = req.itemPostDate;
+            int method = req.itemTradeMethod;
+            float price = req.itemPrice;
+            boolean available = req.itemAvailability;
+            String availableTime = req.itemAvailableTime;
+            String wanted = req.itemWantedItemDescription;
+
+            int idx = db.insertNewItem(id, title, description, category, date, method, price, available, availableTime,
+                    wanted);
+            if (idx < 0) {
+                String errorMessage = "fail to insert new item";
+                return gson.toJson(new StructuredResponse("error", errorMessage, null));
+            }
+            return gson.toJson(new StructuredResponse("ok", null, idx));
+        });
+
+        ItemData item = new ItemData(1, 1, "logitech mouse", "brand new", electronic, 20190410, sell, 40f, true,
+                " days", "");
+        String postUrl = "http://localhost:4567/item/new";
+        String json = "";
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpPost post = new HttpPost(postUrl);
+        try {
+            StringEntity postingString = new StringEntity(gson.toJson(item));// gson.tojson() converts your pojo to json
+            post.setEntity(postingString);
+            post.setHeader("Content-type", "application/json");
+            HttpResponse res = httpClient.execute(post);
+            json = EntityUtils.toString(res.getEntity());
+            System.out.println(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        StructuredResponse p = gson.fromJson(json, StructuredResponse.class);
+        Double unparsed = (Double) p.mData;
+        int id = unparsed.intValue();
+
+        System.out.println("Response: " + json);
+        System.out.println("Parsed int: " + id);
+        assertEquals(db.selectOneItem(id).itemTitle, "logitech mouse");
+    }
+
     /**
      * Rigourous Test :-)
      */
     public void testDeleteItem() {
-        System.out.println("Test Delete");
+        System.out.println("\nTest Delete");
         System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
@@ -98,7 +203,7 @@ public class AppTest extends TestCase {
      * Rigourous Test :-)
      */
     public void testInsertAndGet() {
-        System.out.println("Test Insert and Get");
+        System.out.println("\nTest Insert and Get");
         System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
@@ -130,7 +235,7 @@ public class AppTest extends TestCase {
     }
 
     public void testSelectByCategory() {
-        System.out.println("Test Select By Category");
+        System.out.println("\nTest Select By Category");
         System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
@@ -175,7 +280,7 @@ public class AppTest extends TestCase {
     }
 
     public void testSelectAll() {
-        System.out.println("Test Select All");
+        System.out.println("\nTest Select All");
         System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
@@ -185,11 +290,12 @@ public class AppTest extends TestCase {
     }
 
     public void testBulkInsert() {
-        System.out.println("Test Bulk Insert");
+        System.out.println("\nTest Bulk Insert");
         System.out.println("--------------------------------------");
         db.dropAllTables();
         db.createAllTables();
         URL path = AppTest.class.getResource("sample.txt");
+        System.out.println("Path: " + path);
         File f = new File(path.getFile());
         BufferedReader reader;
         String line;
@@ -226,11 +332,11 @@ public class AppTest extends TestCase {
                     }
                     i++;
                 }
+                reader.close();
             } catch (IOException e) {
                 System.out.println("Error reading file");
                 assert (false);
             }
-
         } catch (FileNotFoundException e) {
             System.out.println("File not found when doing bulk insert");
             assert (false);
@@ -239,6 +345,64 @@ public class AppTest extends TestCase {
         System.out.println("total lines of input: " + i);
 
         assert (db.selectAllItems().size() == i);
+    }
+
+    public void testDscSortByPrice() {
+        System.out.println("\nTest Sort By Descending Price");
+        System.out.println("--------------------------------------");
+        db.dropAllTables();
+        db.createAllTables();
+        populateDatabase(db);
+        ArrayList<ItemData> list = db.selectAllItems();
+        int i, j;
+        ItemData key;
+        for (i = 1; i < list.size(); i++) {
+            key = list.get(i);
+            j = i - 1;
+
+            /*
+             * Move elements of arr[0..i-1], that are greater than key, to one position
+             * ahead of their current position
+             */
+            while (j >= 0 && list.get(j).itemPrice < key.itemPrice) {
+                list.set(j + 1, list.get(j));
+                j = j - 1;
+            }
+            list.set(j + 1, key);
+        }
+        assertEquals(list.get(0).itemTitle, "Rangerover Sport");
+        assertEquals(list.get(1).itemTitle, "logitech mouse");
+        assertEquals(list.get(2).itemTitle, "Econ001 textbook");
+
+    }
+
+    public void testAscSortByPrice() {
+        System.out.println("\nTest Sort By Ascending Price");
+        System.out.println("--------------------------------------");
+        db.dropAllTables();
+        db.createAllTables();
+        populateDatabase(db);
+        ArrayList<ItemData> list = db.selectAllItems();
+        int i, j;
+        ItemData key;
+        for (i = 1; i < list.size(); i++) {
+            key = list.get(i);
+            j = i - 1;
+
+            /*
+             * Move elements of arr[0..i-1], that are greater than key, to one position
+             * ahead of their current position
+             */
+            while (j >= 0 && list.get(j).itemPrice > key.itemPrice) {
+                list.set(j + 1, list.get(j));
+                j = j - 1;
+            }
+            list.set(j + 1, key);
+        }
+        assertEquals(list.get(7).itemTitle, "Rangerover Sport");
+        assertEquals(list.get(6).itemTitle, "logitech mouse");
+        assertEquals(list.get(5).itemTitle, "Econ001 textbook");
+
     }
 
     private static void populateDatabase(Database db) {
@@ -297,5 +461,35 @@ public class AppTest extends TestCase {
             return 4;
         else
             return -1;
+    }
+
+    public class StructuredResponse {
+        /**
+         * The status is a string that the application can use to quickly determine if
+         * the response indicates an error. Values will probably just be "ok" or
+         * "error", but that may evolve over time.
+         */
+        public String mStatus;
+
+        /**
+         * The message is only useful when this is an error, or when data is null.
+         */
+        public String mMessage;
+
+        public Object mData;
+
+        /**
+         * Construct a StructuredResponse by providing a status, message, and data. If
+         * the status is not provided, set it to "invalid".
+         * 
+         * @param status  The status of the response, typically "ok" or "error"
+         * @param message The message to go along with an error status
+         * @param object  An object with additional data to send to the client
+         */
+        public StructuredResponse(String status, String message, Object any) {
+            mStatus = (status != null) ? status : "invalid";
+            mMessage = message;
+            mData = any;
+        }
     }
 }
