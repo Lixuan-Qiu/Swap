@@ -144,13 +144,29 @@ public class ItemData {
         itemZipCode = itemZipCode_;
     }
 
+    /**
+     * returns String version of the item with its fields
+     */
     public String itemToString()
     {
-        return "itemID: " + itemId + " userId: " + itemSeller + " itemTitle: " + itemTitle + 
+        return "userId: " + itemSeller + " itemTitle: " + itemTitle + 
         " itemDescription: " + itemDescription + " itemCategory: " + itemCategory + " itemPostDate: " + itemPostDate
         + " itemTradeMethod: " + itemTradeMethod + " itemPrice: " + itemPrice + " itemAvailability: " + itemAvailability +
         " itemAvailableTime: " + itemAvailableTime + " itemWantedItemDescription: " + itemWantedItemDescription + 
         " itemLongitude: " + itemLongitude + " itemLatitude: " + itemLatitude + " itemAddress: " + itemAddress + " itemCity: "
         + itemCity + " itemState: " + itemState + " itemZipCode: " + itemZipCode;
+    }
+
+    /**
+     * Compares to see if this item equals another inputted 
+     * @param item the itemData to compare to
+     */
+    public boolean itemDataEquals(ItemData item)
+    {
+        if(this.equals(item))
+        {
+            return true;
+        }
+        return false;
     }
 }
