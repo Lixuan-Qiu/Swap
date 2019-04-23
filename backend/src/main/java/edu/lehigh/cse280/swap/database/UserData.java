@@ -2,6 +2,9 @@ package edu.lehigh.cse280.swap.database;
 
 public class UserData {
 
+    //the id of the user
+    public int userId;
+
     //username of the user
     public String username;
 
@@ -24,9 +27,10 @@ public class UserData {
     public int[] conversationId;
 
     //Constructor for userData
-    public UserData(String username_, int wishlistId_, int messageId_,
+    public UserData(int userId_, String username_, int wishlistId_, int messageId_,
     int[] postedItemIds_, String contact_, String email_, int[] conversationId_)
     {
+        userId = userId_;
         username = username_;
         wishlistId = wishlistId_;
         messageId = messageId_;
