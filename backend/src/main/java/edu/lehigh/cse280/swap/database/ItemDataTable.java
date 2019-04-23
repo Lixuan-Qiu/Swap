@@ -4,6 +4,7 @@ import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import static java.lang.Math.toIntExact;
 
 /**
  * ItemData will represent the basic data that will be used for any given item
@@ -145,7 +146,7 @@ public class ItemDataTable {
        return res;
    }
 
-       /**
+    /**
      * Query the database for a list of all items from some categories
      * @param itemPerPage how many items to get per page
      * @param pageNum which page to start from
@@ -340,7 +341,6 @@ public class ItemDataTable {
     public int insertNewItemData(int userId, String title, String description, int category, int postDate, int tradeMethod, 
     float price, boolean availability, String availableTime, String wantedItemDescription, float itemLongitude, float itemLatitude, 
     String itemAddress, String itemCity, String itemState, int itemZipCode) {
-        int count = 0;
         try {
             Database.p_insertNewItemData.setInt(1, userId);
             Database.p_insertNewItemData.setString(2, title);
@@ -359,11 +359,28 @@ public class ItemDataTable {
             Database.p_insertNewItemData.setString(15, itemState);
             Database.p_insertNewItemData.setInt(16, itemZipCode);
 
-            count += Database.p_insertNewItemData.executeUpdate();
+            int affectedRows =  Database.p_insertNewItemData.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating user failed, no rows affected.");
+            }
+            try (ResultSet generatedKeys = Database.p_insertNewItemData.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    try {
+                        int id = toIntExact(generatedKeys.getLong(1));
+                        return id;
+                    } catch (ArithmeticException e) {
+                        throw new ArithmeticException("Overflow caused by casting long to int in insert new item");
+                    }
+
+                } else {
+                    throw new SQLException("Creating user failed, no ID obtained.");
+                }
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return count;
+        return -1;
     }
 
     /** 
