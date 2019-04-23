@@ -386,4 +386,9 @@ public class Database {
     public ItemData selectOneItem(int itemId) {
         return itemDT.selectOneItem(itemId);
     }
+
+    public ArrayList<ItemData> selectFromUserId(int userId)
+    {
+        return itemDT.selectByUserId(userId);
+    }
 }
