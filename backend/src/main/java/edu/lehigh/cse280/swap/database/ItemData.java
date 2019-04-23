@@ -170,13 +170,28 @@ public class ItemData {
         + itemCity + " itemState: " + itemState + " itemZipCode: " + itemZipCode;
     }
 
+    // /**
+    //  * Compares to see if this item equals another inputted 
+    //  * @param item the itemData to compare to
+    //  */
+    // public boolean itemDataEquals(ItemData item)
+    // {
+    //     if(this.equals(item))
+    //     {
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
     /**
-     * Compares to see if this item equals another inputted 
-     * @param item the itemData to compare to
-     */
-    public boolean itemDataEquals(ItemData item)
+    * Compares to see if this item equals another inputted by comparing their 
+    * field values from toString method
+    * @param firstItem the first itemData to compare to the secondItem
+    * @param secondItem the second itemData to compare to firstItem
+    */
+    public boolean itemDataStringEquals(ItemData secondItem)
     {
-        if(this.equals(item))
+        if(this.itemToString().equals(secondItem.itemToString()))
         {
             return true;
         }
