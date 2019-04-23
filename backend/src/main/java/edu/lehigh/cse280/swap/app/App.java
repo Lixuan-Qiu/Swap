@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 // Import Google's JSON library
-import com.google.gson.*;
+import com.google.gson.Gson;
 //import java.util.Collections;
 // Import Elasticsearch java client
 import org.apache.http.HttpHost;
@@ -90,35 +90,38 @@ public class App {
         // IndexRequest indexRequest = new IndexRequest("posts", "doc",
         // "1").source(jsonMap);
         GetRequest getRequest = new GetRequest("item", "1");
-        ActionListener listener = new ActionListener<IndexResponse>() {
-            @Override
-            public void onResponse(IndexResponse indexResponse) {
-                System.out.println("Post Sheldon's Ferrari 488 successfully");
-            }
+        // ActionListener listener = new ActionListener<IndexResponse>() {
+        // @Override
+        // public void onResponse(IndexResponse indexResponse) {
+        // System.out.println("Post Sheldon's Ferrari 488 successfully");
+        // }
 
-            @Override
-            public void onFailure(Exception e) {
-                if (e instanceof IOException) {
-                    System.out.print(
-                            "Either failing to parse the REST response in the high-level REST client, the request times out or similar cases where there is no response coming back from the server");
-                }
-            }
-        };
+        // @Override
+        // public void onFailure(Exception e) {
+        // if (e instanceof IOException) {
+        // System.out.print(
+        // "Either failing to parse the REST response in the high-level REST client, the
+        // request times out or similar cases where there is no response coming back
+        // from the server");
+        // }
+        // }
+        // };
         try {
             GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
-            String index = getResponse.getIndex();
-            String id = getResponse.getId();
-            if (getResponse.isExists()) {
-                long version = getResponse.getVersion();
-                String sourceAsString = getResponse.getSourceAsString();
-                Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
-                byte[] sourceAsBytes = getResponse.getSourceAsBytes();
-                System.out.println("version: " + version + "\ndocument: " + sourceAsString);
-            } else {
+            // String index = getResponse.getIndex();
+            // String id = getResponse.getId();
+            // if (getResponse.isExists()) {
+            // long version = getResponse.getVersion();
+            // String sourceAsString = getResponse.getSourceAsString();
+            // Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
+            // byte[] sourceAsBytes = getResponse.getSourceAsBytes();
+            // System.out.println("version: " + version + "\ndocument: " + sourceAsString);
+            // } else {
 
-            }
+            // }
         } catch (IOException e) {
             System.out.println("fucking error from getResponse: " + e.getMessage());
+            e.printStackTrace();
         }
         // try {
         // Response response = client.getLowLevelClient().performRequest("GET",
@@ -144,7 +147,7 @@ public class App {
         database.dropAllTables();
 
         database.createAllTables();
-        bulkInsertFromLocalFile(database, "sample.txt");
+        // bulkInsertFromLocalFile(database, "sample.txt");
         // int categories = 0;
         // Sheldon:1 Lixuan:2 Allen:3 Xiaowei:4
         database.insertNewItem(1, "logitech mouse", "brand new", electronic, 20190410, sell, 40f, true, " days", "");
@@ -197,6 +200,8 @@ public class App {
 
         // DELETE route for deleting an item that is already in database
         Spark.delete("/item", (request, response) -> {
+            response.status(200);
+            response.type("application/json");
             int idx;
             try {
                 idx = Integer.parseInt(request.queryParams("id"));
@@ -206,8 +211,6 @@ public class App {
             if (idx == -1)
                 return gson.toJson(
                         new StructuredResponse("error", "id in json object cannot be parsed into integer", null));
-            response.status(200);
-            response.type("application/json");
             int res = database.deleteItem(idx);
             if (res == -1)
                 return gson.toJson(new StructuredResponse("error", "Delete item: " + idx + "failed", null));
@@ -249,8 +252,9 @@ public class App {
             Set<String> queryParams = request.queryParams();
             // indicate the category to query, if no category in url, flag is -1
             ArrayList<Integer> categories = new ArrayList<Integer>(); // Create an ArrayList object
-            categories.add(-1);
+            // categories.add(-1);
             // indicate the price order to query, asc is 1, dsc is 2, no price order is -1
+            boolean catFlag = false;
             int priceFlag = -1;
             for (String param : queryParams) {
                 // aaaaa;
@@ -265,6 +269,7 @@ public class App {
                                 + request.queryParams("pricerank") + " should be either 'asc' or 'dsc'", null));
                 }
                 if (param.equals("category")) {
+                    catFlag = true;
                     String text = request.queryParams("category");
                     String unParsedCategory[] = getStringArrayFromText(text);
                     for (int j = 0; j < unParsedCategory.length; j++) {
@@ -273,7 +278,7 @@ public class App {
                             return gson.toJson(new StructuredResponse("error", "Get by Category: "
                                     + request.queryParams("category") + " is not an integer or is not one of '1,2,3,4'",
                                     null));
-                        categories.set(j, cat);
+                        categories.add(cat);
                     }
                 }
                 if (param.equals("id")) {
@@ -296,7 +301,7 @@ public class App {
             // ffff;
             ArrayList<ItemData> result;
             // when the url has query request about category
-            if (categories.get(0) != -1) {
+            if (catFlag) {
                 System.out.println("GET /item by category: calls selectAllItesFromCategory");
                 result = database.selectAllItemsFromCategory(categories);
                 if (result == null)
@@ -304,28 +309,35 @@ public class App {
                 // when the url has query request about price order
                 if (priceFlag != -1) {
                     // reorder the items in result by the requesting order
-                    if (priceFlag == 1)
+                    if (priceFlag == 1) {
                         result = sortByAsc(result);
-                    if (priceFlag == 2)
-                        result = sortByAsc(result);
+                        if (result == null)
+                            return gson.toJson(new StructuredResponse("error",
+                                    "GET /item by category after sort asc returns null", null));
+                    } else if (priceFlag == 2) {
+                        result = sortByDsc(result);
+                        if (result == null)
+                            return gson.toJson(new StructuredResponse("error",
+                                    "GET /item by category after sort dsc returns null", null));
+                    }
                 }
                 return gson.toJson(new StructuredResponse("ok", null, result));
             }
             // when the url only has a query request of sort by price, so do a get all then
             // sort by price
             else if (priceFlag != -1) {
-                System.out.println("GET /item: calls selectAllItems");
+                System.out.println("GET /item without category: calls selectAllItems");
                 result = database.selectAllItems();
                 if (result == null)
                     return gson.toJson(new StructuredResponse("error",
                             "GET /item sort by price, selectAllItems returns null", null));
                 if (priceFlag == 1)
                     result = sortByAsc(result);
-                if (priceFlag == 2)
+                else if (priceFlag == 2)
                     result = sortByDsc(result);
                 if (result == null)
                     return gson.toJson(new StructuredResponse("error", "GET /item sort by price returns null", null));
-                return gson.toJson(new StructuredResponse("ok", null, sortByAsc(result)));
+                return gson.toJson(new StructuredResponse("ok", null, result));
             } else
                 return gson.toJson(new StructuredResponse("error",
                         "GET /item: The url has to contain id, category, or price. No such parameters were found",
@@ -387,7 +399,7 @@ public class App {
      * @param db       the database instance we need to populate
      * @param filename the name of the file where we stored all our sample data
      */
-    private static void bulkInsertFromLocalFile(Database db, String filename) {
+    private static void bulkInsertFromLocalTxt(Database db, String filename) {
         URL path = App.class.getResource(filename);
         File f = new File(path.getFile());
         BufferedReader reader;
@@ -489,21 +501,19 @@ public class App {
      */
     private static ArrayList<ItemData> sortByDsc(ArrayList<ItemData> list) {
         int i, j;
-        float key;
+        ItemData key;
         for (i = 1; i < list.size(); i++) {
-            key = list.get(i).itemPrice;
+            key = list.get(i);
             j = i - 1;
-
             /*
              * Move elements of arr[0..i-1], that are greater than key, to one position
              * ahead of their current position
              */
-            while (j >= 0 && list.get(j).itemPrice < key) {
-                list.get(j + 1).itemPrice = list.get(j).itemPrice;
+            while (j >= 0 && list.get(j).itemPrice < key.itemPrice) {
                 list.set(j + 1, list.get(j));
                 j = j - 1;
             }
-            list.set(j + 1, list.get(i));
+            list.set(j + 1, key);
         }
         return list;
     }
@@ -518,21 +528,19 @@ public class App {
      */
     private static ArrayList<ItemData> sortByAsc(ArrayList<ItemData> list) {
         int i, j;
-        float key;
+        ItemData key;
         for (i = 1; i < list.size(); i++) {
-            key = list.get(i).itemPrice;
+            key = list.get(i);
             j = i - 1;
-
             /*
              * Move elements of arr[0..i-1], that are greater than key, to one position
              * ahead of their current position
              */
-            while (j >= 0 && list.get(j).itemPrice > key) {
-                list.get(j + 1).itemPrice = list.get(j).itemPrice;
+            while (j >= 0 && list.get(j).itemPrice > key.itemPrice) {
                 list.set(j + 1, list.get(j));
                 j = j - 1;
             }
-            list.set(j + 1, list.get(i));
+            list.set(j + 1, key);
         }
         return list;
     }
