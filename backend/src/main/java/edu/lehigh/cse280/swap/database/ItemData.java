@@ -158,6 +158,19 @@ public class ItemData {
     }
 
     /**
+    * returns String version of the item with its fields (includes itemId)
+    */
+    public String itemToString1()
+    {
+        return "itemId: "+ itemId + " userId: " + itemSeller + " itemTitle: " + itemTitle + 
+        " itemDescription: " + itemDescription + " itemCategory: " + itemCategory + " itemPostDate: " + itemPostDate
+        + " itemTradeMethod: " + itemTradeMethod + " itemPrice: " + itemPrice + " itemAvailability: " + itemAvailability +
+        " itemAvailableTime: " + itemAvailableTime + " itemWantedItemDescription: " + itemWantedItemDescription + 
+        " itemLongitude: " + itemLongitude + " itemLatitude: " + itemLatitude + " itemAddress: " + itemAddress + " itemCity: "
+        + itemCity + " itemState: " + itemState + " itemZipCode: " + itemZipCode;
+    }
+
+    /**
      * Compares to see if this item equals another inputted 
      * @param item the itemData to compare to
      */
