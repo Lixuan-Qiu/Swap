@@ -1,5 +1,7 @@
 package edu.lehigh.cse280.swap.database;
 
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Array;
@@ -224,7 +226,7 @@ public class Database {
             // Standard CRUD operations for item
             Database.p_deleteOneItemData = mConnection.prepareStatement("DELETE FROM itemData WHERE itemId = ?");
             Database.p_insertNewItemData = mConnection.prepareStatement("INSERT INTO itemData VALUES (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            , p_insertNewItemData.RETURN_GENERATED_KEYS);
+            , RETURN_GENERATED_KEYS);
             Database.p_selectAllItemData = mConnection.prepareStatement("SELECT * FROM itemData");
             Database.p_selectOneItemData = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId=?");
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
@@ -391,5 +393,22 @@ public class Database {
     public ArrayList<ItemData> selectFromUserId(int userId)
     {
         return itemDT.selectByUserId(userId);
+    }
+
+    public ArrayList<ItemData> selectAllItems(int itemPerPage, int pageNum) {
+        return itemDT.selectAllItems(itemPerPage, pageNum);
+    }
+
+    public ArrayList<ItemData> selectAllItemsFromCategory(ArrayList<Integer> category, int itemPerPage, int pageNum) {
+        return itemDT.selectAllItemFromCategory(category, itemPerPage, pageNum);
+    }
+
+    public ArrayList<ItemData> selectAllItemsFromPrice(float low, float high, int itemPerPage, int pageNum) {
+        return itemDT.selectAllItemFromPrice(low, high, itemPerPage, pageNum);
+    }
+
+    public ArrayList<ItemData> selectFromUserId(int userId, int itemPerPage, int pageNum)
+    {
+        return itemDT.selectByUserId(userId, itemPerPage, pageNum);
     }
 }
