@@ -233,7 +233,7 @@ public class Database {
             Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category = ANY(?)");
             Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
             Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
-            Database.p_selectAllItemDataByUserId = mConnection.prepareStatement("SELECT * FROM itemData where itemSeller WHERE userId=?");
+            Database.p_selectAllItemDataByUserId = mConnection.prepareStatement("SELECT * FROM itemData WHERE userId=?");
 
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -390,7 +390,7 @@ public class Database {
         return itemDT.selectOneItem(itemId);
     }
 
-    public ArrayList<ItemData> selectFromUserId(int userId)
+    public ArrayList<ItemData> selectByUserId(int userId)
     {
         return itemDT.selectByUserId(userId);
     }
