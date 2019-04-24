@@ -476,11 +476,38 @@ public class ItemDataTableTest extends TestCase
     /**
      * Tests selectByUserId method
      * should return an ArrayList of ItemData for the user
+     * PASSED
      */ 
-    public void selectByUserId()
+    public void testSelectByUserId()
     {
-        // db.dropAllTables();
-        // db.createAllTables();
+        db.dropAllTables();
+        db.createAllTables();
+
+        //System.out.println("got into selectByUserId test");
+        //insert items
+        db.insertNewItem(firstItem);
+        db.insertNewItem(secondItem);
+        db.insertNewItem(thirdItem);
+        db.insertNewItem(fourthItem);
+        db.insertNewItem(fifthItem);
+        db.insertNewItem(sixthItem);
+
+        ArrayList<ItemData> firstTest = new ArrayList<ItemData>();
+        firstTest = db.selectByUserId(userId1);
+        System.out.println("size of firstTest is: " + firstTest.size());
+        assertEquals(2, firstTest.size());
+
+        ArrayList<ItemData> secondTest = new ArrayList<ItemData>();
+        secondTest = db.selectByUserId(userId);
+        System.out.println("size of secondTest is: " + secondTest.size());
+        assertEquals(1, secondTest.size());
+
+        //check null case
+        ArrayList<ItemData> thirdTest = new ArrayList<ItemData>();
+        secondTest = db.selectByUserId(9);
+        System.out.println("size of thirdTest is: " + thirdTest.size());
+        assertEquals(0, thirdTest.size());
+
     }
 
 
