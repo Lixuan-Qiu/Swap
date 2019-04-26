@@ -232,8 +232,15 @@ public class Database {
             Database.p_selectAllItemDataById = mConnection.prepareStatement("SELECT * FROM itemData WHERE itemId in ?");
             Database.p_selectAllFromCategory = mConnection.prepareStatement("SELECT * FROM itemData WHERE category = ANY(?)");
             Database.p_selectAllFromPrice = mConnection.prepareStatement("SELECT * FROM itemData WHERE price BETWEEN ? AND ?");
-            Database.p_updateItemData = mConnection.prepareStatement("UPDATE");
+            Database.p_updateItemData = mConnection.prepareStatement("UPDATE itemData SET userId=?, title=?, description=?, category=?, postDate=?, " +
+            "tradeMethod=?, price=?, availability=?, availableTime=?, wantedItemDescription=?, longitude=?, latitude=?, address=?, city=?, state=?, zipcode=? " +
+            "WHERE itemId=?");
             Database.p_selectAllItemDataByUserId = mConnection.prepareStatement("SELECT * FROM itemData WHERE userId=?");
+            //////////////////////////////////////////
+            // User Data Table
+            //////////////////////////////////////////
+            //Database.p_createUserDataTable = mConnection.prepareStatement("CREATE TABLE userData"
+            //+ "(userId SERIAL PRIMARY KEY, username VARCHAR(30), wishlistId INTEGER, messageId INTEGER, )");
 
         } catch (SQLException e) {
             System.err.println("Error creating prepared statement");
@@ -360,7 +367,7 @@ public class Database {
 
     /**
      * 
-     * @param item The ItemData object to be updated
+     * @param item the item that this item will be updated to
      * @return a non neg if succesfully updated
      */
     public int updateItemData(ItemData item)
@@ -376,6 +383,10 @@ public class Database {
 
     public ArrayList<ItemData> selectAllItems() {
         return itemDT.selectAllItems();
+    }
+
+    public ArrayList<ItemData> selectAllItemDataById(Array idList) {
+        return itemDT.selectAllItemDatabyId(idList);
     }
 
     public ArrayList<ItemData> selectAllItemsFromCategory(ArrayList<Integer> category) {
@@ -397,6 +408,10 @@ public class Database {
 
     public ArrayList<ItemData> selectAllItems(int itemPerPage, int pageNum) {
         return itemDT.selectAllItems(itemPerPage, pageNum);
+    }
+
+    public ArrayList<ItemData> selectAllItemDataById(Array idList, int itemPerPage, int pageNum) {
+        return itemDT.selectAllItemDatabyId(idList, itemPerPage, pageNum);
     }
 
     public ArrayList<ItemData> selectAllItemsFromCategory(ArrayList<Integer> category, int itemPerPage, int pageNum) {
