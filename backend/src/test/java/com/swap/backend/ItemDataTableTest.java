@@ -91,6 +91,7 @@ public class ItemDataTableTest extends TestCase
     float price1 = 70.0f;
     float price3 = 100.0f;
 
+    int itemId6 = 7;
 
 
     //calc book
@@ -119,6 +120,10 @@ public class ItemDataTableTest extends TestCase
     itemAddress, itemCity, itemState, itemZipCode);
 
     ItemData sixthItem = new ItemData(itemId5, userId1, title1, description1, schoolCategory, postDate,
+    rentTradeMethod, price, availability, availableTime, wantedItemDescription, itemLongitude, itemLatitude,
+    itemAddress, itemCity, itemState, itemZipCode);
+
+    ItemData seventhItem = new ItemData(itemId6, userId2, title3, description, schoolCategory, postDate,
     rentTradeMethod, price, availability, availableTime, wantedItemDescription, itemLongitude, itemLatitude,
     itemAddress, itemCity, itemState, itemZipCode);
 
@@ -558,7 +563,7 @@ public class ItemDataTableTest extends TestCase
         for(int i = 0; i < 2; i++)
         {
              check = firstTwo.get(i).itemToString1();
-             System.out.println("This is firstTwo: "+ i + " " + check + " ");
+             //System.out.println("This is firstTwo: "+ i + " " + check + " ");
         }
 
         //This should return an array list of item data that are
@@ -568,7 +573,7 @@ public class ItemDataTableTest extends TestCase
         for(int i = 0; i < 2; i++)
         {
              check = secondTwo.get(i).itemToString1();
-             System.out.println("This is secondTwo: " + check + " ");
+             //System.out.println("This is secondTwo: " + check + " ");
         }
 
         //This should return an array list of item data that are
@@ -577,7 +582,7 @@ public class ItemDataTableTest extends TestCase
         for(int i = 0; i < 2; i++)
         {
              check = lastTwo.get(i).itemToString1();
-             System.out.println("This is lastTwo: " + check + " ");
+             //System.out.println("This is lastTwo: " + check + " ");
         }
 
         //This should return an array list of item data that are the
@@ -586,7 +591,7 @@ public class ItemDataTableTest extends TestCase
         for(int i = 0; i < 3; i++)
         {
              check = firstThree.get(i).itemToString1();
-             System.out.println("This is firstThree: " + check + " ");
+             //System.out.println("This is firstThree: " + check + " ");
         }
 
         //This should return an array list of item data that are the
@@ -595,7 +600,7 @@ public class ItemDataTableTest extends TestCase
         for(int i = 0; i < 3; i++)
         {
              check = lastThree.get(i).itemToString1();
-             System.out.println("This is lastThree: " + check + " ");
+             //System.out.println("This is lastThree: " + check + " ");
         }
 
         //This should return an array list of item data that shows all
@@ -603,7 +608,7 @@ public class ItemDataTableTest extends TestCase
         for(int i = 0; i < 6; i++)
         {
              check = all.get(i).itemToString1();
-             System.out.println("This is all: " + check + " ");
+            // System.out.println("This is all: " + check + " ");
         }
 
 
@@ -612,10 +617,84 @@ public class ItemDataTableTest extends TestCase
     }
 
     //test overloaded params itemPerPage and pageNum
+    //WORKS AS INTENDED. PASSED
     public void testSelectAllItemsFromCategory1()
     {
-        //db.dropAllTables();
-        //db.createAllTables();
+        db.dropAllTables();
+        db.createAllTables();
+
+        //insert items
+        db.insertNewItem(firstItem);
+        db.insertNewItem(secondItem);
+        db.insertNewItem(thirdItem);
+        db.insertNewItem(fourthItem);
+        db.insertNewItem(fifthItem);
+        db.insertNewItem(sixthItem);
+        db.insertNewItem(seventhItem);
+
+        ArrayList<Integer> categories = new ArrayList<Integer>();
+        ArrayList<ItemData> res = db.selectAllItemsFromCategory(categories);
+
+        //schoolCategory has 4 items
+        categories.add(schoolCategory);
+        res = db.selectAllItemsFromCategory(categories);
+        assertEquals(4, res.size());
+        
+
+        //This should return an array list of item data that 
+        //are the first two items
+        ArrayList<ItemData> firstTwo = db.selectAllItemsFromCategory(categories,2, 1);
+        String check = null;
+
+        for(int i = 0; i < 2; i++)
+        {
+             check = firstTwo.get(i).itemToString1();
+             System.out.println("This is firstTwo: "+ i + " " + check + " ");
+        }
+
+        //This should return an array list of item data that are
+        //The next two items
+        ArrayList<ItemData> secondTwo = db.selectAllItemsFromCategory(categories, 2 , 2);
+
+        for(int i = 0; i < 2; i++)
+        {
+             check = secondTwo.get(i).itemToString1();
+             System.out.println("This is secondTwo: " + check + " ");
+        }
+
+        categories.add(carCategory);
+        res = db.selectAllItemsFromCategory(categories);
+        assertEquals(5, res.size());
+
+        //There should now be 5 items
+        //This should return an array list of item data that are the
+        //first 3
+        ArrayList<ItemData> firstThree = db.selectAllItemsFromCategory(categories, 3, 1);
+        for(int i = 0; i < 3; i++)
+        {
+             check = firstThree.get(i).itemToString1();
+             System.out.println("This is firstThree: " + check + " ");
+        }
+
+        //This should return an array list of item data that are the
+        //last 2
+        ArrayList<ItemData> lastTwo = db.selectAllItemsFromCategory(categories, 3, 2);
+        for(int i = 0; i < 2; i++)
+        {
+             check = lastTwo.get(i).itemToString1();
+             System.out.println("This is lastTwo: " + check + " ");
+        }
+        //assertEquals(6, res.size());
+
+        categories.add(electronicCategory);
+        categories.add(furnitureCategory);
+        //This should return an array list of item data that shows all
+        ArrayList<ItemData> all = db.selectAllItemsFromCategory(categories, 8, 1);
+        for(int i = 0; i < 7; i++)
+        {
+            check = all.get(i).itemToString1();
+            System.out.println("This is all: " + check + " ");
+        }
     }
 
     //test overloaded params itemPerPage and pageNum
