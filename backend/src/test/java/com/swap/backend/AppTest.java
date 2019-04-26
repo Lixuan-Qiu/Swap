@@ -1,15 +1,16 @@
 package com.swap.backend;
 
+import edu.lehigh.cse280.swap.database.*;
+
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.*;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import java.net.URL;
+
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -18,33 +19,33 @@ import org.elasticsearch.search.SearchHits;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.index.*;
+import org.elasticsearch.client.*;
+import org.elasticsearch.action.get.*;
+import org.elasticsearch.common.util.IntArray;
 
 import java.util.HashMap;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import edu.lehigh.cse280.swap.database.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpHost;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.elasticsearch.common.util.IntArray;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.auth.*;
 import com.google.gson.Gson;
-import org.elasticsearch.action.ActionListener;
-import org.elasticsearch.action.index.*;
-import org.elasticsearch.client.*;
-import org.elasticsearch.action.get.*;
+
 import spark.Spark;
 
 /**
@@ -276,19 +277,6 @@ public class AppTest extends TestCase {
         assert (res.size() == 0);
         res = db.selectAllItemsFromPrice(0, 50);
         assert (res.size() == 7);
-
-        // assertEquals(res.get(0).itemSeller, result.get(0).itemSeller);
-        // assertEquals(res.get(0).itemDescription, result.get(0).itemDescription);
-        // assertEquals(res.get(0).itemCategory, result.get(0).itemCategory);
-
-        // assertEquals(res.get(0).itemPostDate, result.get(0).itemPostDate);
-        // assertEquals(res.get(0).itemTitle, result.get(0).itemTitle);
-
-        // assertEquals(res.get(0).itemTradeMethod, result.get(0).itemTradeMethod);
-        // assertEquals(res.get(0).itemPrice, result.get(0).itemPrice);
-
-        // assertEquals(res.get(0).itemTitle, "Rangerover Sport");
-
         ArrayList<Integer> categories = new ArrayList<Integer>(); // Create an ArrayList object
         categories.add(-1);
         String text = "electronics";
@@ -706,6 +694,58 @@ public class AppTest extends TestCase {
                 });
 
         return new RestHighLevelClient(builder);
+    }
+
+    private static void esInsert(Database db, RestHighLevelClient client, int userId, String title, String description,
+            int categories, int postDate, int tradeMethod, float price, boolean availability, String availableTime,
+            String wantedItemDescription) {
+        int idx = db.insertNewItem(userId, title, description, categories, postDate, tradeMethod, price, availability,
+                availableTime, wantedItemDescription);
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("key", idx);
+        jsonMap.put("user", convertIntToUser(userId));
+        jsonMap.put("title", title.toLowerCase());
+        jsonMap.put("description", description.toLowerCase());
+        jsonMap.put("category", convertIntToCategory(categories));
+        jsonMap.put("postDate", postDate);
+        jsonMap.put("price", price);
+        IndexRequest indexRequest = new IndexRequest("item").id(Integer.toString(idx)).source(jsonMap);
+        try {
+            IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            System.out.println("Error from Inserting new item to Elasticsearch: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static String convertIntToCategory(int cat) {
+        switch (cat) {
+        case 1:
+            return "car";
+        case 2:
+            return "school";
+        case 3:
+            return "electronics";
+        case 4:
+            return "furniture";
+        default:
+            return "";
+        }
+    }
+
+    private static String convertIntToUser(int id) {
+        switch (id) {
+        case 1:
+            return "Sheldon";
+        case 2:
+            return "Xiaowei";
+        case 3:
+            return "Lixuan";
+        case 4:
+            return "Allen";
+        default:
+            return "";
+        }
     }
 
     public class StructuredResponse {
