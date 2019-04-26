@@ -120,9 +120,6 @@ public class App {
         // int categories = 0;
         // Sheldon:1 Lixuan:2 Allen:3 Xiaowei:4
         RestHighLevelClient bigClient = buildElasticsearchClient();
-        // esInsert(database, bigClient, userId, title, description, categories,
-        // postDate, tradeMethod, price,
-        // availability, availableTime, wantedItemDescription);
         esInsert(database, bigClient, 1, "desk", "Beautiful weathered dark Gray Finish 48 Wide x 30 high x 24 deep", 4,
                 20190425, 1, 20, true, "", "");
         esInsert(database, bigClient, 1, "Ferrari 488",
