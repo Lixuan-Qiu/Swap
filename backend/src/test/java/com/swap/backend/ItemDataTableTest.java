@@ -494,35 +494,120 @@ public class ItemDataTableTest extends TestCase
 
         ArrayList<ItemData> firstTest = new ArrayList<ItemData>();
         firstTest = db.selectByUserId(userId1);
-        System.out.println("size of firstTest is: " + firstTest.size());
+        //System.out.println("size of firstTest is: " + firstTest.size());
         assertEquals(2, firstTest.size());
 
         ArrayList<ItemData> secondTest = new ArrayList<ItemData>();
         secondTest = db.selectByUserId(userId);
-        System.out.println("size of secondTest is: " + secondTest.size());
+        //System.out.println("size of secondTest is: " + secondTest.size());
         assertEquals(1, secondTest.size());
 
         //check null case
         ArrayList<ItemData> thirdTest = new ArrayList<ItemData>();
         secondTest = db.selectByUserId(9);
-        System.out.println("size of thirdTest is: " + thirdTest.size());
+        //System.out.println("size of thirdTest is: " + thirdTest.size());
         assertEquals(0, thirdTest.size());
 
     }
 
 
     //test new updateItemData function
+    //Currently FAILS. Throws SQL Exception saying it doesn't update
     public void testUpdateItemData()
     {
-        // db.dropAllTables();
-        // db.createAllTables();
+        db.dropAllTables();
+        db.createAllTables();
+
+        //insert items
+        db.insertNewItem(firstItem);
+        db.insertNewItem(secondItem);
+
+        //System.out.println("First item: " + db.selectOneItem(1).itemToString1());
+        //update items
+
+        //update firstItem to become thirdItem
+
+        db.updateItemData(thirdItem);
+        //System.out.println("Updated first item: " + db.selectOneItem(1).itemToString1());
+
+
+
+
     }
 
     //test overloaded params itemPerPage and pageNum
+    //SEEMS TO WORK AS INTENDED. PASS 
     public void testSelectAllItems1()
     {
-        // db.dropAllTables();
-        // db.createAllTables();
+        db.dropAllTables();
+        db.createAllTables();
+
+        //insert items
+        db.insertNewItem(firstItem);
+        db.insertNewItem(secondItem);
+        db.insertNewItem(thirdItem);
+        db.insertNewItem(fourthItem);
+        db.insertNewItem(fifthItem);
+        db.insertNewItem(sixthItem);
+
+        //This should return an array list of item data that 
+        //are the first two items
+        ArrayList<ItemData> firstTwo = db.selectAllItems(2, 1);
+        String check = null;
+
+        for(int i = 0; i < 2; i++)
+        {
+             check = firstTwo.get(i).itemToString1();
+             System.out.println("This is firstTwo: "+ i + " " + check + " ");
+        }
+
+        //This should return an array list of item data that are
+        //The next two items
+        ArrayList<ItemData> secondTwo = db.selectAllItems(2 , 2);
+
+        for(int i = 0; i < 2; i++)
+        {
+             check = secondTwo.get(i).itemToString1();
+             System.out.println("This is secondTwo: " + check + " ");
+        }
+
+        //This should return an array list of item data that are
+        //The last two items
+        ArrayList<ItemData> lastTwo = db.selectAllItems(2 , 3);
+        for(int i = 0; i < 2; i++)
+        {
+             check = lastTwo.get(i).itemToString1();
+             System.out.println("This is lastTwo: " + check + " ");
+        }
+
+        //This should return an array list of item data that are the
+        //first 3
+        ArrayList<ItemData> firstThree = db.selectAllItems(3, 1);
+        for(int i = 0; i < 3; i++)
+        {
+             check = firstThree.get(i).itemToString1();
+             System.out.println("This is firstThree: " + check + " ");
+        }
+
+        //This should return an array list of item data that are the
+        //last 3
+        ArrayList<ItemData> lastThree = db.selectAllItems(3, 2);
+        for(int i = 0; i < 3; i++)
+        {
+             check = lastThree.get(i).itemToString1();
+             System.out.println("This is lastThree: " + check + " ");
+        }
+
+        //This should return an array list of item data that shows all
+        ArrayList<ItemData> all = db.selectAllItems(8, 1);
+        for(int i = 0; i < 6; i++)
+        {
+             check = all.get(i).itemToString1();
+             System.out.println("This is all: " + check + " ");
+        }
+
+
+
     
     }
 
