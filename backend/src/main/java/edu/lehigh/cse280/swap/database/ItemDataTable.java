@@ -60,9 +60,18 @@ public class ItemDataTable {
         
         ArrayList<ItemData> limitedItems = new ArrayList<ItemData>();
 
+        //Ensures that if inputted amount of items per page is more than
+        //amount of items, we just display all our items
         if(itemPerPage > res.size())
         {
             itemPerPage = res.size();
+
+            //if the page num if greater than 1 in this case, it should
+            //just turn to 1 and display all the items 
+            if(pageNum > 1)
+            {
+                pageNum = 1;
+            }
 
             return res;
         }
@@ -188,11 +197,48 @@ public class ItemDataTable {
             }
 
             rs.close();
+
+            ArrayList<ItemData> limitedItems = new ArrayList<ItemData>();
+
+            //Ensures that if inputted amount of items per page is more than
+            //amount of items, we just display all our items
+            if(itemPerPage > res.size())
+            {
+                itemPerPage = res.size();
+    
+                //if the page num if greater than 1 in this case, it should
+                //just turn to 1 and display all the items 
+                if(pageNum > 1)
+                {
+                    pageNum = 1;
+                }
+    
+                return res;
+            }
+            else
+            {
+                int endAmount = itemPerPage * pageNum;
+
+                if(endAmount > res.size())
+                {
+                    endAmount = res.size(); 
+                }
+                
+                for(int i = (itemPerPage * pageNum) - itemPerPage; i < endAmount; i++)
+                {
+                    limitedItems.add(res.get(i));   
+                }
+            }
+            return limitedItems;
+    
+
+
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
-        return res;
+
+        //return res;
     }
 
     /**
@@ -243,11 +289,40 @@ public class ItemDataTable {
                 ));
             }
             rs.close();
+
+            ArrayList<ItemData> limitedItems = new ArrayList<ItemData>();
+
+            //Ensures that if inputted amount of items per page is more than
+            //amount of items, we just display all our items
+            if(itemPerPage > res.size())
+            {
+                itemPerPage = res.size();
+    
+                //if the page num if greater than 1 in this case, it should
+                //just turn to 1 and display all the items 
+                if(pageNum > 1)
+                {
+                    pageNum = 1;
+                }
+    
+                return res;
+            }
+            else
+            {
+        
+                for(int i = (itemPerPage * pageNum) - itemPerPage; i < itemPerPage * pageNum; i++)
+                {
+                    limitedItems.add(res.get(i));   
+                }
+            }
+            return limitedItems;
+    
+
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
-        return res;
+        //return res;
     }
 
 
@@ -325,7 +400,35 @@ public class ItemDataTable {
                 rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")));
             }
             rs.close();
-            return res;
+            //return res;
+        
+            ArrayList<ItemData> limitedItems = new ArrayList<ItemData>();
+
+            //Ensures that if inputted amount of items per page is more than
+            //amount of items, we just display all our items
+            if(itemPerPage > res.size())
+            {
+                itemPerPage = res.size();
+    
+                //if the page num if greater than 1 in this case, it should
+                //just turn to 1 and display all the items 
+                if(pageNum > 1)
+                {
+                    pageNum = 1;
+                }
+    
+                return res;
+            }
+            else
+            {
+        
+                for(int i = (itemPerPage * pageNum) - itemPerPage; i < itemPerPage * pageNum; i++)
+                {
+                    limitedItems.add(res.get(i));   
+                }
+            }
+            return limitedItems;
+    
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
