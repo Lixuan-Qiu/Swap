@@ -10,6 +10,13 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import java.net.URL;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.apache.lucene.search.TotalHits;
+
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,15 +24,24 @@ import java.io.InputStreamReader;
 import edu.lehigh.cse280.swap.database.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpHost;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.common.util.IntArray;
-
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.auth.*;
 import com.google.gson.Gson;
-
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.index.*;
+import org.elasticsearch.client.*;
+import org.elasticsearch.action.get.*;
 import spark.Spark;
 
 /**
@@ -47,12 +63,18 @@ public class AppTest extends TestCase {
     private static final int school = 2;
     private static final int electronic = 3;
     private static final int furniture = 4;
+
+    private static final String esEndPointUrl = "44ab9c1bc5cd465d8279ad2f1dc03e8a.us-east-1.aws.found.io";
+    private static final String protocol = "https";
+    private static final int port = 9243;
+    private static final String username = "elastic";
+    private static final String password = "cnHyGTUqnZMYpu7saERBAbsV";
     Map<String, String> env = System.getenv();
     String ip = env.get("POSTGRES_IP");
-    String port = env.get("POSTGRES_PORT");
+    String portNum = env.get("POSTGRES_PORT");
     String user = env.get("POSTGRES_USER");
     String pass = env.get("POSTGRES_PASS");
-    Database db = Database.getDatabase(ip, port, user, pass);
+    Database db = Database.getDatabase(ip, portNum, user, pass);
 
     /**
      * Create the test case
@@ -226,12 +248,6 @@ public class AppTest extends TestCase {
         assertEquals(id2, id1 + 1);
         assertEquals(id3, id2 + 1);
         assertEquals(id4, id3 + 1);
-
-        // TODO selectAllItems;
-        // selectAllItemsFromCategory;
-        // deleteItem;
-        // UpdateItem;
-        // selectAllItemsFromPrice;
     }
 
     public void testSelectByCategory() {
@@ -346,6 +362,168 @@ public class AppTest extends TestCase {
 
         assert (db.selectAllItems().size() == i);
     }
+
+    public void testElasticSearch() {
+        System.out.println("\nTest Elasticsearch");
+        System.out.println("--------------------------------------");
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+
+        RestClientBuilder builder = RestClient.builder(new HttpHost(esEndPointUrl, port, protocol))
+                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                    @Override
+                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                    }
+                });
+
+        RestHighLevelClient client = new RestHighLevelClient(builder);
+
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("key", 3);
+        jsonMap.put("user", "Sheldon");
+        jsonMap.put("title", "Ferrari");
+        jsonMap.put("description",
+                "The Ferrari 488 Spider is the latest chapter in Maranello’s ongoing history of open-top V8 sports cars, a story that started with the targa-top version of the 308 GTB, which ultimately resulted in the full convertible Spider architecture.");
+        jsonMap.put("category", "car");
+        jsonMap.put("postDate", 20190425);
+        jsonMap.put("price", 0);
+        IndexRequest indexRequest = new IndexRequest("item").id("3").source(jsonMap);
+        try {
+            IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            System.out.println("fucking error from getResponse: " + e.getMessage());
+            e.printStackTrace();
+        }
+        GetRequest getRequest = new GetRequest("item", "2");
+
+        try {
+            GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
+            String index = getResponse.getIndex();
+            String id = getResponse.getId();
+            if (getResponse.isExists()) {
+                long version = getResponse.getVersion();
+                String sourceAsString = getResponse.getSourceAsString();
+                Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
+                byte[] sourceAsBytes = getResponse.getSourceAsBytes();
+                System.out.println("version: " + version + "\ndocument: " + sourceAsString + "\nindex: " + index);
+                assertEquals(sourceAsMap.get("category"), "car");
+
+            } else {
+
+            }
+            // client.close();
+
+        } catch (IOException e) {
+            System.out.println("fucking error from getResponse: " + e.getMessage());
+
+            e.printStackTrace();
+        }
+
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("category", "car"));
+        // sourceBuilder.query(QueryBuilders.matchAllQuery());
+        sourceBuilder.from(0);
+        sourceBuilder.size(5);
+        // sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("item");
+        searchRequest.source(sourceBuilder);
+        try {
+            SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits hits = searchResponse.getHits();
+            System.out.println("entered search");
+            int totalShards = searchResponse.getTotalShards();
+            System.out.println("Total Shards: " + totalShards);
+
+            SearchHit[] searchHits = hits.getHits();
+            TotalHits totalHits = hits.getTotalHits();
+            // the total number of hits, must be interpreted in the context of
+            // totalHits.relation
+            long numHits = totalHits.value;
+            // whether the number of hits is accurate (EQUAL_TO) or a lower bound of the
+            // total (GREATER_THAN_OR_EQUAL_TO)
+            TotalHits.Relation relation = totalHits.relation;
+            System.out.println("total hits: " + totalHits);
+            for (SearchHit hit : searchHits) {
+                System.out.println("entered hits");
+
+                String sourceAsString = hit.getSourceAsString();
+                Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+                String documentTitle = (String) sourceAsMap.get("title");
+                // List<Object> users = (List<Object>) sourceAsMap.get("user");
+                // Map<String, Object> innerObject = (Map<String, Object>)
+                // sourceAsMap.get("innerObject");
+                System.out.println("\ndocument: " + sourceAsString + "\ntitle: " + documentTitle);
+
+                assertEquals(sourceAsMap.get("title"), "Ferrari 488");
+
+                assert (false);
+            }
+
+        } catch (IOException e) {
+            System.out.println("fucking error from getResponse: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        try {
+            client.close();
+            assert (false);
+        } catch (IOException e) {
+            // TODO: handle exception
+        }
+    }
+    // public void testNotFound() {
+    // System.out.println("\nTest 404 Not Found");
+    // System.out.println("--------------------------------------");
+    // Gson gson = new Gson();
+
+    // // Spark.get("/hello", (request, response) -> {
+    // // return 99;
+    // // });
+
+    // Spark.get("/item", (request, response) -> {
+    // return 99;
+    // });
+
+    // Spark.get("*", (req, res) -> {
+    // if (!req.pathInfo().startsWith("/item") &&
+    // !req.pathInfo().startsWith("/hello")) {
+    // res.status(404);
+    // System.out.println("Entered get*");
+    // }
+    // return "123";
+    // });
+
+    // Spark.notFound((request, response) -> {
+    // System.out.println("Entered not found");
+    // response.type("application/json");
+    // return "404 Not Found!";
+    // });
+
+    // String test = "";
+    // try {
+    // StringBuilder result = new StringBuilder();
+    // URL url = new URL("http://localhost:4567/hmmmm");
+    // HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    // conn.setRequestMethod("GET");
+    // BufferedReader rd = new BufferedReader(new
+    // InputStreamReader(conn.getInputStream()));
+    // String line;
+    // while ((line = rd.readLine()) != null) {
+    // result.append(line);
+    // }
+    // System.out.println("Hmmmm? " + result.toString());
+    // test = result.toString();
+    // rd.close();
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // System.out.println("aaaawtf? " + test);
+    // assert (test.equals("123"));
+
+    // }
 
     public void testDscSortByPrice() {
         System.out.println("\nTest Sort By Descending Price");
