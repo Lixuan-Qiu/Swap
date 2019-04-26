@@ -3,6 +3,7 @@
 
 package edu.lehigh.cse280.swap.app;
 
+import java.util.HashMap;
 //import java.awt.event.*;
 import java.io.*;
 //import java.sql.*;
@@ -17,12 +18,20 @@ import com.google.gson.Gson;
 // Import Elasticsearch java client
 import org.apache.http.HttpHost;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.index.*;
 import org.elasticsearch.client.*;
+import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.action.get.*;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.apache.lucene.search.TotalHits;
+
 import spark.Spark;
 import edu.lehigh.cse280.swap.database.Database;
 import edu.lehigh.cse280.swap.database.ItemData;
@@ -76,7 +85,7 @@ public class App {
         // database holds all of the data that has been provided via HTTP
         // requests
 
-        // RestHighLevelClient client = buildElasticsearchClient();
+        //
         // GetRequest getRequest = new GetRequest("item", "1");
         // try {
         // GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
@@ -110,18 +119,166 @@ public class App {
         // bulkInsertFromLocalFile(database, "sample.txt");
         // int categories = 0;
         // Sheldon:1 Lixuan:2 Allen:3 Xiaowei:4
-        database.insertNewItem(1, "logitech mouse", "brand new", electronic, 20190410, sell, 40f, true, " days", "");
-        database.insertNewItem(1, "Ferrari 488", "brand new", car, 20190328, giveaway, 0f, false,
-                "this should not be shown", "");
-        database.insertNewItem(4, "GTX 1060", "near broken", electronic, 20190221, trade, 0f, true, "10 days", "");
-        database.insertNewItem(4, "Econ001 textbook", "half new", school, 20190407, sell, 20f, true, "in this semester",
+        RestHighLevelClient bigClient = buildElasticsearchClient();
+        // esInsert(database, bigClient, userId, title, description, categories,
+        // postDate, tradeMethod, price,
+        // availability, availableTime, wantedItemDescription);
+        esInsert(database, bigClient, 1, "desk", "Beautiful weathered dark Gray Finish 48 Wide x 30 high x 24 deep", 4,
+                20190425, 1, 20, true, "", "");
+        esInsert(database, bigClient, 1, "Ferrari 488",
+                "The Ferrari 488 Spider is the latest chapter in Maranello’s ongoing history of open-top V8 sports cars",
+                1, 20190202, 1, 200000, true, "", "");
+        esInsert(database, bigClient, 1, "Range rover sport",
+                "The 2019 Range Rover Sport is both luxurious and exceptionally functional. Explore the most dynamic Range Rover Sport yet, and customize yours today.",
+                1, 20190101, 1, 60000, true, "", "");
+        esInsert(database, bigClient, 1, "Calc 001 textbook",
+                "Chapters: 1: Introduction to Calculus, 2: Derivatives, 3: Applications of the Derivative, 4: The Chain ... ",
+                2, 20190729, 1, 10.7f, true, "", "");
+        esInsert(database, bigClient, 1, "Coffee Maker",
+                "Brews three different cup sizes (6, 8 and 10 ounce). Removable 48-ounce water reservoir offers easy filling and cleaning.",
+                3, 20190329, 1, 40, true, "", "");
+        esInsert(database, bigClient, 1, "Lenovo Laptop",
+                "Lenovo ThinkPad X1 Carbon (6th Gen) Though it's buillt for business, the ThinkPad X1 Carbon (6th Gen) is a great choice for anyone who needs to be productive on the go",
+                3, 20180927, 2, 0, true, "", "");
+        esInsert(database, bigClient, 1, "Logitech Gaming Mouse", "Logitech 910-005527 MX Master RTL Wireless Mouse", 3,
+                20190127, 2, 0, true, "", "");
+        esInsert(database, bigClient, 1, "Casio watch", "Casio F91w-1 Classic Resin Strap Digital Sport Watch - Black",
+                3, 20180803, 2, 0, true, "", "");
+        esInsert(database, bigClient, 1, "Macbook Pro", "Apple MacBook Pro with Retina display 13.3", 3, 20190101, 2, 0,
+                true, "", "");
+        esInsert(database, bigClient, 1, "Ipad Mini", "Apple iPad mini 5 - 64 GB - Space Gray - Wi-Fi", 3, 20190223, 2,
+                0, true, "", "");
+        esInsert(database, bigClient, 1, "Nvidia 1060",
+                "EVGA GeForce GTX 1060 0 SC Gaming Graphics Card - 3 GB GDDR5 - 192-bit - 1607 MHz", 3, 20190207, 3, 10,
+                true, "", "");
+        esInsert(database, bigClient, 1, "Chair",
+                "Langley Street Altigarron Swivel Side Chair Upholstery: Black, Finish: Light Grey", 4, 20180303, 3, 5,
+                true, "", "");
+        esInsert(database, bigClient, 1, "Mini Fridge", "Sunbeam 1.7 cu ft Mini Refrigerator - Black REFSB17B", 4,
+                20190301, 3, 10.5f, true, "", "");
+        esInsert(database, bigClient, 1, "Keyboard",
+                "Cooler Master MasterKeys MK750 USB Mechanical Keyboard - Gunmetal Black", 3, 20190302, 3, 2, true, "",
                 "");
-        database.insertNewItem(2, "Coolermaster keyboard", "brand new", electronic, 20190318, trade, 0f, false,
-                "this should not be shown", "");
-        database.insertNewItem(2, "Desktop", "80% new", furniture, 20190112, giveaway, 0f, true, "2 months", "");
-        database.insertNewItem(3, "Rangerover Sport", "half new", car, 20190409, rent, 100f, false, "a month", "");
-        database.insertNewItem(3, "Microfridge", "brand new", furniture, 20190405, trade, 0f, true, "one year", "");
+        esInsert(database, bigClient, 1, "Foam Mattress", "Modern Sleep Cool Gel Memory Foam Mattress, White, Twin", 4,
+                20180221, 3, 4, true, "", "");
+        esInsert(database, bigClient, 1, "iphone6 silicon case",
+                "Verizon High Gloss Silicone Case for Apple iPhone 6/6S - Black", 3, 20181212, 4, 0, true, "", "");
+        esInsert(database, bigClient, 1, "iphone6", "near broken", 3, 20190101, 4, 0, true, "", "");
+        esInsert(database, bigClient, 1, "iphone6 charger",
+                "Apple Lightning USB Cable for iPhone 8 / 8 Plus/ 7/ 7 Plus/ 6S/ 6S Plus/ 6/ 6 Plus/ iPad/ iPod (Bulk Packaging)",
+                3, 20190123, 4, 0, true, "", "");
+        esInsert(database, bigClient, 1, "Econ Textbook",
+                "US Edition textbook. Sporadic writing/highlights on some pages in the book. Binding of the book is perfect",
+                2, 20180808, 4, 0, true, "", "");
+        esInsert(database, bigClient, 1, "Sofa",
+                "Sit back and relax with a versatile furniture piece designed for optimal comfort", 4, 20190425, 4, 0,
+                true, "", "");
+        esInsert(database, bigClient, 3, "Algorithm textbook",
+                "Expanding on the first edition, the book now serves as the primary textbook of choice for algorithm design courses while maintaining its status as the premier practical reference guide to algorithms for programmers, researchers, and students.",
+                2, 20190411, 1, 15, true, "", "");
+        esInsert(database, bigClient, 3, "Drum class music sheet", "Rock Songs for Kids: Drum Play-Along [Book]", 2,
+                20180808, 1, 30, true, "", "");
+        esInsert(database, bigClient, 3, "Honda Civic 2017",
+                "Advanced Brembo Brakes. 20-in Performance Wheels. Intelligent Aerodynamics. 2 Liter 306 HP Engine.", 1,
+                20190426, 1, 30000, true, "", "");
+        esInsert(database, bigClient, 3, "Water heater",
+                "EcoSmart ECO Tankless Water Heater - Electric - 11 kW, installation fee is $99, subject to change based how beautiful you are",
+                4, 20190302, 1, 100, true, "", "");
+        esInsert(database, bigClient, 3, "Laptop cooler",
+                "Dual fan double performance, Easy control on the side, Ergonomic humanity, Hexagon shape mesh for maximize airflow, Dual USB port",
+                3, 20180420, 1, 34, true, "", "");
+        esInsert(database, bigClient, 3, "R2D2", "Star Wars Smart App Enabled R2-D2 Remote Control Robot RC", 3,
+                20190212, 2, 0, true, "", "");
+        esInsert(database, bigClient, 3, "Chrome book",
+                "Intel Celeron N3060 Dual-core, HD Display, Intel HD Graphics 400, Chrome OS, 11 hr 30 min battery life",
+                3, 20190101, 2, 0, true, "", "");
+        esInsert(database, bigClient, 3, "Mercedes Benz AMG G63",
+                "Flashy exhaust system aside, the G63 has received a complete aftermarket package and an extra set of LED lights on the roof",
+                1, 20190420, 2, 0, true, "", "");
+        esInsert(database, bigClient, 3, "Asus gaming laptop",
+                "Full HD 8th-Gen Intel Core i5-8300H up to 3.9GHz GeForce GTX 1050 2GB 8GB DDR4", 3, 20190320, 2, 0,
+                true, "", "");
+        esInsert(database, bigClient, 3, "Power bank",
+                "Standard USB-A output for smartphones, tablets, headphones, cameras and tons of other devices", 3,
+                20180321, 2, 0, true, "", "");
+        esInsert(database, bigClient, 3, "Bus002 textbook", "Business Management for the IB Diploma Coursebook [Book]",
+                2, 20190201, 3, 3, true, "", "");
+        esInsert(database, bigClient, 3, "Pan", "Farbeware Reliance Aluminum Nonstick 3-Piece Fry Pan Set, Red", 4,
+                20190302, 3, 1, true, "", "");
+        esInsert(database, bigClient, 3, "iRobot create",
+                "Dirt Detect Sensor, Cleans carpets and hard floors, iRobot HOME App lets you clean and schedule conveniently, Works with Amazon Alexa and the Google Assistant",
+                3, 20190212, 3, 10, true, "", "");
+        esInsert(database, bigClient, 3, "Space Shuttle",
+                "The Space Shuttle was a partially reusable low Earth orbital spacecraft system operated by the U.S. National Aeronautics and Space Administration (NASA) as part of the Space Shuttle program.",
+                1, 20190426, 3, 1000000, true, "", "");
+        esInsert(database, bigClient, 3, "Study board",
+                "WallPops! Sandy Wall Calendar Wall Mounted Dry Erase Board, Gold", 4, 20190107, 3, 5, true, "", "");
+        esInsert(database, bigClient, 3, "notebook",
+                "Mead Products 1-Subject Wide Rule Spiral Bound Notebook, Assorted Colors", 2, 20190203, 4, 0, true, "",
+                "");
+        esInsert(database, bigClient, 3, "Dxracer chair",
+                "DXRacer GC-R90-INW-Z1 Seat Racing R90 Playstation - Black/Violet", 4, 20190304, 4, 0, true, "", "");
+        esInsert(database, bigClient, 3, "Nintendo Switch", "Nintendo Switch with Joy-Con - 32 GB - Neon Blue/Neon Red",
+                3, 20181231, 4, 0, true, "", "");
+        esInsert(database, bigClient, 3, "Pen Used",
+                "Pilot G2 Retractable Gel Rolling Ball Pens, Extra Fine Point, Black Ink - 5 pack", 2, 20190101, 4, 0,
+                true, "", "");
+        esInsert(database, bigClient, 3, "Ikea bookshelf",
+                "(High Gloss White) - Ikea Kallax Bookcase Shelving Unit Display High Gloss white Shelf", 4, 20190222,
+                4, 0, true, "", "");
 
+        esInsert(database, bigClient, 2, "iPhone XR",
+                "Apple iPhone XR (64GB) - (PRODUCT)RED [works exclusively with Simple Mobile]", 3, 20181124, 1, 648.88f,
+                true, "", "");
+        esInsert(database, bigClient, 2, "Linear Algebra Book", "Introduction to Linear Algebra, Fifth Edition", 2,
+                20181125, 4, 0, true, "", "");
+        esInsert(database, bigClient, 2, "Pencil", "unused pencils, free to give away", 2, 20180518, 4, 0, true, "",
+                "");
+        esInsert(database, bigClient, 2, "Machine Learning Book",
+                "Machine Learning For Absolute Beginners: A Plain English Introduction (Machine Learning For Beginners)",
+                2, 20170510, 3, 20, true, "", "");
+        esInsert(database, bigClient, 2, "Math205 Book",
+                "Introduction to Applied Linear Algebra: Vectors, Matrices, and Least Squares", 2, 20190323, 1, 50,
+                true, "", "");
+        esInsert(database, bigClient, 2, "Finance Book", "Bad Blood: Secrets and Lies in a Silicon Valley Startup", 2,
+                20190224, 1, 100, true, "", "");
+        esInsert(database, bigClient, 2, "Fin001 Book",
+                "The Intelligent Investor: The Definitive Book on Value Investing. A Book of Practical Counsel (Revised Edition) (Collins Business Essentials) ",
+                2, 20190323, 4, 0, true, "", "");
+        esInsert(database, bigClient, 2, "Finance & Accounting for Nonfinancial Managers",
+                "Fanatical Prospecting: The Ultimate Guide to Opening Sales Conversations and Filling the Pipeline by Leveraging Social Selling, Telephone, Email, Text, and Cold Calling",
+                2, 20190323, 4, 0, true, "", "");
+        esInsert(database, bigClient, 2, "Real Estate Book",
+                "The Book on Rental Property Investing: How to Create Wealth and Passive Income Through Smart Buy & Hold Real Estate Investing",
+                2, 20190403, 1, 98.88f, true, "", "");
+        esInsert(database, bigClient, 2, "Bus005 textbook",
+                "The Millionaire Real Estate Agent: It's Not About the Money...It's About Being the Best You Can Be!",
+                2, 20190403, 1, 88.88f, true, "", "");
+        esInsert(database, bigClient, 2, "Bus010 textbook",
+                "The Book on Rental Property Investing: How to Create Wealth and Passive Income Through Smart Buy & Hold Real Estate Investing",
+                2, 20190403, 1, 98.88f, true, "", "");
+        esInsert(database, bigClient, 2, "Bus100 textbook",
+                "The Book on Managing Rental Properties: A Proven System for Finding, Screening, and Managing Tenants with Fewer Headaches and Maximum Profits",
+                2, 20190403, 4, 0, true, "", "");
+        esInsert(database, bigClient, 2, "Eraser", "Used for three years", 2, 20180103, 4, 0, true, "", "");
+        esInsert(database, bigClient, 2, "Pencil case", "used pencil case but rather new", 2, 20180603, 1, 6.99f, true,
+                "", "");
+        esInsert(database, bigClient, 2, "Pencil case again", "new new new, new pencil case", 2, 20180326, 1, 10.77f,
+                true, "", "");
+        esInsert(database, bigClient, 2, "Pen", "pen with no ink", 2, 20171103, 3, 1, true, "", "");
+        esInsert(database, bigClient, 2, "Pen", "pen with ink", 2, 2016513, 1, 30, true, "", "");
+        esInsert(database, bigClient, 2, "C3PO", "feel free to dissemble it", 3, 20170707, 3, 300, true, "", "");
+        esInsert(database, bigClient, 2, "C3P0 version 2.0", "please don't dissemble it", 3, 20181203, 3, 200, true, "",
+                "");
+        esInsert(database, bigClient, 2, "R2D2",
+                "C3PO's friend, if you want to rent them together, you can get discount", 3, 20171203, 3, 199, true, "",
+                "");
+        try {
+            bigClient.close();
+        } catch (IOException e) {
+            System.out.println("error when trying to close Elasticsearch");
+            e.printStackTrace();
+        }
         if (static_location_override == null) {
             Spark.staticFileLocation("/web");
         } else {
@@ -130,6 +287,11 @@ public class App {
 
         Spark.get("/", (request, response) -> {
             response.redirect("index.html");
+            return "";
+        });
+
+        Spark.get("/login", (request, response) -> {
+            response.redirect("itemList.html");
             return "";
         });
 
@@ -169,6 +331,9 @@ public class App {
             response.status(200);
             response.type("application/json");
             ArrayList<ItemData> selectAll = database.selectAllItems();
+
+            response.redirect("itemList.html");
+
             if (selectAll == null)
                 return gson.toJson(new StructuredResponse("error", "Get all item returns null", null));
             return gson.toJson(new StructuredResponse("ok", null, selectAll));
@@ -242,8 +407,54 @@ public class App {
                     return gson.toJson(new StructuredResponse("ok", null, select));
                 }
                 if (param.equals("search")) {
-                    String keyword = request.queryParams("search");
 
+                    String keyword = request.queryParams("search").toLowerCase();
+                    ArrayList<ItemData> result = new ArrayList<>();
+
+                    RestHighLevelClient client = buildElasticsearchClient();
+                    SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+                    QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("title", keyword)
+                            .fuzziness(Fuzziness.AUTO).prefixLength(3).maxExpansions(50);
+                    sourceBuilder.query(matchQueryBuilder);
+
+                    // sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+                    SearchRequest searchRequest = new SearchRequest();
+                    searchRequest.indices("item");
+                    searchRequest.source(sourceBuilder);
+                    try {
+                        SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
+                        SearchHits hits = searchResponse.getHits();
+                        System.out.println("Entered search in title");
+                        int totalShards = searchResponse.getTotalShards();
+                        System.out.println("Total Shards: " + totalShards);
+                        SearchHit[] searchHits = hits.getHits();
+                        TotalHits totalHits = hits.getTotalHits();
+                        // the total number of hits, must be interpreted in the context of
+                        // totalHits.relation
+                        long numHits = totalHits.value;
+                        // whether the number of hits is accurate (EQUAL_TO) or a lower bound of the
+                        // total (GREATER_THAN_OR_EQUAL_TO)
+                        TotalHits.Relation relation = totalHits.relation;
+                        System.out.println("Searching: " + keyword + " from title, total hits: " + numHits);
+                        for (SearchHit hit : searchHits) {
+                            System.out.println("entered title search hits");
+                            String sourceAsString = hit.getSourceAsString();
+                            Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+                            String documentTitle = (String) sourceAsMap.get("title");
+                            int pKey = (int) sourceAsMap.get("key");
+
+                            result.add(database.selectOneItem(pKey));
+                            // List<Object> users = (List<Object>) sourceAsMap.get("user");
+                            // Map<String, Object> innerObject = (Map<String, Object>)
+                            // sourceAsMap.get("innerObject");
+                            System.out.println("\ndocument: " + sourceAsString + "\ntitle: " + documentTitle);
+                        }
+                        client.close();
+                        return gson.toJson(new StructuredResponse("ok", null, result));
+                    } catch (IOException e) {
+                        System.out.println("fucking error from getResponse: " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 }
             }
             // ffff;
@@ -301,8 +512,9 @@ public class App {
         Spark.post("/item/new", (request, response) -> {
             response.status(200);
             response.type("application/json");
+
             ItemData req = gson.fromJson(request.body(), ItemData.class);
-            int id = req.itemId;
+            int id = req.itemSeller;
             String title = req.itemTitle;
             String description = req.itemDescription;
             int category = req.itemCategory;
@@ -319,14 +531,36 @@ public class App {
                 String errorMessage = "fail to insert new item";
                 return gson.toJson(new StructuredResponse("error", errorMessage, null));
             }
+            RestHighLevelClient client = buildElasticsearchClient();
+
+            Map<String, Object> jsonMap = new HashMap<>();
+            jsonMap.put("key", res);
+            jsonMap.put("user", id);
+            jsonMap.put("title", title.toLowerCase());
+            jsonMap.put("description", description.toLowerCase());
+            jsonMap.put("category", convertIntToCategory(category));
+            jsonMap.put("postDate", date);
+            jsonMap.put("price", price);
+            IndexRequest indexRequest = new IndexRequest("item").id(Integer.toString(res)).source(jsonMap);
+            try {
+                IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+                String rid = indexResponse.getId();
+                if (Integer.parseInt(rid) != res)
+                    return gson.toJson(
+                            new StructuredResponse("error", "Error from Inserting new item to Elasticsearch", null));
+                client.close();
+            } catch (IOException e) {
+                System.out.println("Error from Inserting new item to Elasticsearch: " + e.getMessage());
+                e.printStackTrace();
+            }
             return gson.toJson(new StructuredResponse("ok", null, res));
         });
 
-        try {
-            client.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // try {
+        // client.close();
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
     }
 
     /**
@@ -447,6 +681,21 @@ public class App {
             return -1;
     }
 
+    private static String convertIntToCategory(int cat) {
+        switch (cat) {
+        case 1:
+            return "car";
+        case 2:
+            return "school";
+        case 3:
+            return "electronics";
+        case 4:
+            return "furniture";
+        default:
+            return "";
+        }
+    }
+
     /**
      * Very inefficient insertion sort helper method. However, since we will only
      * deal with small dataset in this stage we will be fine. Future sorting will be
@@ -501,6 +750,27 @@ public class App {
         return list;
     }
 
+    // Function to remove duplicates from an ArrayList
+    public static <T> ArrayList<T> removeDuplicates(ArrayList<T> list) {
+
+        // Create a new ArrayList
+        ArrayList<T> newList = new ArrayList<T>();
+
+        // Traverse through the first list
+        for (T element : list) {
+
+            // If this element is not present in newList
+            // then add it
+            if (!newList.contains(element)) {
+
+                newList.add(element);
+            }
+        }
+
+        // return the new list
+        return newList;
+    }
+
     private static RestHighLevelClient buildElasticsearchClient() {
         final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
@@ -514,5 +784,42 @@ public class App {
                 });
 
         return new RestHighLevelClient(builder);
+    }
+
+    private static void esInsert(Database db, RestHighLevelClient client, int userId, String title, String description,
+            int categories, int postDate, int tradeMethod, float price, boolean availability, String availableTime,
+            String wantedItemDescription) {
+        int idx = db.insertNewItem(userId, title, description, categories, postDate, tradeMethod, price, availability,
+                availableTime, wantedItemDescription);
+        Map<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("key", idx);
+        jsonMap.put("user", convertIntToUser(userId));
+        jsonMap.put("title", title.toLowerCase());
+        jsonMap.put("description", description.toLowerCase());
+        jsonMap.put("category", convertIntToCategory(categories));
+        jsonMap.put("postDate", postDate);
+        jsonMap.put("price", price);
+        IndexRequest indexRequest = new IndexRequest("item").id(Integer.toString(idx)).source(jsonMap);
+        try {
+            IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            System.out.println("Error from Inserting new item to Elasticsearch: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static String convertIntToUser(int id) {
+        switch (id) {
+        case 1:
+            return "Sheldon";
+        case 2:
+            return "Xiaowei";
+        case 3:
+            return "Lixuan";
+        case 4:
+            return "Allen";
+        default:
+            return "";
+        }
     }
 }
