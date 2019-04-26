@@ -16,7 +16,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.index.query.QueryBuilder;
 
+import java.util.HashMap;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -382,7 +385,7 @@ public class AppTest extends TestCase {
         Map<String, Object> jsonMap = new HashMap<>();
         jsonMap.put("key", 3);
         jsonMap.put("user", "Sheldon");
-        jsonMap.put("title", "Ferrari");
+        jsonMap.put("title", "Range Rover");
         jsonMap.put("description",
                 "The Ferrari 488 Spider is the latest chapter in Maranello’s ongoing history of open-top V8 sports cars, a story that started with the targa-top version of the 308 GTB, which ultimately resulted in the full convertible Spider architecture.");
         jsonMap.put("category", "car");
@@ -420,22 +423,71 @@ public class AppTest extends TestCase {
             e.printStackTrace();
         }
 
+        // SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        // sourceBuilder.query(QueryBuilders.termQuery("category", "car"));
+        // // sourceBuilder.query(QueryBuilders.matchAllQuery());
+        // sourceBuilder.from(0);
+        // sourceBuilder.size(5);
+        // // sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+        // SearchRequest searchRequest = new SearchRequest();
+        // searchRequest.indices("item");
+        // searchRequest.source(sourceBuilder);
+        // try {
+        // SearchResponse searchResponse = client.search(searchRequest,
+        // RequestOptions.DEFAULT);
+        // SearchHits hits = searchResponse.getHits();
+        // System.out.println("entered search");
+        // int totalShards = searchResponse.getTotalShards();
+        // System.out.println("Total Shards: " + totalShards);
+
+        // SearchHit[] searchHits = hits.getHits();
+        // TotalHits totalHits = hits.getTotalHits();
+        // // the total number of hits, must be interpreted in the context of
+        // // totalHits.relation
+        // long numHits = totalHits.value;
+        // // whether the number of hits is accurate (EQUAL_TO) or a lower bound of the
+        // // total (GREATER_THAN_OR_EQUAL_TO)
+        // TotalHits.Relation relation = totalHits.relation;
+        // System.out.println("total hits: " + totalHits);
+        // for (SearchHit hit : searchHits) {
+        // System.out.println("entered hits");
+
+        // String sourceAsString = hit.getSourceAsString();
+        // Map<String, Object> sourceAsMap = hit.getSourceAsMap();
+        // String documentTitle = (String) sourceAsMap.get("title");
+        // // List<Object> users = (List<Object>) sourceAsMap.get("user");
+        // // Map<String, Object> innerObject = (Map<String, Object>)
+        // // sourceAsMap.get("innerObject");
+        // System.out.println("\ndocument: " + sourceAsString + "\ntitle: " +
+        // documentTitle);
+
+        // assertEquals(sourceAsMap.get("title"), "Ferrari 488");
+
+        // assert (false);
+        // }
+
+        // } catch (IOException e) {
+        // System.out.println("fucking error from getResponse: " + e.getMessage());
+        // e.printStackTrace();
+        // }
+
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.termQuery("category", "car"));
-        // sourceBuilder.query(QueryBuilders.matchAllQuery());
-        sourceBuilder.from(0);
-        sourceBuilder.size(5);
+        QueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("title", "Range Rove ").fuzziness(Fuzziness.AUTO)
+                .prefixLength(3).maxExpansions(50);
+        sourceBuilder.query(matchQueryBuilder);
+
         // sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("item");
         searchRequest.source(sourceBuilder);
+        ArrayList<ItemData> result = new ArrayList<>();
+
         try {
             SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHits hits = searchResponse.getHits();
-            System.out.println("entered search");
+            System.out.println("Entered search in title");
             int totalShards = searchResponse.getTotalShards();
             System.out.println("Total Shards: " + totalShards);
-
             SearchHit[] searchHits = hits.getHits();
             TotalHits totalHits = hits.getTotalHits();
             // the total number of hits, must be interpreted in the context of
@@ -444,28 +496,28 @@ public class AppTest extends TestCase {
             // whether the number of hits is accurate (EQUAL_TO) or a lower bound of the
             // total (GREATER_THAN_OR_EQUAL_TO)
             TotalHits.Relation relation = totalHits.relation;
-            System.out.println("total hits: " + totalHits);
+            System.out.println("Searching: Ferrari from title, total hits: " + numHits);
             for (SearchHit hit : searchHits) {
-                System.out.println("entered hits");
-
+                System.out.println("entered title search hits");
                 String sourceAsString = hit.getSourceAsString();
                 Map<String, Object> sourceAsMap = hit.getSourceAsMap();
                 String documentTitle = (String) sourceAsMap.get("title");
+                int pKey = (int) sourceAsMap.get("key");
+
+                result.add(db.selectOneItem(pKey));
                 // List<Object> users = (List<Object>) sourceAsMap.get("user");
                 // Map<String, Object> innerObject = (Map<String, Object>)
                 // sourceAsMap.get("innerObject");
                 System.out.println("\ndocument: " + sourceAsString + "\ntitle: " + documentTitle);
-
-                assertEquals(sourceAsMap.get("title"), "Ferrari 488");
-
-                assert (false);
             }
-
+            client.close();
+            for (ItemData item : result) {
+                System.out.println("Search result title: " + item.itemTitle);
+            }
         } catch (IOException e) {
             System.out.println("fucking error from getResponse: " + e.getMessage());
             e.printStackTrace();
         }
-
         try {
             client.close();
             assert (false);
@@ -639,6 +691,21 @@ public class AppTest extends TestCase {
             return 4;
         else
             return -1;
+    }
+
+    private static RestHighLevelClient buildElasticsearchClient() {
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+
+        RestClientBuilder builder = RestClient.builder(new HttpHost(esEndPointUrl, port, protocol))
+                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                    @Override
+                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                    }
+                });
+
+        return new RestHighLevelClient(builder);
     }
 
     public class StructuredResponse {
