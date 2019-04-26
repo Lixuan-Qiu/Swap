@@ -16,6 +16,9 @@ import com.google.gson.Gson;
 //import java.util.Collections;
 // Import Elasticsearch java client
 import org.apache.http.HttpHost;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.index.*;
 import org.elasticsearch.client.*;
@@ -48,6 +51,11 @@ public class App {
     private static final int school = 2;
     private static final int electronic = 3;
     private static final int furniture = 4;
+    private static final String esEndPointUrl = "44ab9c1bc5cd465d8279ad2f1dc03e8a.us-east-1.aws.found.io";
+    private static final String protocol = "https";
+    private static final int port = 9243;
+    private static final String username = "elastic";
+    private static final String password = "cnHyGTUqnZMYpu7saERBAbsV";
 
     public static void main(String[] args) {
         // we need to call it before we do anything else with Spark.
@@ -67,76 +75,28 @@ public class App {
         // final String herokuUrl = "https://swap-lehigh.herokuapp.com/";
         // database holds all of the data that has been provided via HTTP
         // requests
-        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials("elastic", "cnHyGTUqnZMYpu7saERBAbsV"));
 
-        RestClientBuilder builder = RestClient
-                .builder(new HttpHost("44ab9c1bc5cd465d8279ad2f1dc03e8a.us-east-1.aws.found.io", 9243, "http"))
-                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                    @Override
-                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-                    }
-                });
-
-        RestHighLevelClient client = new RestHighLevelClient(builder);
-
-        // Map<String, Object> jsonMap = new HashMap<>();
-        // jsonMap.put("user", "Sheldon");
-        // jsonMap.put("postDate", 20190416);
-        // jsonMap.put("title", "Ferrari 488");
-        // jsonMap.put("price", 200000.0);
-        // IndexRequest indexRequest = new IndexRequest("posts", "doc",
-        // "1").source(jsonMap);
-        GetRequest getRequest = new GetRequest("item", "1");
-        // ActionListener listener = new ActionListener<IndexResponse>() {
-        // @Override
-        // public void onResponse(IndexResponse indexResponse) {
-        // System.out.println("Post Sheldon's Ferrari 488 successfully");
-        // }
-
-        // @Override
-        // public void onFailure(Exception e) {
-        // if (e instanceof IOException) {
-        // System.out.print(
-        // "Either failing to parse the REST response in the high-level REST client, the
-        // request times out or similar cases where there is no response coming back
-        // from the server");
-        // }
-        // }
-        // };
-        try {
-            GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
-            // String index = getResponse.getIndex();
-            // String id = getResponse.getId();
-            // if (getResponse.isExists()) {
-            // long version = getResponse.getVersion();
-            // String sourceAsString = getResponse.getSourceAsString();
-            // Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
-            // byte[] sourceAsBytes = getResponse.getSourceAsBytes();
-            // System.out.println("version: " + version + "\ndocument: " + sourceAsString);
-            // } else {
-
-            // }
-        } catch (IOException e) {
-            System.out.println("fucking error from getResponse: " + e.getMessage());
-            e.printStackTrace();
-        }
+        // RestHighLevelClient client = buildElasticsearchClient();
+        // GetRequest getRequest = new GetRequest("item", "1");
         // try {
-        // Response response = client.getLowLevelClient().performRequest("GET",
-        // "/blog/_search");
-        // } catch (IOException e) {
-        // System.out.println("fucking error from low level client:" + e.getMessage());
+        // GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
+        // String index = getResponse.getIndex();
+        // String id = getResponse.getId();
+        // if (getResponse.isExists()) {
+        // long version = getResponse.getVersion();
+        // String sourceAsString = getResponse.getSourceAsString();
+        // Map<String, Object> sourceAsMap = getResponse.getSourceAsMap();
+        // byte[] sourceAsBytes = getResponse.getSourceAsBytes();
+        // System.out.println("version: " + version + "\ndocument: " + sourceAsString +
+        // "\nindex: " + index);
+        // } else {
+
         // }
-        // Collections.<String, String>emptyMap());
-        // client.indexAsync(indexRequest, RequestOptions.DEFAULT, listener);
-        // client.getAsync(getRequest, RequestOptions.DEFAULT, listener);
-        try {
-            client.close();
-        } catch (IOException e) {
-            System.out.println("error from closing the client: " + e.getMessage());
-        }
+        // } catch (IOException e) {
+        // System.out.println("fucking error from getResponse: " + e.getMessage());
+        // e.printStackTrace();
+        // }
+
         final Database database = Database.getDatabase(db_url);
         if (database == null)
             System.out.println("database object is null");
@@ -162,23 +122,6 @@ public class App {
         database.insertNewItem(3, "Rangerover Sport", "half new", car, 20190409, rent, 100f, false, "a month", "");
         database.insertNewItem(3, "Microfridge", "brand new", furniture, 20190405, trade, 0f, true, "one year", "");
 
-        // ArrayList<ItemData> selectAll = new ArrayList<ItemData>();
-        // selectAll.add(new ItemData(1, "logitech mouse", "brand new", "Sheldon",
-        // 10.0f, categories));
-        // selectAll.add(new ItemData(2, "Ferrari 488", "brand new", "Sheldon",
-        // 200000.0f, categories));
-        // selectAll.add(new ItemData(3, "GTX 1060", "near broken", "Xiaowei", 15.0f,
-        // categories));
-        // selectAll.add(new ItemData(4, "Econ001 textbook", "half new", "Xiaowei",
-        // 30.0f, categories));
-        // selectAll.add(new ItemData(5, "Coolermaster keyboard", "brand new", "Lixuan
-        // Qiu", 35.0f, categories));
-        // selectAll.add(new ItemData(6, "Desktop", "80% new", "Lixuan Qiu", 25.0f,
-        // categories));
-        // selectAll.add(new ItemData(7, "Range Rover Sport", "half new", "Allen",
-        // 45000.0f, categories));
-        // selectAll.add(new ItemData(8, "Microfridge", "brand new", "Allen", 30.0f,
-        // categories));
         if (static_location_override == null) {
             Spark.staticFileLocation("/web");
         } else {
@@ -230,6 +173,7 @@ public class App {
                 return gson.toJson(new StructuredResponse("error", "Get all item returns null", null));
             return gson.toJson(new StructuredResponse("ok", null, selectAll));
         });
+
         // PUT route that modifies infomation of an item that is already in database
         Spark.put("/item", (request, response) -> {
             // ensure status 200 OK, with a MIME type of JSON
@@ -252,7 +196,6 @@ public class App {
             Set<String> queryParams = request.queryParams();
             // indicate the category to query, if no category in url, flag is -1
             ArrayList<Integer> categories = new ArrayList<Integer>(); // Create an ArrayList object
-            // categories.add(-1);
             // indicate the price order to query, asc is 1, dsc is 2, no price order is -1
             boolean catFlag = false;
             int priceFlag = -1;
@@ -295,7 +238,12 @@ public class App {
                         String errorMessage = "GET by ID: The specified id" + idx + "does not exist in the database";
                         return gson.toJson(new StructuredResponse("error", errorMessage, null));
                     }
+                    response.redirect("item.html");
                     return gson.toJson(new StructuredResponse("ok", null, select));
+                }
+                if (param.equals("search")) {
+                    String keyword = request.queryParams("search");
+
                 }
             }
             // ffff;
@@ -338,10 +286,12 @@ public class App {
                 if (result == null)
                     return gson.toJson(new StructuredResponse("error", "GET /item sort by price returns null", null));
                 return gson.toJson(new StructuredResponse("ok", null, result));
-            } else
+            } else {
+                response.status(404);
                 return gson.toJson(new StructuredResponse("error",
                         "GET /item: The url has to contain id, category, or price. No such parameters were found",
                         null));
+            }
         });
 
         // POST route that allows for web to post a new item and insert it to the table
@@ -371,6 +321,12 @@ public class App {
             }
             return gson.toJson(new StructuredResponse("ok", null, res));
         });
+
+        try {
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -543,5 +499,20 @@ public class App {
             list.set(j + 1, key);
         }
         return list;
+    }
+
+    private static RestHighLevelClient buildElasticsearchClient() {
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
+
+        RestClientBuilder builder = RestClient.builder(new HttpHost(esEndPointUrl, port, protocol))
+                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                    @Override
+                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
+                        return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+                    }
+                });
+
+        return new RestHighLevelClient(builder);
     }
 }
