@@ -57,7 +57,25 @@ public class ItemDataTable {
                 rs.getString("city"), rs.getString("state"), rs.getInt("zipcode")));
             }
             rs.close();
+        
+        ArrayList<ItemData> limitedItems = new ArrayList<ItemData>();
+
+        if(itemPerPage > res.size())
+        {
+            itemPerPage = res.size();
+
             return res;
+        }
+        else
+        {
+    
+            for(int i = (itemPerPage * pageNum) - itemPerPage; i < itemPerPage * pageNum; i++)
+            {
+                limitedItems.add(res.get(i));   
+            }
+        }
+        return limitedItems;
+
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
@@ -116,6 +134,7 @@ public class ItemDataTable {
             return null;
         }
     }
+
 
     /**  
     * Query the database for a list of all items from some categories
@@ -269,6 +288,7 @@ public class ItemDataTable {
     {
         ArrayList<ItemData> res = new ArrayList<ItemData>();
         try {
+            Database.p_selectAllItemDataByUserId.setInt(1, userId);
             ResultSet rs = Database.p_selectAllItemDataByUserId.executeQuery();
             while (rs.next()) {
                 res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
@@ -296,6 +316,7 @@ public class ItemDataTable {
     {
         ArrayList<ItemData> res = new ArrayList<ItemData>();
         try {
+            Database.p_selectAllItemDataByUserId.setInt(1, userId);
             ResultSet rs = Database.p_selectAllItemDataByUserId.executeQuery();
             while (rs.next()) {
                 res.add(new ItemData(rs.getInt("itemId"), rs.getInt("userId"), rs.getString("title"), rs.getString("description"), 
@@ -361,7 +382,7 @@ public class ItemDataTable {
 
             int affectedRows =  Database.p_insertNewItemData.executeUpdate();
             if (affectedRows == 0) {
-                throw new SQLException("Creating user failed, no rows affected.");
+                throw new SQLException("Creating item failed, no rows affected.");
             }
             try (ResultSet generatedKeys = Database.p_insertNewItemData.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
@@ -373,7 +394,7 @@ public class ItemDataTable {
                     }
 
                 } else {
-                    throw new SQLException("Creating user failed, no ID obtained.");
+                    throw new SQLException("Creating item failed, no ID obtained.");
                 }
             }
 
@@ -384,19 +405,53 @@ public class ItemDataTable {
     }
 
     /** 
-    * Updates the item provided in the parameter
-    * @param itemToUpdate the item to update
+    * Updates the current item to the one provided in the parameter
+    * @param itemToUpdate the new updated item 
     */
     public int updateItemData(ItemData itemToUpdate)
     {
-        int count = 0;
         try {
-            count += Database.p_updateItemData.executeUpdate();
+            Database.p_updateItemData.setInt(1, itemToUpdate.itemSeller);
+            Database.p_updateItemData.setString(2, itemToUpdate.itemTitle);
+            Database.p_updateItemData.setString(3,itemToUpdate.itemDescription);
+            Database.p_updateItemData.setInt(4,itemToUpdate.itemCategory);     
+            Database.p_updateItemData.setInt(5,itemToUpdate.itemPostDate);
+            Database.p_updateItemData.setInt(6, itemToUpdate.itemTradeMethod);
+            Database.p_updateItemData.setFloat(7, itemToUpdate.itemPrice);
+            Database.p_updateItemData.setBoolean(8, itemToUpdate.itemAvailability);
+            Database.p_updateItemData.setString(9,itemToUpdate.itemAvailableTime);
+            Database.p_updateItemData.setString(10,itemToUpdate.itemWantedItemDescription );
+            Database.p_updateItemData.setFloat(11,itemToUpdate.itemLongitude);
+            Database.p_updateItemData.setFloat(12,itemToUpdate.itemLatitude);
+            Database.p_updateItemData.setString(13,itemToUpdate.itemAddress);
+            Database.p_updateItemData.setString(14,itemToUpdate.itemCity);
+            Database.p_updateItemData.setString(15,itemToUpdate.itemState);
+            Database.p_updateItemData.setInt(16,itemToUpdate.itemZipCode);
+            Database.p_updateItemData.setInt(17, itemToUpdate.itemId);
+
+
+            int affectedRows =  Database.p_updateItemData.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Updating item failed, no rows affected.");
+            }
+            try (ResultSet generatedKeys = Database.p_updateItemData.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    try {
+                        int id = toIntExact(generatedKeys.getLong(1));
+                        return id;
+                    } catch (ArithmeticException e) {
+                        throw new ArithmeticException("Overflow caused by casting long to int in insert new item");
+                    }
+
+                } else {
+                    throw new SQLException("Updating item failed, no ID obtained.");
+                }
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        return count;
+        return -1;
     }
 
     /**
